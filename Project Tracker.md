@@ -12,9 +12,9 @@ Track progress:
 ## Phase 1 │ Week 1 (15 – 21 May) – Project Kick‑off & Proposal
 | Status | Task | Owner |
 |--------|------|-------|
-| - [ ] | Form team of five | — |
-| - [ ] | Create GitHub repo | — |
-| - [ ] | Draft **3‑page proposal** (title, problem, roles, main requirements, names) | — |
+| - [✔] | Form team of five | — |
+| - [✔] | Create GitHub repo | — |
+| - [x] | Draft **3‑page proposal** (title, problem, roles, main requirements, names) | — |
 | - [ ] | Submit proposal on UR Courses **by 21 May** | — |
 
 ## Phase 2 │ Weeks 2‑3 (22 May – 4 Jun) – Requirements & High‑Level Design
