@@ -37,8 +37,9 @@ Track progress:
 |--------|------|-------|
 | - [ ] | Implement login / logout for both roles | — |
 | - [ ] | Code & test **Factory pattern** (`UserFactory`) | — |
-| - [ ] | Build project‑creation + task‑assignment screens (Project Manager) | — |
-| - [ ] | Build basic user‑management functions (Administrator) | — |
+| - [ ] | Build project‑general tab | — |
+| - [ ] | Build project‑creation | — |
+| - [ ] | Build basic user‑management functions | — |
 | - [ ] | Update Access schema; commit migration script | — |
 | - [ ] | Demo flow: *Admin creates PM → PM creates project* | — |
 | - [ ] | Add unit tests for new modules | — |
