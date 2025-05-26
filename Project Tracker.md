@@ -1,5 +1,7 @@
 # CS 476 Project Tracker
 
+Communication Channel: https://discord.gg/sydyDkvg
+
 Track progress:
 
  `- [ ]` - means not started.
