@@ -14,13 +14,13 @@ Track progress:
 |--------|------|-------|
 | - [✔] | Form team of five | — |
 | - [✔] | Create GitHub repo | — |
-| - [x] | Draft **3‑page proposal** (title, problem, roles, main requirements, names) | — |
-| - [ ] | Submit proposal on UR Courses **by 21 May** | — |
+| - [✔] | Draft **3‑page proposal** (title, problem, roles, main requirements, names) | — |
+| - [✔] | Submit proposal on UR Courses **by 21 May** | — |
 
 ## Phase 2 │ Weeks 2‑3 (22 May – 4 Jun) – Requirements & High‑Level Design
 | Status | Task | Owner |
 |--------|------|-------|
-| - [ ] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
+| - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
 | - [ ] | Create Use‑Case diagram – Project Manager | — |
 | - [ ] | Create Use‑Case diagram – Administrator | — |
 | - [ ] | Draw Activity diagrams for the two use cases | — |
