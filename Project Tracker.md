@@ -29,7 +29,7 @@ Track progress:
 | - [ ] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | — |
 | - [ ] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | — |
 | - [ ] | Choose GoF patterns (Factory, Observer) & sketch class diagrams | — |
-| - [ ] | Set up project skeleton (server, Access/SQL DB link, Home web page) | — |
+| - [x] | Set up project skeleton (server, Access/SQL DB link, Home web page) | Ishan |
 | - [ ] | Configure unit‑test framework & add a sample test | — |
 
 ## Phase 3 │ Weeks 4‑5 (5 – 18 Jun) – Core Development I
