@@ -23,7 +23,7 @@ Track progress:
 | Status | Task | Owner |
 |--------|------|-------|
 | - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
-| - [ ] | Create Use‑Case diagram – Project Manager | — |
+| - [x] | Create Use‑Case diagram – Project Manager | Sherik |
 | - [ ] | Create Use‑Case diagram – Administrator | — |
 | - [x] | Draw Activity diagrams for the two use cases | Hrudit |
 | - [x] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | Hrudit |
