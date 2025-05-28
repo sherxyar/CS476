@@ -24,11 +24,11 @@ Track progress:
 |--------|------|-------|
 | - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
 | - [x] | Create Use‑Case diagram – Project Manager | Sherik |
-| - [ ] | Create Use‑Case diagram – Administrator | — |
+| - [ ] | Create Use‑Case diagram – Administrator | Dongho |
 | - [x] | Draw Activity diagrams for the two use cases | Hrudit |
 | - [x] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | Hrudit |
 | - [x] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | Sherik |
-| - [ ] | Choose GoF patterns (Factory, Observer) & sketch class diagrams | — |
+| - [ ] | Choose GoF patterns (Factory, Observer) & sketch class diagrams | Dongho |
 | - [x] | Set up project skeleton (server, Access/SQL DB link, Home web page) | Ishan |
 | - [ ] | Configure unit‑test framework & add a sample test | — |
 
