@@ -44,6 +44,7 @@ Track progress:
 | - [ ] | Hash passwords (bcrypt) | — |
 | - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
 | **Projects base** |
+| - [ ] | Project General tab Set up | — |
 | - [ ] | `POST /projects` → create project, give **unique Project ID** (Req 7) | — |
 | - [ ] | Enforce mandatory fields: name, description, PM (Req 5) | — |
 | - [ ] | React **General tab** (CRUD) | — |
