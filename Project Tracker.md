@@ -87,7 +87,6 @@ Track progress:
 |--------|------|-------|
 | - [ ] | 10-slide deck (problem → design → demo) | — |
 | - [ ] | Record 3-min walkthrough video | — |
-| - [ ] | Dry-run with TA | — |
 | - [ ] | Live demo + Q&A | — |
 
 ## Continuous Good Practice (all phases)
