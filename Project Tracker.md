@@ -37,7 +37,10 @@ Track progress:
 | Status | Task | Owner |
 |--------|------|-------|
 | **Auth & Users** |
-| - [ ] | Users table with 3 roles (Req 1) | — |
+| - [ ] | Login Page Set Up | — |
+| - [ ] | Signup Page Set Up | — |
+| - [ ] | Home Page Set Up | — |
+| - [ ] | Users table with 3 roles in SQLite (Req 1) | — |
 | - [ ] | Hash passwords (bcrypt) | — |
 | - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
 | **Projects base** |
