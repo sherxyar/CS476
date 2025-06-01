@@ -24,41 +24,74 @@ Track progress:
 |--------|------|-------|
 | - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
 | - [x] | Create Use‑Case diagram – Project Manager | Sherik |
-| - [ ] | Create Use‑Case diagram – Administrator | — |
+| - [ ] | Create Use‑Case diagram – Administrator | Dongho |
 | - [x] | Draw Activity diagrams for the two use cases | Hrudit |
 | - [x] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | Hrudit |
 | - [x] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | Sherik |
-| - [ ] | Choose GoF patterns (Factory, Observer) & sketch class diagrams | — |
+| - [x] | Choose GoF patterns (Factory, Observer) & sketch class diagrams | Dongho |
 | - [x] | Set up project skeleton (server, Access/SQL DB link, Home web page) | Ishan |
-| - [ ] | Configure unit‑test framework & add a sample test | — |
+| - [x] | Configure unit‑test framework & add a sample test | Sheryar |
 
-## Phase 3 │ Weeks 4‑5 (5 – 18 Jun) – Core Development I
+## Phase 3 │ Weeks 4-5 (5 – 18 Jun) – Core Build I  
+*Identity, create-project flow, General tab, change tracking*  
 | Status | Task | Owner |
 |--------|------|-------|
-| - [ ] | Implement login / logout for both roles | — |
-| - [ ] | Code & test **Factory pattern** (`UserFactory`) | — |
-| - [ ] | Build project‑general tab | — |
-| - [ ] | Build project‑creation | — |
-| - [ ] | Build basic user‑management functions | — |
-| - [ ] | Update Access schema; commit migration script | — |
-| - [ ] | Demo flow: *Admin creates PM → PM creates project* | — |
-| - [ ] | Add unit tests for new modules | — |
-| - [ ] | Close related GitHub issues & update board | — |
+| **Auth & Users** |
+| - [ ] | Login Page Set Up | — |
+| - [ ] | Signup Page Set Up | — |
+| - [ ] | Home Page Set Up | — |
+| - [ ] | Users table with 3 roles in SQLite (Req 1) | — |
+| - [ ] | Hash passwords (bcrypt) | — |
+| - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
+| **Projects base** |
+| - [ ] | Project General tab Set up | — |
+| - [ ] | `POST /projects` → create project, give **unique Project ID** (Req 7) | — |
+| - [ ] | Enforce mandatory fields: name, description, PM (Req 5) | — |
+| - [ ] | React **General tab** (CRUD) | — |
+| - [ ] | Audit table; log every change (Req 3) | — |
+| **Quality gates** |
+| - [ ] | Unit tests for login & project-create | — |
 
-## Phase 4 │ Weeks 6‑7 (19 Jun – 2 Jul) – Core Development II & Integration
+---
+
+## Phase 4 │ Weeks 6-7 (19 Jun – 2 Jul) – Core Build II & Integration  
 | Status | Task | Owner |
 |--------|------|-------|
-| - [ ] | TODO | — |
+| **Financial tab** |
+| - [ ] | Budget & Change-Order fields (Req 9) | — |
+| **Schedule tab** |
+| - [ ] | Milestone list + simple bar view; rule: End ≥ Start (Req 15) | — |
+| **Delivery tab** |
+| - [ ] | Risks table + Lessons Learned notes | — |
+| **Change Log tab** |
+| - [ ] | Show audit history of budget, schedule, scope (Req 3) | — |
+| **Admin area** |
+| - [ ] | Screen to grant tab access; lock until PM approves (Req 14) | — |
+| **Validation & security** |
+| - [ ] | Rate-limit `/login`; friendly error messages | — |
 
-## Phase 5 │ Weeks 8‑9 (3 – 16 Jul) – Testing, Documentation & Submission
+---
+
+## Phase 5 │ Weeks 8-9 (3 – 16 Jul) – Testing & Release  
 | Status | Task | Owner |
 |--------|------|-------|
-| - [ ] | TODO | — |
+| - [ ] | **Manual 10-user concurrency test** (Req 2) | — |
+| - [ ] | “Export to PDF” button – whole project (Req 6) | — |
+| - [ ] | Simple nightly **SQLite backup / restore script** (Req 12) | — |
+| - [ ] | Cross-browser smoke test (Chrome, Firefox, Edge) (Req 10) | — |
+| - [ ] | User Guide with screenshots + short API README | — |
+| - [ ] | Basic Dockerfile for one-command launch | — |
+| - [ ] | Tag **v1.0** and push release | — |
+| - [ ] | Submit package to UR Courses | — |
 
-## Phase 6 │ Week 10 (≥ 17 Jul) – Presentation & Demo
+---
+
+## Phase 6 │ Week 10 (≥ 17 Jul) – Presentation & Demo
 | Status | Task | Owner |
 |--------|------|-------|
-| - [ ] | TODO | — ||
+| - [ ] | 10-slide deck (problem → design → demo) | — |
+| - [ ] | Record 3-min walkthrough video | — |
+| - [ ] | Live demo + Q&A | — |
 
 ## Continuous Good Practice (all phases)
 | Status | Task | Owner |
