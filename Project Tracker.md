@@ -37,7 +37,7 @@ Track progress:
 | Status | Task | Owner |
 |--------|------|-------|
 | **Auth & Users** |
-| - [ ] | Login Page Set Up | — |
+| - [x] | Login Page Set Up | Hrudit |
 | - [ ] | Signup Page Set Up | Sherik |
 | - [ ] | Home Page Set Up | Sherik |
 | - [ ] | Users table with 3 roles in SQLite (Req 1) | — |
