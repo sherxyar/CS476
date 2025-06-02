@@ -38,8 +38,8 @@ Track progress:
 |--------|------|-------|
 | **Auth & Users** |
 | - [ ] | Login Page Set Up | — |
-| - [ ] | Signup Page Set Up | — |
-| - [ ] | Home Page Set Up | — |
+| - [ ] | Signup Page Set Up | Sherik |
+| - [ ] | Home Page Set Up | Sherik |
 | - [ ] | Users table with 3 roles in SQLite (Req 1) | — |
 | - [ ] | Hash passwords (bcrypt) | — |
 | - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
