@@ -41,8 +41,8 @@ Track progress:
 | - [ ] | Signup Page Set Up | Sherik |
 | - [ ] | Home Page Set Up | Sherik |
 | - [ ] | Users table with 3 roles in SQLite (Req 1) | Sherik |
-| - [ ] | Hash passwords (bcrypt) | — |
-| - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
+| - [ ] | Hash passwords (bcrypt) | Ishan |
+| - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | Ishan |
 | **Projects base** |
 | - [ ] | Project General tab Set up | — |
 | - [ ] | `POST /projects` → create project, give **unique Project ID** (Req 7) | — |
