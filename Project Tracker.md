@@ -40,7 +40,7 @@ Track progress:
 | - [x] | Login Page Set Up | Hrudit |
 | - [ ] | Signup Page Set Up | Sherik |
 | - [ ] | Home Page Set Up | Sherik |
-| - [ ] | Users table with 3 roles in SQLite (Req 1) | — |
+| - [ ] | Users table with 3 roles in SQLite (Req 1) | Sherik |
 | - [ ] | Hash passwords (bcrypt) | — |
 | - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
 | **Projects base** |
