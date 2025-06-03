@@ -24,7 +24,7 @@ Track progress:
 |--------|------|-------|
 | - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
 | - [x] | Create Use‑Case diagram – Project Manager | Sherik |
-| - [ ] | Create Use‑Case diagram – Administrator | Dongho |
+| - [x] | Create Use‑Case diagram – Administrator | Dongho |
 | - [x] | Draw Activity diagrams for the two use cases | Hrudit |
 | - [x] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | Hrudit |
 | - [x] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | Sherik |
