@@ -24,7 +24,7 @@ Track progress:
 |--------|------|-------|
 | - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
 | - [x] | Create Use‑Case diagram – Project Manager | Sherik |
-| - [ ] | Create Use‑Case diagram – Administrator | Dongho |
+| - [x] | Create Use‑Case diagram – Administrator | Dongho |
 | - [x] | Draw Activity diagrams for the two use cases | Hrudit |
 | - [x] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | Hrudit |
 | - [x] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | Sherik |
@@ -37,20 +37,20 @@ Track progress:
 | Status | Task | Owner |
 |--------|------|-------|
 | **Auth & Users** |
-| - [ ] | Login Page Set Up | — |
+| - [x] | Login Page Set Up | Hrudit |
 | - [ ] | Signup Page Set Up | Sherik |
 | - [ ] | Home Page Set Up | Sherik |
-| - [ ] | Users table with 3 roles in SQLite (Req 1) | — |
-| - [ ] | Hash passwords (bcrypt) | — |
-| - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
+| - [ ] | Users table with 3 roles in SQLite (Req 1) | Sherik |
+| - [ ] | Hash passwords (bcrypt) | Ishan |
+| - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | Ishan |
 | **Projects base** |
-| - [ ] | Project General tab Set up | — |
-| - [ ] | `POST /projects` → create project, give **unique Project ID** (Req 7) | — |
-| - [ ] | Enforce mandatory fields: name, description, PM (Req 5) | — |
-| - [ ] | React **General tab** (CRUD) | — |
-| - [ ] | Audit table; log every change (Req 3) | — |
+| - [x] | Project General tab Set up | Sheryar |
+| - [x] | `POST /projects` → create project, give **unique Project ID** (Req 7) | Sheryar |
+| - [x] | Enforce mandatory fields: name, description, PM (Req 5) | Sheryar |
+| - [x] | React **General tab** (CRUD) | Sheryar |
+| - [x] | Audit table; log every change (Req 3) | Dongho |
 | **Quality gates** |
-| - [ ] | Unit tests for login & project-create | — |
+| - [x] | Unit tests for login & project-create | Dongho |
 
 ---
 
