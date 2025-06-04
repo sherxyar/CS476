@@ -4,7 +4,7 @@
 /node_modules
 /.pnp
 .pnp.*
-.yarn/*
+.yarn/* 
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma/SQLite
+dev.db
+dev.db-journal
+/prisma/migrations/
