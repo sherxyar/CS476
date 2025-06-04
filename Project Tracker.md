@@ -48,9 +48,9 @@ Track progress:
 | - [x] | `POST /projects` → create project, give **unique Project ID** (Req 7) | Sheryar |
 | - [x] | Enforce mandatory fields: name, description, PM (Req 5) | Sheryar |
 | - [x] | React **General tab** (CRUD) | Sheryar |
-| - [] | Audit table; log every change (Req 3) | Dongho |
+| - [x] | Audit table; log every change (Req 3) | Dongho |
 | **Quality gates** |
-| - [ ] | Unit tests for login & project-create | Dongho |
+| - [x] | Unit tests for login & project-create | Dongho |
 
 ---
 
