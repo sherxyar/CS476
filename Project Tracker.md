@@ -24,7 +24,7 @@ Track progress:
 |--------|------|-------|
 | - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
 | - [x] | Create Use‑Case diagram – Project Manager | Sherik |
-| - [ ] | Create Use‑Case diagram – Administrator | Dongho |
+| - [x] | Create Use‑Case diagram – Administrator | Dongho |
 | - [x] | Draw Activity diagrams for the two use cases | Hrudit |
 | - [x] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | Hrudit |
 | - [x] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | Sherik |
@@ -37,12 +37,12 @@ Track progress:
 | Status | Task | Owner |
 |--------|------|-------|
 | **Auth & Users** |
-| - [ ] | Login Page Set Up | — |
-| - [ ] | Signup Page Set Up | — |
-| - [ ] | Home Page Set Up | — |
-| - [ ] | Users table with 3 roles in SQLite (Req 1) | — |
-| - [ ] | Hash passwords (bcrypt) | — |
-| - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | — |
+| - [x] | Login Page Set Up | Hrudit |
+| - [ ] | Signup Page Set Up | Sherik |
+| - [ ] | Home Page Set Up | Sherik |
+| - [ ] | Users table with 3 roles in SQLite (Req 1) | Sherik |
+| - [ ] | Hash passwords (bcrypt) | Ishan |
+| - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | Ishan |
 | **Projects base** |
 | - [ ] | Project General tab Set up | — |
 | - [ ] | `POST /projects` → create project, give **unique Project ID** (Req 7) | — |
