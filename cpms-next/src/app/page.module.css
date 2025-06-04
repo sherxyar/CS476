@@ -166,3 +166,34 @@ a.secondary {
     filter: invert();
   }
 }
+
+
+.page {
+  padding: 2rem;
+}
+
+.main {
+  max-width: 800px;
+  margin: auto;
+}
+
+.projectTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+}
+
+.projectTable th, .projectTable td {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  text-align: left;
+}
+
+.clickableRow {
+  cursor: pointer;
+  background-color: #000000;
+}
+
+.clickableRow:hover {
+  background-color: rgb(20, 20, 160);
+}
