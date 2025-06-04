@@ -44,11 +44,11 @@ Track progress:
 | - [ ] | Hash passwords (bcrypt) | Ishan |
 | - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | Ishan |
 | **Projects base** |
-| - [ ] | Project General tab Set up | — |
-| - [ ] | `POST /projects` → create project, give **unique Project ID** (Req 7) | — |
-| - [ ] | Enforce mandatory fields: name, description, PM (Req 5) | — |
-| - [ ] | React **General tab** (CRUD) | — |
-| - [ ] | Audit table; log every change (Req 3) | — |
+| - [x] | Project General tab Set up | Sheryar |
+| - [x] | `POST /projects` → create project, give **unique Project ID** (Req 7) | Sheryar |
+| - [x] | Enforce mandatory fields: name, description, PM (Req 5) | Sheryar |
+| - [x] | React **General tab** (CRUD) | Sheryar |
+| - [] | Audit table; log every change (Req 3) | — |
 | **Quality gates** |
 | - [ ] | Unit tests for login & project-create | — |
 
