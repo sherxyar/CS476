@@ -18,3 +18,22 @@ model User {
   name String
   email String @unique
 }
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int?
+  action      String
+  tableName   String
+  recordId    Int
+  beforeData  String?   // JSON string (nullable)
+  afterData   String?   // JSON string (nullable)
+  timestamp   DateTime @default(now())
+
+  @@map("audit_log") // 
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+}
