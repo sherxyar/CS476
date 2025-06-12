@@ -4,16 +4,36 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")  // .env must define this
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  email     String     @unique
+  email     String    @unique
   auditLogs AuditLog[]
-  projects  Project[]  @relation("ManagerProjects")
+
+  // one user can have many projects
+  projects  Project[] @relation("ManagerProjects")
 }
+
+model Project {
+  id     String   @id @default(uuid())       // internal UUID
+  projectID   String   @unique                    // human-friendly projectID
+  title             String
+  phase             String   @default("Planning")
+  description       String
+  forecast          Float
+  actuals           Float
+  budget            Float
+  plannedStartDate  DateTime
+  plannedEndDate    DateTime
+  dateCreated       DateTime @default(now())
+
+  projectManagerId  Int?
+  projectManager    User?     @relation("ManagerProjects", fields:[projectManagerId], references:[id])
+}
+
 
 model AuditLog {
   id         Int      @id @default(autoincrement())
@@ -21,27 +41,11 @@ model AuditLog {
   action     String
   tableName  String
   recordId   Int
-  beforeData Json?    // better than String? for JSON
+  beforeData Json?
   afterData  Json?
   timestamp  DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_log")
-}
-
-model Project {
-  id                String   @id @default(uuid())
-  title             String
-  description       String
-  forecast          Decimal   // <- money friendly
-  actuals           Decimal
-  budget            Decimal
-  plannedStartDate  DateTime
-  plannedEndDate    DateTime
-  dateCreated       DateTime @default(now())
-
-  // optional manager link
-  projectManagerId  Int?
-  projectManager    User?     @relation("ManagerProjects", fields: [projectManagerId], references: [id])
 }

@@ -1,10 +1,10 @@
-{/* Not sure if this is the best way to do this */}
+"use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
 
 interface ProjectForm {
   title: string;
-  projectmanager: string;
+  projectManagerId: string;      // FK → User.id  (string for the input, number later)
   description: string;
   forecast: string;
   actuals: string;
@@ -13,15 +13,10 @@ interface ProjectForm {
   endDate: string;
 }
 
-interface Project extends ProjectForm {
-  id: string;
-  dateCreated: string;
-}
-
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (project: Project) => void;
+  onCreate: (draft: ProjectForm) => void;  // parent handles API + parsing
 }
 
 export default function CreateProjectModal({
@@ -31,7 +26,7 @@ export default function CreateProjectModal({
 }: CreateProjectModalProps) {
   const [form, setForm] = useState<ProjectForm>({
     title: "",
-    projectmanager: "",
+    projectManagerId: "1",      // default to user #1 while testing
     description: "",
     forecast: "",
     actuals: "",
@@ -48,16 +43,11 @@ export default function CreateProjectModal({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const newProject: Project = {
-      ...form,
-      id: `PRJ-${Date.now()}`,
-      dateCreated: new Date().toISOString(),
-    };
-    onCreate(newProject);
+    onCreate(form);          // parent will POST, parse numbers, reset list
     onClose();
     setForm({
       title: "",
-      projectmanager: "",
+      projectManagerId: "1",
       description: "",
       forecast: "",
       actuals: "",
@@ -74,30 +64,107 @@ export default function CreateProjectModal({
       <div className="modal">
         <h2>Create New Project</h2>
         <form onSubmit={handleSubmit}>
-          <input name="title" placeholder="Project Title" value={form.title} onChange={handleChange} required />
-          <input name="projectmanager" placeholder="Project Manager" value={form.projectmanager} onChange={handleChange} required />
-          <textarea name="description" placeholder="Project Description" value={form.description} onChange={handleChange} required />
-          <input name="forecast" type="number" placeholder="Total Project Forecast" value={form.forecast} onChange={handleChange} required />
-          <input name="actuals" type="number" placeholder="Total Project Actuals to Date" value={form.actuals} onChange={handleChange} required />
-          <input name="budget" type="number" placeholder="Total Project Budget" value={form.budget} onChange={handleChange} required />
-          <input name="startDate" type="date" placeholder="Planned Start Date" value={form.startDate} onChange={handleChange} required />
-          <input name="endDate" type="date" placeholder="Planned End Date" value={form.endDate} onChange={handleChange} required />
+          <input
+            name="title"
+            placeholder="Project Title"
+            value={form.title}
+            onChange={handleChange}
+            required
+          />
+
+          {/* FK ⇢ User.id, keep simple numeric input for now */}
+          <input
+            name="projectManagerId"
+            type="number"
+            placeholder="Manager User ID"
+            value={form.projectManagerId}
+            onChange={handleChange}
+            min="1"
+            required
+          />
+
+          <textarea
+            name="description"
+            placeholder="Project Description"
+            value={form.description}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="forecast"
+            type="number"
+            placeholder="Total Project Forecast"
+            value={form.forecast}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="actuals"
+            type="number"
+            placeholder="Total Project Actuals to Date"
+            value={form.actuals}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="budget"
+            type="number"
+            placeholder="Total Project Budget"
+            value={form.budget}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="startDate"
+            type="date"
+            placeholder="Planned Start Date"
+            value={form.startDate}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="endDate"
+            type="date"
+            placeholder="Planned End Date"
+            value={form.endDate}
+            onChange={handleChange}
+            required
+          />
+
           <button type="submit">Create Project</button>
-          <button type="button" onClick={onClose}>Cancel</button>
+          <button type="button" onClick={onClose}>
+            Cancel
+          </button>
         </form>
       </div>
+
+      {/* --- quick CSS-in-JS for the demo --- */}
       <style jsx>{`
         .modal-backdrop {
-          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-          background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .modal {
-          background: #fff; padding: 2rem; border-radius: 8px; min-width: 320px;
+          background: #fff;
+          padding: 2rem;
+          border-radius: 8px;
+          min-width: 320px;
         }
-        input, textarea {
-          display: block; width: 100%; margin-bottom: 1rem; padding: 0.5rem;
+        input,
+        textarea {
+          display: block;
+          width: 100%;
+          margin-bottom: 1rem;
+          padding: 0.5rem;
         }
-        button { margin-right: 1rem; }
+        button {
+          margin-right: 1rem;
+        }
       `}</style>
     </div>
   );
