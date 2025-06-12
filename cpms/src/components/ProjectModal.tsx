@@ -11,7 +11,7 @@ type Project = {
   id: string;
   title: string;
   phase: string;
-  manager: string;
+  projectmanager: string;
   dateCreated?: string;
   lastUpdated?: string;
   status?: string;

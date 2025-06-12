@@ -5,25 +5,26 @@ import Head from "next/head";
 import { useState } from "react";
 import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
+import CreateProjectModal from "@/components/CreateProjectModal";
 
 const Home: NextPage = () => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-
-  const projects = [
+  const [isOpen, setIsOpen] = useState(false);
+  const [projects, setProjects] = useState([
     {
       id: "0001",
       title: "Regina School Pavement Repair",
       phase: "Planning",
-      manager: "John Doe"
+      projectmanager: "John Doe"
     },
     {
       id: "0002",
       title: "Saskatoon - 200 Avenue Construction",
       phase: "Construction", 
-      manager: "Juhn Joe"
+      projectmanager: "Juhn Joe"
     }
-  ];
+  ]);
 
   const handleProjectClick = (project: any) => {
     setSelectedProject(project);
@@ -33,6 +34,10 @@ const Home: NextPage = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProject(null);
+  };
+
+  const handleCreateProject = (newProject: any) => {
+    setProjects([...projects, newProject]);
   };
 
   return (
@@ -108,15 +113,23 @@ const Home: NextPage = () => {
                       <td>{project.id}</td>
                       <td>{project.title}</td>
                       <td>
-                        <span className={`${styles.status} ${project.phase.toLowerCase() === 'planning' ? styles.planning : styles.construction}`}></span> {project.phase}
+                        <span
+                          className={
+                            `${styles.status} ${
+                              (project.phase?.toLowerCase?.() === 'planning')
+                                ? styles.planning
+                                : styles.construction
+                            }`
+                          }
+                        ></span> {project.phase}
                       </td>
-                      <td>{project.manager}</td>
+                      <td>{project.projectmanager}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               <div className={styles.buttons}>
-                <button className={styles.create}>+ Create Project</button>
+                <button className={styles.create} onClick={() => setIsOpen(true)}>+ Create Project</button>
                 <button className={styles.view}>View All Projects</button>
               </div>
             </div>
@@ -130,6 +143,11 @@ const Home: NextPage = () => {
           onClose={handleCloseModal} 
         />
       )}
+      <CreateProjectModal 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)} 
+        onCreate={handleCreateProject} 
+      />
     </>
   );
 };

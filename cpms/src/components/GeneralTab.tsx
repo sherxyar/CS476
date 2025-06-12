@@ -6,7 +6,7 @@ type Project = {
   id: string;
   title: string;
   phase: string;
-  manager: string;
+  projectmanager: string;
   dateCreated?: string;
   lastUpdated?: string;
   status?: string;
@@ -35,7 +35,7 @@ export default function GeneralTab({ project }: Props) {
 
           <div className={styles.fieldGroup}>
             <label>Project Manager</label>
-            <div className={styles.fieldValue}>{project.manager}</div>
+            <div className={styles.fieldValue}>{project.projectmanager}</div>
           </div>
         </div>
 

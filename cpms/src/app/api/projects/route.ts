@@ -1,25 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { logAudit } from '@/lib/audit';
+import { NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+// GET /api/projects  to list all projects
+export async function GET() {
+  const projects = await prisma.project.findMany({
+    orderBy: { dateCreated: 'desc' },
+  });
+  return NextResponse.json(projects);
+}
+
+// POST /api/projects  to create a new project
+export async function POST(req: Request) {
   const body = await req.json();
 
-  const userId = 1;
-
-  const newProject = await prisma.project.create({
+  // TODO: Need to add validations.
+  const project = await prisma.project.create({
     data: {
-      name: body.name,
+      title:            body.title,
+      description:      body.description ?? '',
+      projectmanager:   body.projectmanager,
+      phase:            body.phase ?? 'Planning',  // see schema change below
+      forecast:         body.forecast ?? 0,
+      actuals:          body.actuals  ?? 0,
+      budget:           body.budget   ?? 0,
+      plannedStartDate: body.plannedStartDate ? new Date(body.plannedStartDate) : new Date(),
+      plannedEndDate:   body.plannedEndDate   ? new Date(body.plannedEndDate)   : new Date(),
     },
   });
 
-  await logAudit({
-    userId,
-    action: 'create',
-    tableName: 'Project',
-    recordId: newProject.id,
-    afterData: newProject,
-  });
-
-  return NextResponse.json(newProject, { status: 201 });
+  return NextResponse.json(project, { status: 201 });
 }
