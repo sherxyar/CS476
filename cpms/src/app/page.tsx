@@ -7,19 +7,13 @@ import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
 
-/**
- * Shape returned by GET /api/projects (server now includes projectManager object)
- */
+/* get project data */
 interface ProjectRow {
   id: string;
   projectID: string;
   title: string;
   phase: string;
   projectManagerId: number | null;
-  /**
-   * When backend `include`s projectManager we receive id, name, email.
-   * If you change the select, update this type accordingly.
-   */
   projectManager: {
     id: number;
     name: string;
@@ -35,13 +29,11 @@ interface ProjectRow {
 }
 
 const Home: NextPage = () => {
-  /* -------------------- state -------------------- */
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  /* ------------ fetch projects on mount ---------- */
   useEffect(() => {
     (async () => {
       try {
@@ -54,7 +46,6 @@ const Home: NextPage = () => {
     })();
   }, []);
 
-  /* --------------- callbacks --------------------- */
   const openProject = (p: ProjectRow) => {
     setSelectedProject(p);
     setShowModal(true);
@@ -67,7 +58,7 @@ const Home: NextPage = () => {
 
   const handleCreate = async (draft: {
     title: string;
-    projectManagerId?: string; // optional – may be blank
+    projectManagerId?: string; 
     description: string;
     forecast: string;
     actuals: string;
@@ -97,7 +88,7 @@ const Home: NextPage = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("API error");
+      if (res.ok == false) throw new Error("API error");
 
       const saved: ProjectRow = await res.json();
       setProjects(prev => [saved, ...prev]);
@@ -121,7 +112,8 @@ const Home: NextPage = () => {
       </Head>
 
       <div className={styles.body}>
-        {/* -------- sidebar -------- */}
+        
+        {/* sidebar */} 
         <aside className={styles.sidebar}>
           <img
             src="/PlanovaLogo.png"
@@ -130,12 +122,12 @@ const Home: NextPage = () => {
           />
         </aside>
 
-        {/* -------- topbar -------- */}
+        {/* topbar */} 
         <header className={styles.topbar}>
           <div className={styles.logoText}>Planova</div>
         </header>
 
-        {/* -------- main -------- */}
+        {}
         <main className={styles.main}>
           <div className={styles.content}>
             <h2>Welcome back!</h2>
@@ -155,7 +147,7 @@ const Home: NextPage = () => {
                 <tbody>
                   {projects.map(p => (
                     <tr
-                      key={p.id}
+                      key={p.projectID}
                       className={styles.clickableRow}
                       onClick={() => openProject(p)}
                     >
@@ -191,7 +183,7 @@ const Home: NextPage = () => {
         </main>
       </div>
 
-      {/* -------- modals -------- */}
+      {/* Project Modal */}
       {showModal && selectedProject && (
         <ProjectModal project={selectedProject} onClose={closeProject} />
       )}
