@@ -30,7 +30,8 @@ model Project {
   plannedEndDate    DateTime
   dateCreated       DateTime @default(now())
 
-  projectManagerId  Int?
+  // added ID for being able to track user history
+  projectManagerId  Int? 
   projectManager    User?     @relation("ManagerProjects", fields:[projectManagerId], references:[id])
 }
 

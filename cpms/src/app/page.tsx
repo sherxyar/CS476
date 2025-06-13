@@ -1,20 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
 
-/* ───────────────────────────────────────────
-   Minimal front-end type for table rows
-─────────────────────────────────────────── */
-type ProjectRow = {
+/**
+ * Shape returned by GET /api/projects (server now includes projectManager object)
+ */
+interface ProjectRow {
   id: string;
+  projectID: string;
   title: string;
   phase: string;
   projectManagerId: number | null;
+  /**
+   * When backend `include`s projectManager we receive id, name, email.
+   * If you change the select, update this type accordingly.
+   */
+  projectManager: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
   description: string;
   forecast: number;
   actuals: number;
@@ -22,97 +32,111 @@ type ProjectRow = {
   plannedStartDate: string;
   plannedEndDate: string;
   dateCreated: string;
-};
+}
 
 const Home: NextPage = () => {
-  /* --------------- local state --------------- */
+  /* -------------------- state -------------------- */
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  /* -------- fetch existing projects once -------- */
+  /* ------------ fetch projects on mount ---------- */
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/projects");
-      if (res.ok) {
-        const data = await res.json();
-        setProjects(data);
+      try {
+        const res = await fetch("/api/projects");
+        if (!res.ok) throw new Error("Failed to fetch projects");
+        setProjects(await res.json());
+      } catch (err) {
+        console.error(err);
       }
     })();
   }, []);
 
-  /* -------- create-project callback (passed to modal) -------- */
-  async function handleCreate(draft: {
+  /* --------------- callbacks --------------------- */
+  const openProject = (p: ProjectRow) => {
+    setSelectedProject(p);
+    setShowModal(true);
+  };
+
+  const closeProject = () => {
+    setSelectedProject(null);
+    setShowModal(false);
+  };
+
+  const handleCreate = async (draft: {
     title: string;
-    projectManagerId: string;   // comes in as a string from the input
+    projectManagerId?: string; // optional – may be blank
     description: string;
     forecast: string;
     actuals: string;
     budget: string;
     startDate: string;
     endDate: string;
-  }) {
+  }) => {
     try {
+      const payload = {
+        title: draft.title,
+        description: draft.description,
+        phase: "Planning",
+        projectManagerId:
+          draft.projectManagerId && draft.projectManagerId.trim() !== ""
+            ? Number(draft.projectManagerId)
+            : undefined,
+        forecast: Number(draft.forecast) || 0,
+        actuals: Number(draft.actuals) || 0,
+        budget: Number(draft.budget) || 0,
+        plannedStartDate: draft.startDate,
+        plannedEndDate: draft.endDate,
+      };
+
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: draft.title,
-          description: draft.description,
-          phase: "Planning",
-          projectManagerId: Number(draft.projectManagerId),
-          forecast: Number(draft.forecast),
-          actuals: Number(draft.actuals),
-          budget: Number(draft.budget),
-          plannedStartDate: draft.startDate,
-          plannedEndDate: draft.endDate,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("API error");
 
       const saved: ProjectRow = await res.json();
-      setProjects(prev => [saved, ...prev]);   // prepend newest
+      setProjects(prev => [saved, ...prev]);
+      setIsCreateOpen(false);
     } catch (err) {
       console.error(err);
       alert("Could not save project – check console for details.");
     }
-  }
-
-  /* --------------- UI helpers --------------- */
-  const openProject = (p: ProjectRow) => {
-    setSelectedProject(p);
-    setShowModal(true);
-  };
-  const closeProject = () => {
-    setSelectedProject(null);
-    setShowModal(false);
   };
 
-  /* --------------- render --------------- */
+  /* -------------------- UI ----------------------- */
   return (
     <>
       <Head>
         <title>Planova – Home</title>
-        <meta name="description" content="Planova Project Management Dashboard" />
+        <meta
+          name="description"
+          content="Planova Project Management Dashboard"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <div className={styles.body}>
-        {/* -------------- side-bar / top-bar unchanged -------------- */}
-        <div className={styles.sidebar}>
-          <img src="/PlanovaLogo.png" alt="Logo" className={styles.sidebarLogo} />
-          {/* ...navigation list trimmed... */}
-        </div>
+        {/* -------- sidebar -------- */}
+        <aside className={styles.sidebar}>
+          <img
+            src="/PlanovaLogo.png"
+            alt="Logo"
+            className={styles.sidebarLogo}
+          />
+        </aside>
 
-        <div className={styles.topbar}>
+        {/* -------- topbar -------- */}
+        <header className={styles.topbar}>
           <div className={styles.logoText}>Planova</div>
-          {/* ...rest of top-bar unchanged... */}
-        </div>
+        </header>
 
-        {/* ---------------- main card ---------------- */}
-        <div className={styles.main}>
+        {/* -------- main -------- */}
+        <main className={styles.main}>
           <div className={styles.content}>
             <h2>Welcome back!</h2>
 
@@ -125,7 +149,7 @@ const Home: NextPage = () => {
                     <th>ID</th>
                     <th>Project Title</th>
                     <th>Phase</th>
-                    <th>Manager&nbsp;ID</th>
+                    <th>Project Manager</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -144,10 +168,10 @@ const Home: NextPage = () => {
                               ? styles.planning
                               : styles.construction
                           }`}
-                        />{" "}
+                        />
                         {p.phase}
                       </td>
-                      <td>{p.projectManagerId ?? "—"}</td>
+                      <td>{p.projectManager?.name ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -164,7 +188,7 @@ const Home: NextPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
 
       {/* -------- modals -------- */}
