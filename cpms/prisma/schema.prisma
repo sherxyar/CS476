@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,26 +8,45 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique
-}
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  auditLogs AuditLog[]
 
-model AuditLog {
-  id          Int      @id @default(autoincrement())
-  userId      Int?
-  action      String
-  tableName   String
-  recordId    Int
-  beforeData  String?   // JSON string (nullable)
-  afterData   String?   // JSON string (nullable)
-  timestamp   DateTime @default(now())
-
-  @@map("audit_log") // 
+  // one user can have many projects
+  projects  Project[] @relation("ManagerProjects")
 }
 
 model Project {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
+  id     String   @id @default(uuid())       // internal UUID
+  projectID   String   @unique                    // human-friendly projectID
+  title             String
+  phase             String   @default("Planning")
+  description       String
+  forecast          Float
+  actuals           Float
+  budget            Float
+  plannedStartDate  DateTime
+  plannedEndDate    DateTime
+  dateCreated       DateTime @default(now())
+
+  // added ID for being able to track user history
+  projectManagerId  Int? 
+  projectManager    User?     @relation("ManagerProjects", fields:[projectManagerId], references:[id])
+}
+
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?
+  action     String
+  tableName  String
+  recordId   Int
+  beforeData Json?
+  afterData  Json?
+  timestamp  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_log")
 }
