@@ -2,14 +2,28 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 /* ───────────────────────────────────────────
-   list all projects  →  GET /api/projects
+   list all projects  --- GET /api/projects --- we need to adjust for the fields as needed here
 ─────────────────────────────────────────── */
 export async function GET() {
   const projects = await prisma.project.findMany({
     orderBy: { dateCreated: "desc" },
-    include: {
-      projectManager: {            // brings back PM info for the table
-        select: { id: true, name: true, email: true },
+    select: {
+      projectID: true,
+      title: true,
+      status: true,             
+      phase: true,
+      dateCreated: true,
+      lastUpdated: true,
+      description: true,
+      pmNotes: true,
+      plannedStartDate: true,
+      plannedEndDate: true,
+      projectManager: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
       },
     },
   });
@@ -18,12 +32,11 @@ export async function GET() {
 }
 
 /* ───────────────────────────────────────────
-   create a new project  →  POST /api/projects
+   create a new project  ----  POST /api/projects
 ─────────────────────────────────────────── */
 export async function POST(req: Request) {
   const body = await req.json();
 
-  /* ---- super-light validation ---- */
   if (!body.title) {
     return NextResponse.json({ error: "title is required" }, { status: 400 });
   }
@@ -40,9 +53,8 @@ export async function POST(req: Request) {
     );
   }
 
-  /* ---- transactional insert ---- */
   const project = await prisma.$transaction(async (tx) => {
-    // build next human-friendly ID: YYYY-0001, YYYY-0002, …
+    // Generate a unique project ID based on the current year and count of projects created this year
     const year = new Date().getFullYear();
     const countThisYear = await tx.project.count({
       where: { dateCreated: { gte: new Date(`${year}-01-01T00:00:00Z`) } },
@@ -52,23 +64,39 @@ export async function POST(req: Request) {
     return tx.project.create({
       data: {
         projectID,
-        title:       body.title,
+        title: body.title,
         description: body.description ?? "",
-        phase:       body.phase ?? "Planning",
+        phase: body.phase ?? "Planning",
 
-        /* relation saved here — Prisma validates FK automatically */
+        /* relation saved here — Prisma validates ForeignKey automatically */
         projectManager:
           pmId !== null ? { connect: { id: pmId } } : undefined,
 
         forecast: Number(body.forecast) || 0,
-        actuals:  Number(body.actuals)  || 0,
-        budget:   Number(body.budget)   || 0,
+        actuals: Number(body.actuals) || 0,
+        budget: Number(body.budget) || 0,
 
         plannedStartDate: new Date(body.plannedStartDate),
-        plannedEndDate:   new Date(body.plannedEndDate),
+        plannedEndDate: new Date(body.plannedEndDate),
       },
-      include: {
-        projectManager: { select: { id: true, name: true, email: true } },
+      select: {
+        projectID: true,
+        title: true,
+        phase: true,
+        dateCreated: true,
+        lastUpdated: true,
+        status: true,
+        description: true,
+        pmNotes: true,
+        plannedStartDate: true,
+        plannedEndDate: true,
+        projectManager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     });
   });

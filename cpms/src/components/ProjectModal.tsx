@@ -7,17 +7,8 @@ import ScheduleTab from "./ScheduleTab";
 import ChangeLogTab from "./ChangeLogTab";
 import AdministrationTab from "./AdministrationTab";
 
-type Project = {
-  id: string;
-  title: string;
-  phase: string;
-  projectmanager: string;
-  dateCreated?: string;
-  lastUpdated?: string;
-  status?: string;
-  description?: string;
-  pmNotes?: string;
-};
+import type { Project } from "@/types/Project";
+
 
 type Props = {
   project: Project;

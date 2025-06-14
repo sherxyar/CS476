@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model User {
   id        Int       @id @default(autoincrement())
   name      String
@@ -18,7 +19,7 @@ model User {
 }
 
 model Project {
-  id     String   @id @default(uuid())       // internal UUID
+  id     String   @id @default(uuid())       // this id will be system internal UUID
   projectID   String   @unique                    // human-friendly projectID
   title             String
   phase             String   @default("Planning")
@@ -29,6 +30,9 @@ model Project {
   plannedStartDate  DateTime
   plannedEndDate    DateTime
   dateCreated       DateTime @default(now())
+  lastUpdated       DateTime?   
+  status            String?     
+  pmNotes           String?     
 
   // added ID for being able to track user history
   projectManagerId  Int? 
