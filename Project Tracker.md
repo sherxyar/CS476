@@ -62,7 +62,7 @@ Track progress:
 | **Schedule tab** |
 | - [ ] | Milestone list + simple bar view; rule: End ≥ Start (Req 15) | — |
 | **Delivery tab** |
-| - [ ] | Risks table + Lessons Learned notes | — |
+| - [✔] | Risks table + Lessons Learned notes | Hrudit |
 | **Change Log tab** |
 | - [ ] | Show audit history of budget, schedule, scope (Req 3) | — |
 | **Admin area** |
