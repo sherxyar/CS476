@@ -9,50 +9,76 @@ type Props = {
 };
 
 
+
+
 export default function FinancialsTab({ project }: Props) {
 
+
+  // this is for animating the financial values
+  const [animatedValues, setAnimatedValues] = useState({
+    forecast: 0,
+    budget: 0,
+    actuals: 0,
+  });
+
+  // to show "calculating financials" animation
+  const [isCalculating, setIsCalculating] = useState(true);
+
+
   useEffect(() => {
-  async function fetchFinancials() {
-    try {
-      const res = await fetch(`/api/projects/${project.id}`);
-      if (!res.ok) throw new Error("Failed to fetch project");
+    async function fetchFinancials() {
+      try {
+        const res = await fetch(`/api/projects/${project.id}`);
+        if (!res.ok) throw new Error("Failed to fetch project");
 
-      const fullProject = await res.json();
+        const fullProject = await res.json();
 
-      // Update financial values from DB
-      setFinancialValues({
-        forecast: fullProject.forecast ?? 0,
-        budget: fullProject.budget ?? 0,
-        actuals: fullProject.actuals ?? 0,
-      });
+        // this is show an animation for calculating financials to compensate for the delay
 
-      // Format and set financial history
-      const formattedHistory = (fullProject.financialHistory ?? []).map((entry: any) => ({
-        date: new Date(entry.changedAt).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-        field:
-          entry.field === "forecast"
-            ? "Total Project Forecast"
-            : entry.field === "budget"
-            ? "Total Project Budget"
-            : "Total Project Actuals to Date",
-        oldValue: `$${entry.oldValue.toFixed(2)}`,
-        newValue: `$${entry.newValue.toFixed(2)}`,
-        changedBy: entry.changedBy?.name ?? "Unknown",
-        reason: entry.reason ?? "—",
-      }));
+        // Update financial values from DB
+        const target = {
+          forecast: fullProject.forecast ?? 0,
+          budget: fullProject.budget ?? 0,
+          actuals: fullProject.actuals ?? 0,
+        };
 
-      setFinancialHistory(formattedHistory);
-    } catch (error) {
-      console.error("Error loading financials:", error);
+        setIsCalculating(true);
+
+        setTimeout(() => {
+          setFinancialValues(target);
+          setAnimatedValues(target);
+          setIsCalculating(false);
+        }, 1200);
+
+
+
+        // Format and set financial history
+        const formattedHistory = (fullProject.financialHistory ?? []).map((entry: any) => ({
+          date: new Date(entry.changedAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+          field:
+            entry.field === "forecast"
+              ? "Total Project Forecast"
+              : entry.field === "budget"
+                ? "Total Project Budget"
+                : "Total Project Actuals to Date",
+          oldValue: `$${entry.oldValue.toFixed(2)}`,
+          newValue: `$${entry.newValue.toFixed(2)}`,
+          changedBy: entry.changedBy?.name ?? "Unknown",
+          reason: entry.reason ?? "—",
+        }));
+
+        setFinancialHistory(formattedHistory);
+      } catch (error) {
+        console.error("Error loading financials:", error);
+      }
     }
-  }
 
-  fetchFinancials();
-}, [project.id]);
+    fetchFinancials();
+  }, [project.id]);
 
 
 
@@ -90,12 +116,12 @@ export default function FinancialsTab({ project }: Props) {
       vendor: "Equipment Rental Plus"
     }
   ]);
-  
-const [financialValues, setFinancialValues] = useState({
-  forecast: 0,
-  budget: 0,
-  actuals: 0,
-});
+
+  const [financialValues, setFinancialValues] = useState({
+    forecast: 0,
+    budget: 0,
+    actuals: 0,
+  });
 
   const [updateForm, setUpdateForm] = useState({
     field: "Total Project Forecast",
@@ -104,7 +130,7 @@ const [financialValues, setFinancialValues] = useState({
     reason: ""
   });
 
-const [financialHistory, setFinancialHistory] = useState<any[]>([]);
+  const [financialHistory, setFinancialHistory] = useState<any[]>([]);
 
 
   const handleAddInvoice = () => {
@@ -157,75 +183,75 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
   };
 
   const handleSaveUpdate = async () => {
-  if (!updateForm.newValue || !updateForm.reason) return;
+    if (!updateForm.newValue || !updateForm.reason) return;
 
-  const newValueNum = parseFloat(updateForm.newValue.replace('$', '').replace(',', ''));
-  const userId = 1; // Replace with logged-in user ID when auth is ready
+    const newValueNum = parseFloat(updateForm.newValue.replace('$', '').replace(',', ''));
+    const userId = 1; // Replace with logged-in user ID when auth is ready
 
-  // Map human-readable label → actual field name
-  const fieldMap: Record<string, "forecast" | "budget" | "actuals"> = {
-    "Total Project Forecast": "forecast",
-    "Total Project Budget": "budget",
-    "Total Project Actuals to Date": "actuals"
-  };
-
-  const fieldKey = fieldMap[updateForm.field];
-
-  try {
-    const res = await fetch(`/api/projects/${project.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        field: fieldKey,
-        newValue: newValueNum,
-        reason: updateForm.reason,
-        userId,
-      }),
-    });
-
-    if (!res.ok) throw new Error("Failed to update financials");
-
-    const updatedProject = await res.json();
-
-    // Update UI values
-    const updatedValues = { ...financialValues, [fieldKey]: newValueNum };
-    setFinancialValues(updatedValues);
-
-    // Add new history entry
-    const historyEntry = {
-      date: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      field: updateForm.field,
-      oldValue: updateForm.currentValue,
-      newValue: `$${newValueNum.toFixed(2)}`,
-      changedBy: "Current User", // Replace when user auth is integrated
-      reason: updateForm.reason,
+    // Map human-readable label → actual field name
+    const fieldMap: Record<string, "forecast" | "budget" | "actuals"> = {
+      "Total Project Forecast": "forecast",
+      "Total Project Budget": "budget",
+      "Total Project Actuals to Date": "actuals"
     };
-    setFinancialHistory([historyEntry, ...financialHistory]);
 
-    // Reset form + close popup
-    setUpdateForm({
-      field: "Total Project Forecast",
-      currentValue: "",
-      newValue: "",
-      reason: "",
-    });
-    setShowUpdatePopup(false);
-  } catch (err) {
-    console.error("Financial update failed:", err);
-    alert("Something went wrong while updating the financials.");
-  }
-};
+    const fieldKey = fieldMap[updateForm.field];
+
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          field: fieldKey,
+          newValue: newValueNum,
+          reason: updateForm.reason,
+          userId,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update financials");
+
+      const updatedProject = await res.json();
+
+      // Update UI values
+      const updatedValues = { ...financialValues, [fieldKey]: newValueNum };
+      setFinancialValues(updatedValues);
+
+      // Add new history entry
+      const historyEntry = {
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        field: updateForm.field,
+        oldValue: updateForm.currentValue,
+        newValue: `$${newValueNum.toFixed(2)}`,
+        changedBy: "Current User", // Replace when user auth is integrated
+        reason: updateForm.reason,
+      };
+      setFinancialHistory([historyEntry, ...financialHistory]);
+
+      // Reset form + close popup
+      setUpdateForm({
+        field: "Total Project Forecast",
+        currentValue: "",
+        newValue: "",
+        reason: "",
+      });
+      setShowUpdatePopup(false);
+    } catch (err) {
+      console.error("Financial update failed:", err);
+      alert("Something went wrong while updating the financials.");
+    }
+  };
 
   return (
     <>
       <div className={styles.financialsContent}>
         <div className={styles.actualsHeader} style={{ marginBottom: '16px' }}>
           <label>Financial Summary</label>
-          <button 
+          <button
             className={styles.addInvoiceButton}
             onClick={() => setShowUpdatePopup(true)}
           >
@@ -237,19 +263,36 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
           <div className={styles.leftColumn}>
             <div className={styles.fieldGroup}>
               <label>Total Project Forecast</label>
-              <div className={styles.fieldValue}>${financialValues.forecast.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <div className={styles.fieldValue}>
+                {isCalculating
+                  ? <span className={styles.calculating}>Calculating...</span>
+                  : `$${animatedValues.forecast.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                }
+              </div>
+
             </div>
 
             <div className={styles.fieldGroup}>
               <label>Total Project Budget</label>
-              <div className={styles.fieldValue}>${financialValues.budget.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <div className={styles.fieldValue}>
+                {isCalculating
+                  ? <span className={styles.calculating}>Calculating...</span>
+                  : `$${animatedValues.budget.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                }
+              </div>
+
             </div>
           </div>
 
           <div className={styles.rightColumn}>
             <div className={styles.fieldGroup}>
-              <label>Total Project Actuals to Date</label>
-              <div className={styles.fieldValue}>${financialValues.actuals.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <label>Total Project Actuals to Date </label> <div className={styles.fieldValue}>
+                {isCalculating
+                  ? <span className={styles.calculating}>Calculating...</span>
+                  : `$${animatedValues.actuals.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                }
+              </div>
+
             </div>
           </div>
         </div>
@@ -261,7 +304,7 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
             <div className={styles.actualsHeader}>
               <label>Actuals Summary</label>
               <div className={styles.buttonGroup}>
-                <button 
+                <button
                   className={styles.viewDetailsButton}
                   onClick={() => setShowActualsPopup(true)}
                 >
@@ -292,7 +335,7 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
           <div className={styles.fieldGroup}>
             <div className={styles.actualsHeader}>
               <label>Financial History</label>
-              <button 
+              <button
                 className={styles.viewDetailsButton}
                 onClick={() => setShowHistoryPopup(true)}
               >
@@ -323,7 +366,7 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
             <div className={styles.popupHeader}>
               <h3>Project Actuals</h3>
-              <button 
+              <button
                 className={styles.popupCloseButton}
                 onClick={() => setShowActualsPopup(false)}
               >
@@ -333,14 +376,14 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
             <div className={styles.popupContent}>
               <div className={styles.actualsHeader}>
                 <label>Invoice Management</label>
-                <button 
+                <button
                   className={styles.addInvoiceButton}
                   onClick={() => setShowAddInvoice(!showAddInvoice)}
                 >
                   {showAddInvoice ? "Cancel" : "+ Add Invoice"}
                 </button>
               </div>
-              
+
               {showAddInvoice && (
                 <div className={styles.invoiceForm}>
                   <div className={styles.formRow}>
@@ -399,7 +442,7 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
                       />
                     </div>
                     <div className={styles.formActions}>
-                      <button 
+                      <button
                         className={styles.saveInvoiceButton}
                         onClick={handleAddInvoice}
                       >
@@ -449,7 +492,7 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
             <div className={styles.popupHeader}>
               <h3>Financial History</h3>
-              <button 
+              <button
                 className={styles.popupCloseButton}
                 onClick={() => setShowHistoryPopup(false)}
               >
@@ -494,7 +537,7 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
             <div className={styles.popupHeader}>
               <h3>Update Financial Values</h3>
-              <button 
+              <button
                 className={styles.popupCloseButton}
                 onClick={() => setShowUpdatePopup(false)}
               >
@@ -551,11 +594,11 @@ const [financialHistory, setFinancialHistory] = useState<any[]>([]);
                     />
                   </div>
                   <div className={styles.formActions}>
-                    <button 
+                    <button
                       className={styles.saveInvoiceButton}
                       onClick={handleSaveUpdate}
                       disabled={!updateForm.newValue || !updateForm.reason}
-                      style={{ 
+                      style={{
                         opacity: (!updateForm.newValue || !updateForm.reason) ? 0.5 : 1,
                         cursor: (!updateForm.newValue || !updateForm.reason) ? 'not-allowed' : 'pointer'
                       }}
