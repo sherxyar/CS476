@@ -1,50 +1,39 @@
 "use client";
+import { useState, useEffect } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
-import { useState } from "react";
 
 type Props = {
   project: Project;
+
+  /* Parent will refresh once Project is saved*/
   onProjectUpdate: (project: Project) => void;
 
+  /** From ProjectModal for/so this tab can report just its edits */
+  registerChangeHandler: (getChanges: () => Partial<Project>) => void;
 };
 
-export default function GeneralTab({ project, onProjectUpdate }: Props) {
+export default function GeneralTab({
+  project,
+  registerChangeHandler,
+}: Props) {
 
+  /*  Local state  */
+  const [phase, setPhase] = useState(project.phase);
 
-  // Dont want to send all project data only the fields that are edited/changed.
-  const [currentPhase, setCurrentPhase] = useState(project.phase);
-  const [isSaving, setIsSaving] = useState(false);
+  /*  register change handler  */
+  useEffect(() => {
 
-  const handlePhaseChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newPhase = e.target.value;
-    setCurrentPhase(newPhase);
-    setIsSaving(true);
+    // Provide a function that ProjectModal will call at “Save Project” time
+    const getChanges = (): Partial<Project> =>
+      phase !== project.phase ? { phase } : {};
 
-    try {
-      await fetch(`/api/projects/${project.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phase: newPhase }),
-      });
+    registerChangeHandler(getChanges);
 
+    // Re-register if phase or original value changes
+  }, [phase, project.phase, registerChangeHandler]);
 
-      // Re-fetch updated project data
-      const res = await fetch(`/api/projects/${project.id}`);
-      if (res.ok) {
-        const updated = await res.json();
-        onProjectUpdate(updated);
-      }
-
-    } catch (err) {
-      console.error("Failed to update phase:", err);
-      alert("Error saving phase");
-    }
-
-    setIsSaving(false);
-  };
-
-
+  /*  Render  */
   return (
     <div className={styles.generalContent}>
       <div className={styles.topSection}>
@@ -84,21 +73,21 @@ export default function GeneralTab({ project, onProjectUpdate }: Props) {
             <div className={styles.fieldValue}>
               {project.lastUpdated
                 ? new Date(project.lastUpdated).toLocaleDateString("en-CA", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
                 : "N/A"}
             </div>
           </div>
 
+          {/*  Phase (locally editable; saved later via Save Project which goes to Db)  */}
           <div className={styles.fieldGroup}>
             <label>Phase</label>
             <select
               className={styles.formSelect}
-              value={currentPhase}
-              onChange={handlePhaseChange}
-              disabled={isSaving}
+              value={phase}
+              onChange={(e) => setPhase(e.target.value)}
             >
               <option value="Planning">Planning</option>
               <option value="Design">Design</option>
@@ -115,7 +104,7 @@ export default function GeneralTab({ project, onProjectUpdate }: Props) {
         <div className={styles.fieldGroup}>
           <label>PM Notes</label>
           <div className={styles.fieldValue}>
-            {project.pmNotesHistory?.length > 0
+            {project.pmNotesHistory?.length
               ? project.pmNotesHistory[0].note
               : "No notes available."}
           </div>

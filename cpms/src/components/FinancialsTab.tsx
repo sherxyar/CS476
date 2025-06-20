@@ -2,13 +2,15 @@
 import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import { useEffect } from "react";
-
+import type { Project } from "@/types/Project";
 import { toast } from 'react-toastify';
 
 
 
+
 type Props = {
-  project: any;
+  project: Project;
+  registerChangeHandler: (getChanges: () => Partial<Project>) => void;
 };
 
 
