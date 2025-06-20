@@ -52,7 +52,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
     return () => document.removeEventListener("keydown", onEsc);
   }, [onClose]);
 
-  /* ─────────── Save Project (single PATCH) ─────────── */
+  /*  Save Project (single PATCH)  */
   const handleSaveProject = async () => {
     const combined: Partial<Project> = {};
     changeHandlersRef.current.forEach((get) => Object.assign(combined, get()));
@@ -122,6 +122,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
                 </button>
               ))}
             </div>
+            {/* TODO: We need to work on these two logs.  */} 
             {activeDeliveryTab === "Risk" ? <div>Risk Matrix</div> : <div>Lessons Log</div>}
           </div>
         );
@@ -137,7 +138,8 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
         {/* Header */}
         <div className={styles.header}>
           <h2>{project.title}</h2>
-          <button className={styles.closeButton} onClick={onClose}>
+          <button className={styles.closeButton} onClick={onClose}>\
+          {  /* TODO: We need to add a close icon here */}
             X
           </button>
         </div>

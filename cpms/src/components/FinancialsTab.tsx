@@ -24,7 +24,7 @@ export default function FinancialsTab({ project }: Props) {
     actuals: 0,
   });
 
-  // to show "calculating financials" animation
+  // to show "calculating financials" animation, need to make it look better
   const [isCalculating, setIsCalculating] = useState(true);
 
 
