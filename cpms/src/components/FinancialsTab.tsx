@@ -1,13 +1,61 @@
-
 "use client";
 import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
+import { useEffect } from "react";
+
 
 type Props = {
   project: any;
 };
 
+
 export default function FinancialsTab({ project }: Props) {
+
+  useEffect(() => {
+  async function fetchFinancials() {
+    try {
+      const res = await fetch(`/api/projects/${project.id}`);
+      if (!res.ok) throw new Error("Failed to fetch project");
+
+      const fullProject = await res.json();
+
+      // Update financial values from DB
+      setFinancialValues({
+        forecast: fullProject.forecast ?? 0,
+        budget: fullProject.budget ?? 0,
+        actuals: fullProject.actuals ?? 0,
+      });
+
+      // Format and set financial history
+      const formattedHistory = (fullProject.financialHistory ?? []).map((entry: any) => ({
+        date: new Date(entry.changedAt).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        field:
+          entry.field === "forecast"
+            ? "Total Project Forecast"
+            : entry.field === "budget"
+            ? "Total Project Budget"
+            : "Total Project Actuals to Date",
+        oldValue: `$${entry.oldValue.toFixed(2)}`,
+        newValue: `$${entry.newValue.toFixed(2)}`,
+        changedBy: entry.changedBy?.name ?? "Unknown",
+        reason: entry.reason ?? "—",
+      }));
+
+      setFinancialHistory(formattedHistory);
+    } catch (error) {
+      console.error("Error loading financials:", error);
+    }
+  }
+
+  fetchFinancials();
+}, [project.id]);
+
+
+
   const [showAddInvoice, setShowAddInvoice] = useState(false);
   const [showActualsPopup, setShowActualsPopup] = useState(false);
   const [showHistoryPopup, setShowHistoryPopup] = useState(false);
@@ -43,11 +91,11 @@ export default function FinancialsTab({ project }: Props) {
     }
   ]);
   
-  const [financialValues, setFinancialValues] = useState({
-    forecast: 125000.00,
-    budget: 120000.00,
-    actuals: 45230.50
-  });
+const [financialValues, setFinancialValues] = useState({
+  forecast: 0,
+  budget: 0,
+  actuals: 0,
+});
 
   const [updateForm, setUpdateForm] = useState({
     field: "Total Project Forecast",
@@ -56,32 +104,8 @@ export default function FinancialsTab({ project }: Props) {
     reason: ""
   });
 
-  const [financialHistory, setFinancialHistory] = useState([
-    {
-      date: "Jan 1, 2025",
-      field: "Total Project Forecast",
-      oldValue: "$120,000.00",
-      newValue: "$125,000.00",
-      changedBy: "John Doe",
-      reason: "Updated material costs estimate"
-    },
-    {
-      date: "Dec 28, 2024",
-      field: "Total Project Budget",
-      oldValue: "$115,000.00",
-      newValue: "$120,000.00",
-      changedBy: "Jane Smith",
-      reason: "Added contingency for weather delays"
-    },
-    {
-      date: "Dec 20, 2024",
-      field: "Total Project Forecast",
-      oldValue: "$115,000.00",
-      newValue: "$120,000.00",
-      changedBy: "John Doe",
-      reason: "Initial forecast adjustment"
-    }
-  ]);
+const [financialHistory, setFinancialHistory] = useState<any[]>([]);
+
 
   const handleAddInvoice = () => {
     if (invoiceForm.date && invoiceForm.invoiceNumber && invoiceForm.amount && invoiceForm.vendor) {
@@ -132,48 +156,69 @@ export default function FinancialsTab({ project }: Props) {
     });
   };
 
-  const handleSaveUpdate = () => {
-    if (!updateForm.newValue || !updateForm.reason) return;
+  const handleSaveUpdate = async () => {
+  if (!updateForm.newValue || !updateForm.reason) return;
 
-    const newValueNum = parseFloat(updateForm.newValue.replace('$', '').replace(',', ''));
-    const oldValue = updateForm.currentValue;
-    const newValue = `$${newValueNum.toFixed(2)}`;
+  const newValueNum = parseFloat(updateForm.newValue.replace('$', '').replace(',', ''));
+  const userId = 1; // Replace with logged-in user ID when auth is ready
 
-    // Update financial values
-    const updatedValues = { ...financialValues };
-    switch (updateForm.field) {
-      case "Total Project Forecast":
-        updatedValues.forecast = newValueNum;
-        break;
-      case "Total Project Budget":
-        updatedValues.budget = newValueNum;
-        break;
-      case "Total Project Actuals to Date":
-        updatedValues.actuals = newValueNum;
-        break;
-    }
+  // Map human-readable label → actual field name
+  const fieldMap: Record<string, "forecast" | "budget" | "actuals"> = {
+    "Total Project Forecast": "forecast",
+    "Total Project Budget": "budget",
+    "Total Project Actuals to Date": "actuals"
+  };
+
+  const fieldKey = fieldMap[updateForm.field];
+
+  try {
+    const res = await fetch(`/api/projects/${project.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        field: fieldKey,
+        newValue: newValueNum,
+        reason: updateForm.reason,
+        userId,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update financials");
+
+    const updatedProject = await res.json();
+
+    // Update UI values
+    const updatedValues = { ...financialValues, [fieldKey]: newValueNum };
     setFinancialValues(updatedValues);
 
-    // Add to history
+    // Add new history entry
     const historyEntry = {
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      date: new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
       field: updateForm.field,
-      oldValue: oldValue,
-      newValue: newValue,
-      changedBy: "Current User", // This would come from auth in real app
-      reason: updateForm.reason
+      oldValue: updateForm.currentValue,
+      newValue: `$${newValueNum.toFixed(2)}`,
+      changedBy: "Current User", // Replace when user auth is integrated
+      reason: updateForm.reason,
     };
     setFinancialHistory([historyEntry, ...financialHistory]);
 
-    // Reset form and close popup
+    // Reset form + close popup
     setUpdateForm({
       field: "Total Project Forecast",
       currentValue: "",
       newValue: "",
-      reason: ""
+      reason: "",
     });
     setShowUpdatePopup(false);
-  };
+  } catch (err) {
+    console.error("Financial update failed:", err);
+    alert("Something went wrong while updating the financials.");
+  }
+};
 
   return (
     <>
