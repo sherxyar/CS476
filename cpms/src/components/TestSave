@@ -1,0 +1,570 @@
+"use client";
+import { useState } from "react";
+import styles from "../styles/ProjectModal.module.css";
+import type { ProjectFinancials, Invoice, FinancialHistoryEntry } from "@/types/ProjectFinancials"; // assume these are exported from this file
+
+type Props = {
+  projectFinancials: ProjectFinancials;
+};
+
+type UpdateForm = {
+  field: "Total Project Forecast" | "Total Project Budget" | "Total Project Actuals to Date";
+  currentValue: string;
+  newValue: string;
+  reason: string;
+};
+
+export default function FinancialsTab({ projectFinancials }: Props) {
+  const [showAddInvoice, setShowAddInvoice] = useState(false);
+  const [showActualsPopup, setShowActualsPopup] = useState(false);
+  const [showHistoryPopup, setShowHistoryPopup] = useState(false);
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+  const [invoiceForm, setInvoiceForm] = useState({
+    date: "",
+    invoiceNumber: "",
+    amount: "", 
+    status: "Not Paid" as Invoice["status"],
+    vendor: ""
+  });
+
+  
+  // invoices: initialize from prop, ensuring amount is a number
+  const [invoices, setInvoices] = useState<Invoice[]>(
+    projectFinancials.invoices.map(inv => ({
+      ...inv,
+      // If amount in prop is number, keep it; if string, try parsing
+      amount:
+        typeof inv.amount === "number"
+          ? inv.amount
+          : parseFloat(inv.amount.replace(/[$,]/g, "")) || 0,
+    }))
+  );
+
+  // financialValues as numbers, from projectFinancials
+  const [financialValues, setFinancialValues] = useState({
+    forecast: projectFinancials.forecast,
+    budget: projectFinancials.budget,
+    actuals: projectFinancials.actuals,
+  });
+
+  // updateForm: initialize with default field; currentValue will be set when user picks a field
+  const [updateForm, setUpdateForm] = useState<UpdateForm>({
+    field: "Total Project Forecast",
+    currentValue: "",
+    newValue: "",
+    reason: ""
+  });
+
+  // financialHistory: initialize from prop, but ensure date strings are kept
+  const [financialHistory, setFinancialHistory] = useState<FinancialHistoryEntry[]>(
+    projectFinancials.financialHistory
+  );
+
+  // Helpers to compute Paid Amount and Pending Amount dynamically:
+  const totalPaid = invoices
+    .filter(inv => inv.status === "Paid")
+    .reduce((sum, inv) => sum + inv.amount, 0);
+  const totalPending = invoices
+    .filter(inv => inv.status !== "Paid")
+    .reduce((sum, inv) => sum + inv.amount, 0);
+
+  const handleAddInvoice = () => {
+    // Validate required fields
+    if (invoiceForm.date && invoiceForm.invoiceNumber && invoiceForm.amount && invoiceForm.vendor) {
+      // parse amount string to number
+      const parsed = parseFloat(invoiceForm.amount.replace(/[$,]/g, ""));
+      const newInvoice: Invoice = {
+        date: invoiceForm.date,
+        invoiceNumber: invoiceForm.invoiceNumber,
+        amount: isNaN(parsed) ? 0 : parsed,
+        status: invoiceForm.status,
+        vendor: invoiceForm.vendor
+      };
+      setInvoices(prev => [...prev, newInvoice]);
+      // reset form
+      setInvoiceForm({
+        date: "",
+        invoiceNumber: "",
+        amount: "",
+        status: "Not Paid",
+        vendor: ""
+      });
+      setShowAddInvoice(false);
+
+      // Optionally: you might also want to notify parent or send to backend here
+    }
+  };
+
+  const handleFormChange = (field: keyof typeof invoiceForm, value: string) => {
+    setInvoiceForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleUpdateFieldChange = (field: UpdateForm["field"]) => {
+    let currentValue = "";
+    switch (field) {
+      case "Total Project Forecast":
+        currentValue = `$${financialValues.forecast.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        break;
+      case "Total Project Budget":
+        currentValue = `$${financialValues.budget.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        break;
+      case "Total Project Actuals to Date":
+        currentValue = `$${financialValues.actuals.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        break;
+    }
+    setUpdateForm({
+      field,
+      currentValue,
+      newValue: "",
+      reason: ""
+    });
+  };
+
+  const handleSaveUpdate = () => {
+    if (!updateForm.newValue || !updateForm.reason) return;
+
+    const newValueNum = parseFloat(updateForm.newValue.replace(/[$,]/g, ""));
+    if (isNaN(newValueNum)) return;
+
+    const oldValue = updateForm.currentValue;
+    const newValueFormatted = `$${newValueNum.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // Update financialValues
+    setFinancialValues(prev => {
+      const updated = { ...prev };
+      switch (updateForm.field) {
+        case "Total Project Forecast":
+          updated.forecast = newValueNum;
+          break;
+        case "Total Project Budget":
+          updated.budget = newValueNum;
+          break;
+        case "Total Project Actuals to Date":
+          updated.actuals = newValueNum;
+          break;
+      }
+      return updated;
+    });
+
+    // Add to history
+    const todayStr = new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+    const historyEntry: FinancialHistoryEntry = {
+      date: todayStr,
+      field: updateForm.field,
+      oldValue: oldValue,
+      newValue: newValueFormatted,
+      changedBy: "Current User", // replace with real user identity
+      reason: updateForm.reason
+    };
+    setFinancialHistory(prev => [historyEntry, ...prev]);
+
+    // Reset form and close popup
+    setUpdateForm({
+      field: "Total Project Forecast",
+      currentValue: "",
+      newValue: "",
+      reason: ""
+    });
+    setShowUpdatePopup(false);
+
+    // Optionally: notify parent or persist change to backend
+  };
+
+  return (
+    <>
+      <div className={styles.financialsContent}>
+        <div className={styles.actualsHeader} style={{ marginBottom: "16px" }}>
+          <label>Financial Summary</label>
+          <button
+            className={styles.addInvoiceButton}
+            onClick={() => {
+              // before showing update popup, set currentValue for default field
+              handleUpdateFieldChange(updateForm.field);
+              setShowUpdatePopup(true);
+            }}
+          >
+            Update Values
+          </button>
+        </div>
+
+        <div className={styles.topSection}>
+          <div className={styles.leftColumn}>
+            <div className={styles.fieldGroup}>
+              <label>Total Project Forecast</label>
+              <div className={styles.fieldValue}>
+                ${financialValues.forecast.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label>Total Project Budget</label>
+              <div className={styles.fieldValue}>
+                ${financialValues.budget.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.rightColumn}>
+            <div className={styles.fieldGroup}>
+              <label>Total Project Actuals to Date</label>
+              <div className={styles.fieldValue}>
+                ${financialValues.actuals.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.divider}></div>
+
+        <div className={styles.actualsSection}>
+          <div className={styles.fieldGroup}>
+            <div className={styles.actualsHeader}>
+              <label>Actuals Summary</label>
+              <div className={styles.buttonGroup}>
+                <button
+                  className={styles.viewDetailsButton}
+                  onClick={() => setShowActualsPopup(true)}
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+            <div className={styles.summaryCard}>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryLabel}>Total Invoices:</span>
+                <span className={styles.summaryValue}>{invoices.length}</span>
+              </div>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryLabel}>Paid Amount:</span>
+                <span className={styles.summaryValue}>
+                  ${totalPaid.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryLabel}>Pending Amount:</span>
+                <span className={styles.summaryValue}>
+                  ${totalPending.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.divider}></div>
+
+        <div className={styles.historySection}>
+          <div className={styles.fieldGroup}>
+            <div className={styles.actualsHeader}>
+              <label>Financial History</label>
+              <button
+                className={styles.viewDetailsButton}
+                onClick={() => setShowHistoryPopup(true)}
+              >
+                View History
+              </button>
+            </div>
+            <div className={styles.summaryCard}>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryLabel}>Total Changes:</span>
+                <span className={styles.summaryValue}>{financialHistory.length}</span>
+              </div>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryLabel}>Last Updated:</span>
+                <span className={styles.summaryValue}>
+                  {financialHistory.length > 0 ? financialHistory[0].date : "N/A"}
+                </span>
+              </div>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryLabel}>Updated By:</span>
+                <span className={styles.summaryValue}>
+                  {financialHistory.length > 0 ? financialHistory[0].changedBy : "N/A"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Actuals Popup */}
+      {showActualsPopup && (
+        <div className={styles.popupOverlay} onClick={() => setShowActualsPopup(false)}>
+          <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.popupHeader}>
+              <h3>Project Actuals</h3>
+              <button
+                className={styles.popupCloseButton}
+                onClick={() => setShowActualsPopup(false)}
+              >
+                ✖
+              </button>
+            </div>
+            <div className={styles.popupContent}>
+              <div className={styles.actualsHeader}>
+                <label>Invoice Management</label>
+                <button
+                  className={styles.addInvoiceButton}
+                  onClick={() => setShowAddInvoice(!showAddInvoice)}
+                >
+                  {showAddInvoice ? "Cancel" : "+ Add Invoice"}
+                </button>
+              </div>
+
+              {showAddInvoice && (
+                <div className={styles.invoiceForm}>
+                  <div className={styles.formRow}>
+                    <div className={styles.formField}>
+                      <label>Date</label>
+                      <input
+                        type="date"
+                        value={invoiceForm.date}
+                        onChange={(e) => handleFormChange("date", e.target.value)}
+                        className={styles.formInput}
+                      />
+                    </div>
+                    <div className={styles.formField}>
+                      <label>Invoice Number</label>
+                      <input
+                        type="text"
+                        value={invoiceForm.invoiceNumber}
+                        onChange={(e) => handleFormChange("invoiceNumber", e.target.value)}
+                        placeholder="INV-2025-004"
+                        className={styles.formInput}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formField}>
+                      <label>Amount</label>
+                      <input
+                        type="text"
+                        value={invoiceForm.amount}
+                        onChange={(e) => handleFormChange("amount", e.target.value)}
+                        placeholder="15000.00"
+                        className={styles.formInput}
+                      />
+                    </div>
+                    <div className={styles.formField}>
+                      <label>Status</label>
+                      <select
+                        value={invoiceForm.status}
+                        onChange={(e) =>
+                          handleFormChange("status", e.target.value as Invoice["status"])
+                        }
+                        className={styles.formSelect}
+                      >
+                        <option value="Not Paid">Not Paid</option>
+                        <option value="Paid">Paid</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formField}>
+                      <label>Vendor</label>
+                      <input
+                        type="text"
+                        value={invoiceForm.vendor}
+                        onChange={(e) => handleFormChange("vendor", e.target.value)}
+                        placeholder="Vendor Name"
+                        className={styles.formInput}
+                      />
+                    </div>
+                    <div className={styles.formActions}>
+                      <button
+                        className={styles.saveInvoiceButton}
+                        onClick={handleAddInvoice}
+                      >
+                        Add Invoice
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.tableContainer}>
+                <table className={styles.actualsTable}>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Invoice Number</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Vendor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoices.map((invoice, index) => (
+                      <tr key={index}>
+                        <td>{invoice.date}</td>
+                        <td>{invoice.invoiceNumber}</td>
+                        <td>
+                          ${invoice.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td>
+                          <span
+                            className={
+                              invoice.status === "Paid"
+                                ? styles.statusPaid
+                                : styles.statusNotPaid
+                            }
+                          >
+                            {invoice.status}
+                          </span>
+                        </td>
+                        <td>{invoice.vendor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Financial History Popup */}
+      {showHistoryPopup && (
+        <div className={styles.popupOverlay} onClick={() => setShowHistoryPopup(false)}>
+          <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.popupHeader}>
+              <h3>Financial History</h3>
+              <button
+                className={styles.popupCloseButton}
+                onClick={() => setShowHistoryPopup(false)}
+              >
+                ✖
+              </button>
+            </div>
+            <div className={styles.popupContent}>
+              <div className={styles.tableContainer}>
+                <table className={styles.historyTable}>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Field</th>
+                      <th>Old Value</th>
+                      <th>New Value</th>
+                      <th>Changed By</th>
+                      <th>Reason</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {financialHistory.map((entry, index) => (
+                      <tr key={index}>
+                        <td>{entry.date}</td>
+                        <td>{entry.field}</td>
+                        <td className={styles.oldValue}>{entry.oldValue}</td>
+                        <td className={styles.newValue}>{entry.newValue}</td>
+                        <td>{entry.changedBy}</td>
+                        <td>{entry.reason}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Financial Values Popup */}
+      {showUpdatePopup && (
+        <div className={styles.popupOverlay} onClick={() => setShowUpdatePopup(false)}>
+          <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.popupHeader}>
+              <h3>Update Financial Values</h3>
+              <button
+                className={styles.popupCloseButton}
+                onClick={() => setShowUpdatePopup(false)}
+              >
+                ✖
+              </button>
+            </div>
+            <div className={styles.popupContent}>
+              <div className={styles.invoiceForm}>
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Field to Update</label>
+                    <select
+                      className={styles.formSelect}
+                      value={updateForm.field}
+                      onChange={(e) =>
+                        handleUpdateFieldChange(e.target.value as UpdateForm["field"])
+                      }
+                    >
+                      <option value="Total Project Forecast">Total Project Forecast</option>
+                      <option value="Total Project Budget">Total Project Budget</option>
+                      <option value="Total Project Actuals to Date">
+                        Total Project Actuals to Date
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Current Value</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={updateForm.currentValue}
+                      disabled
+                      style={{ backgroundColor: "#f0f0f0", color: "#666" }}
+                    />
+                  </div>
+                  <div className={styles.formField}>
+                    <label>New Value</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={updateForm.newValue}
+                      onChange={(e) =>
+                        setUpdateForm(prev => ({ ...prev, newValue: e.target.value }))
+                      }
+                      placeholder="125000.00"
+                    />
+                  </div>
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Reason for Change</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={updateForm.reason}
+                      onChange={(e) =>
+                        setUpdateForm(prev => ({ ...prev, reason: e.target.value }))
+                      }
+                      placeholder="Explain why this value is being updated..."
+                    />
+                  </div>
+                  <div className={styles.formActions}>
+                    <button
+                      className={styles.saveInvoiceButton}
+                      onClick={handleSaveUpdate}
+                      disabled={!updateForm.newValue || !updateForm.reason}
+                      style={{
+                        opacity: !updateForm.newValue || !updateForm.reason ? 0.5 : 1,
+                        cursor:
+                          !updateForm.newValue || !updateForm.reason
+                            ? "not-allowed"
+                            : "pointer"
+                      }}
+                    >
+                      Save Update
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

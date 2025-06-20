@@ -24,11 +24,8 @@ model Project {
   title             String
   phase             String   @default("Planning")
   description       String
-  forecast          Float
-  actuals           Float
-  budget            Float
-  plannedStartDate  DateTime
-  plannedEndDate    DateTime
+  plannedStartDate  DateTime?
+  plannedEndDate    DateTime?
   dateCreated       DateTime @default(now())
   lastUpdated       DateTime?   
   status            String?     
@@ -37,8 +34,62 @@ model Project {
   // added ID for being able to track user history
   projectManagerId  Int? 
   projectManager    User?     @relation("ManagerProjects", fields:[projectManagerId], references:[id])
+
+  // financial tables for the project
+  financials      ProjectFinancials?
+
+}
+model ProjectFinancials {
+  id         String   @id @default(uuid())
+  project    Project  @relation(fields: [projectId], references: [id])
+  projectId  String   @unique
+
+  forecast   Decimal  @default(0)
+  budget     Decimal  @default(0)
+  actuals    Decimal  @default(0)
+
+  invoices   Invoice[]
+  history    FinancialHistory[]
+
+  @@map("project_financials")
+  
 }
 
+model FinancialHistory {
+  id             String              @id @default(uuid())
+  financials     ProjectFinancials   @relation(fields: [financialsId], references: [id])
+  financialsId   String
+
+  field          FinancialField
+  oldValue       Decimal
+  newValue       Decimal
+  reason         String
+  changedBy      String
+  changedAt      DateTime            @default(now())
+}
+
+enum FinancialField {
+  FORECAST
+  BUDGET
+  ACTUALS
+}
+
+model Invoice {
+  id             String              @id @default(uuid())
+  financials     ProjectFinancials   @relation(fields: [financialsId], references: [id])
+  financialsId   String
+
+  date           DateTime
+  invoiceNumber  String
+  amount         Decimal
+  status         InvoiceStatus       @default(NOT_PAID)
+  vendor         String
+}
+
+enum InvoiceStatus {
+  PAID
+  NOT_PAID
+}
 
 model AuditLog {
   id         Int      @id @default(autoincrement())
