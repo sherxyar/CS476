@@ -36,7 +36,7 @@ model Project {
   lastUpdated      DateTime?
   status           String?
   pmNotesHistory   PMNote[]
-  financialHistory FinancialHistoryEntry[] // ← NEW
+  financialHistory FinancialHistoryEntry[] //
 
   projectManagerId Int?
   projectManager   User? @relation("ManagerProjects", fields: [projectManagerId], references: [id])
