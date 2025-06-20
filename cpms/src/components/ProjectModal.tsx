@@ -118,7 +118,7 @@ export default function ProjectModal({ project: initialProject, onClose, onProje
           <h2>{project.title}</h2>
 
           <div className={styles.headerActions}>
-            {/* Add something of action here. */}
+            {}
           </div>
 
           <button onClick={onClose} className={styles.closeButton}>

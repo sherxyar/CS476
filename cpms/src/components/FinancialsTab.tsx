@@ -28,7 +28,7 @@ export default function FinancialsTab({ project }: Props) {
   useEffect(() => {
     async function fetchFinancials() {
       try {
-        const res = await fetch(`/api/projects/${project.id}`);
+        const res = await fetch(`/api/projects/${project.id}/financials`);
         if (!res.ok) throw new Error("Failed to fetch project");
 
         const fullProject = await res.json();
@@ -44,11 +44,10 @@ export default function FinancialsTab({ project }: Props) {
 
         setIsCalculating(true);
 
-        setTimeout(() => {
+
           setFinancialValues(target);
           setAnimatedValues(target);
           setIsCalculating(false);
-        }, 1200);
 
 
 
