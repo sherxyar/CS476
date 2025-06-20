@@ -1,16 +1,16 @@
+// This component renders the general information about a project, 
+// including its ID, title, project manager, dates, phase, PM notes, and description.
 
 "use client";
 import styles from "../styles/ProjectModal.module.css";
-
 import type { Project } from "@/types/Project";
-
 
 type Props = {
   project: Project;
 };
 
 export default function GeneralTab({ project }: Props) {
-  return ( 
+  return (
     <div className={styles.generalContent}>
       <div className={styles.topSection}>
         <div className={styles.leftColumn}>
@@ -26,10 +26,9 @@ export default function GeneralTab({ project }: Props) {
 
           <div className={styles.fieldGroup}>
             <label>Project Manager</label>
-          <div className={styles.fieldValue}>
-            {/* unassigned is needed for the case where no project manager is assigned */}
-            {project.projectManager?.name ?? "Unassigned"}
-          </div>
+            <div className={styles.fieldValue}>
+              {project.projectManager?.name ?? "Unassigned"}
+            </div>
           </div>
         </div>
 
@@ -37,18 +36,24 @@ export default function GeneralTab({ project }: Props) {
           <div className={styles.fieldGroup}>
             <label>Date Created</label>
             <div className={styles.fieldValue}>
-              {new Date(project.dateCreated ?? "2000-01-01").toLocaleDateString("en-CA", {
+              {new Date(project.dateCreated).toLocaleDateString("en-CA", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
               })}
-              </div>
+            </div>
           </div>
 
           <div className={styles.fieldGroup}>
             <label>Last Updated</label>
             <div className={styles.fieldValue}>
-              {project.lastUpdated || "January 01, 2000"}
+              {project.lastUpdated
+                ? new Date(project.lastUpdated).toLocaleDateString("en-CA", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : "N/A"}
             </div>
           </div>
 
@@ -65,8 +70,9 @@ export default function GeneralTab({ project }: Props) {
         <div className={styles.fieldGroup}>
           <label>PM Notes</label>
           <div className={styles.fieldValue}>
-            {project.pmNotes ||
-              "Late materials - reach management as a form note"}
+            {project.pmNotesHistory?.length > 0
+              ? project.pmNotesHistory[0].note
+              : "No notes available."}
           </div>
           <button className={styles.viewAllButton}>View All</button>
         </div>
@@ -77,9 +83,7 @@ export default function GeneralTab({ project }: Props) {
       <div className={styles.descriptionSection}>
         <div className={styles.fieldGroup}>
           <label>Project Description</label>
-          <div className={styles.descriptionBox}>
-            {project.description }
-          </div>
+          <div className={styles.descriptionBox}>{project.description}</div>
         </div>
       </div>
     </div>
