@@ -231,7 +231,8 @@ export default function FinancialsTab({ project }: Props) {
         field: updateForm.field,
         oldValue: updateForm.currentValue,
         newValue: `$${newValueNum.toFixed(2)}`,
-        changedBy: "Current User", // TODO: Replace later with real user
+         // TODO: Replace later with real user
+        changedBy: "Current User",
         reason: updateForm.reason,
       };
       setFinancialHistory([historyEntry, ...financialHistory]);
@@ -263,7 +264,7 @@ export default function FinancialsTab({ project }: Props) {
             className={styles.addInvoiceButton}
 
             onClick={() => {
-              handleUpdateFieldChange(updateForm.field); // ensure currentValue is set
+              handleUpdateFieldChange(updateForm.field);
               setShowUpdatePopup(true);
             }}
 
