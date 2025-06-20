@@ -13,6 +13,7 @@ import type { Project } from "@/types/Project";
 type Props = {
   project: Project;
   onClose: () => void;
+  onProjectUpdate: (project: Project) => void;
 };
 
 function RiskTab() {
@@ -23,7 +24,9 @@ function LessonsLearnedTab() {
   return <div>Lessons Log</div>;
 }
 
-export default function ProjectModal({ project, onClose }: Props) {
+export default function ProjectModal({ project: initialProject, onClose, onProjectUpdate }: Props) {
+  const [project, setProject] = useState(initialProject);
+
   const tabs = [
     "General",
     "Financials",
@@ -57,50 +60,57 @@ export default function ProjectModal({ project, onClose }: Props) {
   //};
 
   const renderActiveTab = () => {
-    switch (activeTab) {
-      case "General":
-        return <GeneralTab project={project} />;
-      case "Financials":
-        return <FinancialsTab project={project} />;
-      case "Schedule":
-        return <ScheduleTab project={project} />;
-      case "Change Log":
-        return <ChangeLogTab project={project} />;
-      case "Administration":
-        return <AdministrationTab project={project} />;
-      case "Delivery":
-        return (
-          <div>
-            <div className={styles.tabHeader}>
-              <button
-                className={`${styles.tabButton} ${
-                  activeDeliveryTab === "Risk" ? styles.activeTab : ""
-                }`}
-                onClick={() => setActiveDeliveryTab("Risk")}
-              >
-                Risk
-              </button>
-              <button
-                className={`${styles.tabButton} ${
-                  activeDeliveryTab === "Lessons Learned" ? styles.activeTab : ""
-                }`}
-                onClick={() => setActiveDeliveryTab("Lessons Learned")}
-              >
-                Lessons Learned
-              </button>
-            </div>
-            {activeDeliveryTab === "Risk" ? (
-              <RiskTab />
-            ) : (
-              <LessonsLearnedTab />
-            )}
+  switch (activeTab) {
+    case "General":
+      return (
+        <GeneralTab
+          project={project}
+          onProjectUpdate={(updated) => {
+            setProject(updated);            // update local state
+            onProjectUpdate(updated);       // update parent state
+          }}
+        />
+      );
+    case "Financials":
+      return <FinancialsTab project={project} />;
+    case "Schedule":
+      return <ScheduleTab project={project} />;
+    case "Change Log":
+      return <ChangeLogTab project={project} />;
+    case "Administration":
+      return <AdministrationTab project={project} />;
+    case "Delivery":
+      return (
+        <div>
+          <div className={styles.tabHeader}>
+            <button
+              className={`${styles.tabButton} ${activeDeliveryTab === "Risk" ? styles.activeTab : ""}`}
+              onClick={() => setActiveDeliveryTab("Risk")}
+            >
+              Risk
+            </button>
+            <button
+              className={`${styles.tabButton} ${activeDeliveryTab === "Lessons Learned" ? styles.activeTab : ""}`}
+              onClick={() => setActiveDeliveryTab("Lessons Learned")}
+            >
+              Lessons Learned
+            </button>
           </div>
-        );
-      default:
-        return <GeneralTab project={project} />;
-    }
-  };
-
+          {activeDeliveryTab === "Risk" ? <RiskTab /> : <LessonsLearnedTab />}
+        </div>
+      );
+    default:
+      return (
+        <GeneralTab
+          project={project}
+          onProjectUpdate={(updated) => {
+            setProject(updated);
+            onProjectUpdate(updated);
+          }}
+        />
+      );
+  }
+};
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
@@ -112,7 +122,7 @@ export default function ProjectModal({ project, onClose }: Props) {
           </div>
 
           <button onClick={onClose} className={styles.closeButton}>
-            ✖
+            X
           </button>
         </div>
 
@@ -121,9 +131,8 @@ export default function ProjectModal({ project, onClose }: Props) {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`${styles.tabButton} ${
-                activeTab === tab ? styles.activeTab : ""
-              }`}
+              className={`${styles.tabButton} ${activeTab === tab ? styles.activeTab : ""
+                }`}
             >
               {tab}
             </button>

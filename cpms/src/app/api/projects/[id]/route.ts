@@ -36,9 +36,24 @@ export async function GET(req: Request, { params }: Params) {
 
 // PATCH /api/projects/[id]
 export async function PATCH(req: Request, { params }: Params) {
-  const { field, newValue, reason, userId } = await req.json();
+  const data = await req.json();
 
-  // Validate input
+  // 1. Update Phase (text field)
+  if (data.phase) {
+    const updated = await prisma.project.update({
+      where: { id: params.id },
+      data: {
+        phase: data.phase,
+        lastUpdated: new Date(),
+      },
+    });
+
+    return NextResponse.json(updated);
+  }
+
+  // 2. Update Financials
+  const { field, newValue, reason, userId } = data;
+
   if (!["forecast", "budget", "actuals"].includes(field)) {
     return new NextResponse("Invalid field name", { status: 400 });
   }
@@ -49,7 +64,6 @@ export async function PATCH(req: Request, { params }: Params) {
     return new NextResponse("Missing or invalid userId", { status: 400 });
   }
 
-  // Get existing project
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     select: {
@@ -64,7 +78,6 @@ export async function PATCH(req: Request, { params }: Params) {
     return new NextResponse("Project not found", { status: 404 });
   }
 
-  // Safe field usage
   const numericField = field as "forecast" | "budget" | "actuals";
   const oldValue = project[numericField];
 
@@ -72,7 +85,6 @@ export async function PATCH(req: Request, { params }: Params) {
     return new NextResponse("No changes detected", { status: 200 });
   }
 
-  // Update and log history
   const updated = await prisma.project.update({
     where: { id: params.id },
     data: {
