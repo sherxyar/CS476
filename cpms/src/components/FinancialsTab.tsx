@@ -3,16 +3,17 @@ import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import { useEffect } from "react";
 
+import { toast } from 'react-toastify';
+
+
 
 type Props = {
   project: any;
 };
 
 
-
-
 export default function FinancialsTab({ project }: Props) {
-
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // this is for animating the financial values
   const [animatedValues, setAnimatedValues] = useState({
@@ -45,9 +46,9 @@ export default function FinancialsTab({ project }: Props) {
         setIsCalculating(true);
 
 
-          setFinancialValues(target);
-          setAnimatedValues(target);
-          setIsCalculating(false);
+        setFinancialValues(target);
+        setAnimatedValues(target);
+        setIsCalculating(false);
 
 
 
@@ -80,7 +81,7 @@ export default function FinancialsTab({ project }: Props) {
   }, [project.id]);
 
 
-
+  // All this needs to be updated later when the backend is ready
   const [showAddInvoice, setShowAddInvoice] = useState(false);
   const [showActualsPopup, setShowActualsPopup] = useState(false);
   const [showHistoryPopup, setShowHistoryPopup] = useState(false);
@@ -185,18 +186,18 @@ export default function FinancialsTab({ project }: Props) {
     if (!updateForm.newValue || !updateForm.reason) return;
 
     const newValueNum = parseFloat(updateForm.newValue.replace('$', '').replace(',', ''));
-    const userId = 1; // Replace with logged-in user ID when auth is ready
+    const userId = 1; // Replace with real user ID later
 
-    // Map human-readable label → actual field name
-    const fieldMap: Record<string, "forecast" | "budget" | "actuals"> = {
+    const fieldMap: Record<string, "forecast" | "budget"> = {
       "Total Project Forecast": "forecast",
       "Total Project Budget": "budget",
-      "Total Project Actuals to Date": "actuals"
     };
 
     const fieldKey = fieldMap[updateForm.field];
 
     try {
+      setIsUpdating(true); // start loading
+
       const res = await fetch(`/api/projects/${project.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -210,11 +211,13 @@ export default function FinancialsTab({ project }: Props) {
 
       if (!res.ok) throw new Error("Failed to update financials");
 
+      // Backend returns the updated financial history (and possibly project)
       const updatedProject = await res.json();
 
-      // Update UI values
+      // Update UI state
       const updatedValues = { ...financialValues, [fieldKey]: newValueNum };
       setFinancialValues(updatedValues);
+      setAnimatedValues(updatedValues);
 
       // Add new history entry
       const historyEntry = {
@@ -226,12 +229,12 @@ export default function FinancialsTab({ project }: Props) {
         field: updateForm.field,
         oldValue: updateForm.currentValue,
         newValue: `$${newValueNum.toFixed(2)}`,
-        changedBy: "Current User", // Replace when user auth is integrated
+        changedBy: "Current User", // TODO: Replace later with real user
         reason: updateForm.reason,
       };
       setFinancialHistory([historyEntry, ...financialHistory]);
 
-      // Reset form + close popup
+      // Clear form and close popup
       setUpdateForm({
         field: "Total Project Forecast",
         currentValue: "",
@@ -239,9 +242,13 @@ export default function FinancialsTab({ project }: Props) {
         reason: "",
       });
       setShowUpdatePopup(false);
+
+      toast.success(`${updateForm.field} updated successfully!`);
     } catch (err) {
       console.error("Financial update failed:", err);
-      alert("Something went wrong while updating the financials.");
+      toast.error("Something went wrong while updating.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -252,7 +259,12 @@ export default function FinancialsTab({ project }: Props) {
           <label>Financial Summary</label>
           <button
             className={styles.addInvoiceButton}
-            onClick={() => setShowUpdatePopup(true)}
+
+            onClick={() => {
+              handleUpdateFieldChange(updateForm.field); // ensure currentValue is set
+              setShowUpdatePopup(true);
+            }}
+
           >
             Update Values
           </button>
@@ -443,10 +455,16 @@ export default function FinancialsTab({ project }: Props) {
                     <div className={styles.formActions}>
                       <button
                         className={styles.saveInvoiceButton}
-                        onClick={handleAddInvoice}
+                        onClick={handleSaveUpdate}
+                        disabled={isUpdating || !updateForm.newValue || !updateForm.reason}
+                        style={{
+                          opacity: (!updateForm.newValue || !updateForm.reason) ? 0.5 : 1,
+                          cursor: (!updateForm.newValue || !updateForm.reason) ? 'not-allowed' : 'pointer',
+                        }}
                       >
-                        Add Invoice
+                        {isUpdating ? "Saving..." : "Save Update"}
                       </button>
+
                     </div>
                   </div>
                 </div>
@@ -555,7 +573,6 @@ export default function FinancialsTab({ project }: Props) {
                     >
                       <option value="Total Project Forecast">Total Project Forecast</option>
                       <option value="Total Project Budget">Total Project Budget</option>
-                      <option value="Total Project Actuals to Date">Total Project Actuals to Date</option>
                     </select>
                   </div>
                 </div>
