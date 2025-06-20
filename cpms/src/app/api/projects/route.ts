@@ -2,33 +2,77 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 /* ───────────────────────────────────────────
-   list all projects  --- GET /api/projects --- we need to adjust for the fields as needed here
+   list all projects  --- GET /api/projects
 ─────────────────────────────────────────── */
 export async function GET() {
-  const projects = await prisma.project.findMany({
-    orderBy: { dateCreated: "desc" },
-    select: {
-      projectID: true,
-      title: true,
-      status: true,             
-      phase: true,
-      dateCreated: true,
-      lastUpdated: true,
-      description: true,
-      pmNotes: true,
-      plannedStartDate: true,
-      plannedEndDate: true,
-      projectManager: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
+  try {
+    const projects = await prisma.project.findMany({
+      orderBy: { dateCreated: "desc" },
+      select: {
+        id: true,
+        projectID: true,
+        title: true,
+        status: true,
+        phase: true,
+        dateCreated: true,
+        lastUpdated: true,
+        description: true,
+        plannedStartDate: true,
+        plannedEndDate: true,
+        forecast: true,
+        actuals: true,
+        budget: true,
+        projectManagerId: true,
+        projectManager: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        pmNotesHistory: {
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            note: true,
+            createdAt: true,
+            userId: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+        financialHistory: {
+          orderBy: { changedAt: "desc" },
+          select: {
+            id: true,
+            field: true,
+            oldValue: true,
+            newValue: true,
+            reason: true,
+            changedAt: true,
+            userId: true,
+            changedBy: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
         },
       },
-    },
-  });
+    });
 
-  return NextResponse.json(projects);
+    return NextResponse.json(projects);
+  } catch (error) {
+    console.error("Failed to fetch projects:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
 }
 
 /* ───────────────────────────────────────────
@@ -53,53 +97,63 @@ export async function POST(req: Request) {
     );
   }
 
-  const project = await prisma.$transaction(async (tx) => {
-    // Generate a unique project ID based on the current year and count of projects created this year
-    const year = new Date().getFullYear();
-    const countThisYear = await tx.project.count({
-      where: { dateCreated: { gte: new Date(`${year}-01-01T00:00:00Z`) } },
-    });
-    const projectID = `${year}-${String(countThisYear + 1).padStart(4, "0")}`;
+  try {
+    const project = await prisma.$transaction(async (tx) => {
+      const year = new Date().getFullYear();
+      const countThisYear = await tx.project.count({
+        where: { dateCreated: { gte: new Date(`${year}-01-01T00:00:00Z`) } },
+      });
 
-    return tx.project.create({
-      data: {
-        projectID,
-        title: body.title,
-        description: body.description ?? "",
-        phase: body.phase ?? "Planning",
+      const projectID = `${year}-${String(countThisYear + 1).padStart(4, "0")}`;
 
-        /* relation saved here — Prisma validates ForeignKey automatically */
-        projectManager:
-          pmId !== null ? { connect: { id: pmId } } : undefined,
+      return tx.project.create({
+        data: {
+          projectID,
+          title: body.title,
+          description: body.description ?? "",
+          phase: body.phase ?? "Planning",
 
-        forecast: Number(body.forecast) || 0,
-        actuals: Number(body.actuals) || 0,
-        budget: Number(body.budget) || 0,
+          projectManager:
+            pmId !== null ? { connect: { id: pmId } } : undefined,
 
-        plannedStartDate: new Date(body.plannedStartDate),
-        plannedEndDate: new Date(body.plannedEndDate),
-      },
-      select: {
-        projectID: true,
-        title: true,
-        phase: true,
-        dateCreated: true,
-        lastUpdated: true,
-        status: true,
-        description: true,
-        pmNotes: true,
-        plannedStartDate: true,
-        plannedEndDate: true,
-        projectManager: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+          forecast: Number(body.forecast) || 0,
+          actuals: Number(body.actuals) || 0,
+          budget: Number(body.budget) || 0,
+
+          plannedStartDate: new Date(body.plannedStartDate),
+          plannedEndDate: new Date(body.plannedEndDate),
         },
-      },
+        select: {
+          id: true,
+          projectID: true,
+          title: true,
+          phase: true,
+          dateCreated: true,
+          lastUpdated: true,
+          status: true,
+          description: true,
+          plannedStartDate: true,
+          plannedEndDate: true,
+          forecast: true,
+          actuals: true,
+          budget: true,
+          projectManagerId: true,
+          projectManager: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          pmNotesHistory: true,
+          financialHistory: true,
+        },
+      });
     });
-  });
 
-  return NextResponse.json(project, { status: 201 });
+    return NextResponse.json(project, { status: 201 });
+  } catch (error) {
+    console.error("Failed to create project:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
 }
