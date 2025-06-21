@@ -23,12 +23,12 @@ Track progress:
 | Status | Task | Owner |
 |--------|------|-------|
 | - [✔] | Finalise detailed functional‑requirements list for **Project Manager** & **Administrator** | — |
-| - [x] | Create Use‑Case diagram – Project Manager | Sherik |
-| - [x] | Create Use‑Case diagram – Administrator | Dongho |
-| - [x] | Draw Activity diagrams for the two use cases | Hrudit |
+| - [✔] | Create Use‑Case diagram – Project Manager | Sherik |
+| - [✔] | Create Use‑Case diagram – Administrator | Dongho |
+| - [✔] | Draw Activity diagrams for the two use cases | Hrudit |
 | - [x] | Define two  examples per role for Correctness, Time‑efficiency, Robustness | Hrudit |
-| - [x] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | Sherik |
-| - [x] | Choose GoF patterns (Factory, Observer) & sketch class diagrams | Dongho |
+| - [✔] | Produce 3‑tier architecture diagram and list ≥ 3 benefits | Sherik |
+| - [✔] | Choose GoF patterns (Factory, Observer) & sketch class diagrams | Dongho |
 | - [✔] | Set up project skeleton (server, Access/SQL DB link, Home web page) | Ishan |
 | - [x] | Configure unit‑test framework & add a sample test | Sheryar |
 
@@ -44,10 +44,10 @@ Track progress:
 | - [ ] | Hash passwords (bcrypt) | Ishan |
 | - [ ] | **Email 2-factor login** & password-complexity check (Req 13) | Ishan |
 | **Projects base** |
-| - [x] | Project General tab Set up | Sheryar |
-| - [x] | `POST /projects` → create project, give **unique Project ID** (Req 7) | Sheryar |
-| - [x] | Enforce mandatory fields: name, description, PM (Req 5) | Sheryar |
-| - [x] | React **General tab** (CRUD) | Sheryar |
+| - [✔] | Project General tab Set up | Sheryar |
+| - [✔] | `POST /projects` → create project, give **unique Project ID** (Req 7) | Sheryar |
+| - [✔] | Enforce mandatory fields: name, description, PM (Req 5) | Sheryar |
+| - [✔] | React **General tab** (CRUD) | Sheryar |
 | - [x] | Audit table; log every change (Req 3) | Dongho |
 | **Quality gates** |
 | - [x] | Unit tests for login & project-create | Dongho |
@@ -58,7 +58,7 @@ Track progress:
 | Status | Task | Owner |
 |--------|------|-------|
 | **Financial tab** |
-| - [ ] | Budget & Change-Order fields (Req 9) | — |
+| - [✔] | Budget & Change-Order fields (Req 9) | Sheryar |
 | **Schedule tab** |
 | - [ ] | Milestone list + simple bar view; rule: End ≥ Start (Req 15) | — |
 | **Delivery tab** |
