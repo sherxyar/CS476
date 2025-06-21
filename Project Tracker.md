@@ -64,7 +64,7 @@ Track progress:
 | **Delivery tab** |
 | - [✔] | Risks table + Lessons Learned notes | Hrudit |
 | **Change Log tab** |
-| - [ ] | Show audit history of budget, schedule, scope (Req 3) | — |
+| - [✔] | Show audit history of budget, schedule, scope (Req 3) | Sherik |
 | **Admin area** |
 | - [ ] | Screen to grant tab access; lock until PM approves (Req 14) | — |
 | **Validation & security** |
