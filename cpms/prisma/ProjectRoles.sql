@@ -5,4 +5,4 @@ CREATE TABLE Users (
     password TEXT NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('Admin', 'Project Manager', 'Collaborator')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-); //schema.prisma -> PRIMS>CCPMS
+);
