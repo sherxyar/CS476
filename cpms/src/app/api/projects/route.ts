@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-/* ───────────────────────────────────────────
-   list all projects  --- GET /api/projects
-─────────────────────────────────────────── */
+
+// list projects - GET request
+
 export async function GET() {
   try {
     const projects = await prisma.project.findMany({
@@ -75,9 +75,9 @@ export async function GET() {
   }
 }
 
-/* ───────────────────────────────────────────
-   create a new project  ----  POST /api/projects
-─────────────────────────────────────────── */
+
+// create a new project - POST reuquest
+
 export async function POST(req: Request) {
   const body = await req.json();
 
