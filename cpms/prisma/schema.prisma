@@ -14,8 +14,8 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
+  id    Int    @id @default(autoincrement())
+  name  String
   email String @unique
 }
 
@@ -36,4 +36,11 @@ model Project {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
+}
+
+model TwoFactorCode{
+  id         Int      @id @default(autoincrement())
+  email      String
+  code       String
+  validUntil DateTime
 }
