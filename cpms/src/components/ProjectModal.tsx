@@ -1,76 +1,107 @@
+// ProjectModal.tsx — fully updated for staged‑save architecture
+
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import GeneralTab from "./GeneralTab";
 import FinancialsTab from "./FinancialsTab";
 import ScheduleTab from "./ScheduleTab";
 import ChangeLogTab from "./ChangeLogTab";
 import AdministrationTab from "./AdministrationTab";
+import type { Project } from "@/types/Project";
 
-type Project = {
-  id: string;
-  title: string;
-  phase: string;
-  manager: string;
-  dateCreated?: string;
-  lastUpdated?: string;
-  status?: string;
-  description?: string;
-  pmNotes?: string;
-};
+/* Types */
 
-type Props = {
+interface Props {
   project: Project;
   onClose: () => void;
-};
-
-function RiskTab() {
-  return <div>Risk Matrix</div>;
+  onProjectUpdate: (project: Project) => void;
 }
 
-function LessonsLearnedTab() {
-  return <div>Lessons Log</div>;
-}
+/*  UI Tabs  */
+const TABS = [
+  "General",
+  "Financials",
+  "Schedule",
+  "Change Log",
+  "Administration",
+  "Delivery",
+] as const;
 
-export default function ProjectModal({ project, onClose }: Props) {
-  const tabs = [
-    "General",
-    "Financials",
-    "Schedule",
-    "Change Log",
-    "Administration",
-    "Delivery",
-  ];
-  const [activeTab, setActiveTab] = useState("General");
-  const [activeDeliveryTab, setActiveDeliveryTab] = useState("Risk");
+type TabName = (typeof TABS)[number];
 
-  // Esc key close.
+/*  Components  */
+export default function ProjectModal({ project: initial, onClose, onProjectUpdate }: Props) {
+  /* Project state */
+  const [project, setProject] = useState<Project>(initial);
+
+  /* Staged‑change callbacks to make sure no lost data */
+  const changeHandlersRef = useRef<Array<() => Partial<Project>>>([]);
+  const registerChangeHandler = useCallback((fn: () => Partial<Project>) => {
+    changeHandlersRef.current.push(fn);
+  }, []);
+
+  /* UI state */
+  const [activeTab, setActiveTab] = useState<TabName>("General");
+  const [activeDeliveryTab, setActiveDeliveryTab] = useState<"Risk" | "Lessons Learned">("Risk");
+
+  /* Esc key for closing  */
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+    const onEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
   }, [onClose]);
 
-  // Click outside to close modal.
-  //const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
-  //  if (event.target === event.currentTarget) {
-  //    onClose();
-  //  }
-  //};
+  /*  Save Project (single PATCH)  */
+  const handleSaveProject = async () => {
+    const combined: Partial<Project> = {};
+    changeHandlersRef.current.forEach((get) => Object.assign(combined, get()));
 
-  const renderActiveTab = () => {
+    if (Object.keys(combined).length === 0) {
+      alert("No changes to save.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(combined),
+      });
+      if (!res.ok) throw new Error("Save failed");
+
+      const updated = await res.json();
+      setProject(updated);
+      onProjectUpdate(updated);
+      alert("Project saved.");
+      changeHandlersRef.current = []; // reset staged callbacks
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save project.");
+    }
+  };
+
+  /*  Tab Renderer  */
+  const renderTab = () => {
     switch (activeTab) {
       case "General":
-        return <GeneralTab project={project} />;
+        return (
+          <GeneralTab
+            project={project}
+            onProjectUpdate={(p) => {
+              setProject(p);
+              onProjectUpdate(p);
+            }}
+            registerChangeHandler={registerChangeHandler}
+          />
+        );
       case "Financials":
-        return <FinancialsTab project={project} />;
+        return (
+          <FinancialsTab
+            project={project}
+            registerChangeHandler={registerChangeHandler}
+          />
+        );
       case "Schedule":
         return <ScheduleTab project={project} />;
       case "Change Log":
@@ -81,84 +112,63 @@ export default function ProjectModal({ project, onClose }: Props) {
         return (
           <div>
             <div className={styles.tabHeader}>
-              <button
-                className={`${styles.tabButton} ${
-                  activeDeliveryTab === "Risk" ? styles.activeTab : ""
-                }`}
-                onClick={() => setActiveDeliveryTab("Risk")}
-              >
-                Risk
-              </button>
-              <button
-                className={`${styles.tabButton} ${
-                  activeDeliveryTab === "Lessons Learned" ? styles.activeTab : ""
-                }`}
-                onClick={() => setActiveDeliveryTab("Lessons Learned")}
-              >
-                Lessons Learned
-              </button>
+              {(["Risk", "Lessons Learned"] as const).map((d) => (
+                <button
+                  key={d}
+                  className={`${styles.tabButton} ${activeDeliveryTab === d ? styles.activeTab : ""}`}
+                  onClick={() => setActiveDeliveryTab(d)}
+                >
+                  {d}
+                </button>
+              ))}
             </div>
-            {activeDeliveryTab === "Risk" ? (
-              <RiskTab />
-            ) : (
-              <LessonsLearnedTab />
-            )}
+            {/* TODO: We need to work on these two logs.  */} 
+            {activeDeliveryTab === "Risk" ? <div>Risk Matrix</div> : <div>Lessons Log</div>}
           </div>
         );
       default:
-        return <GeneralTab project={project} />;
+        return null;
     }
   };
 
+  /*  JSX  */
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
+        {/* Header */}
         <div className={styles.header}>
           <h2>{project.title}</h2>
-
-          <div className={styles.headerActions}>
-            {/* Add something of action here. */}
-          </div>
-
-          <button onClick={onClose} className={styles.closeButton}>
-            ✖
+          <button className={styles.closeButton} onClick={onClose}>\
+          {  /* TODO: We need to add a close icon here */}
+            X
           </button>
         </div>
 
+        {/* Tab buttons */}
         <div className={styles.tabHeader}>
-          {tabs.map((tab) => (
+          {TABS.map((t) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`${styles.tabButton} ${
-                activeTab === tab ? styles.activeTab : ""
-              }`}
+              key={t}
+              className={`${styles.tabButton} ${activeTab === t ? styles.activeTab : ""}`}
+              onClick={() => setActiveTab(t)}
             >
-              {tab}
+              {t}
             </button>
           ))}
         </div>
 
-        <div className={styles.tabContent}>{renderActiveTab()}</div>
+        {/* Active tab content */}
+        <div className={styles.tabContent}>{renderTab()}</div>
 
+        {/* Footer */}
         <div className={styles.footer}>
           <button className={styles.backButton} onClick={onClose}>
             Close
           </button>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              className={styles.editButton}
-              onClick={() => console.log("Save project")}
-            >
-              Save Project
-            </button>
-            <button
-              className={styles.editButton}
-              onClick={() => console.log("Edit mode")}
-            >
-              Edit Project
-            </button>
-          </div>
+          <button className={styles.editButton} onClick={handleSaveProject}>
+            Save Project
+          </button>
+          <button className={styles.editButton} onClick={() => console.log("Edit mode")}>Edit Project</button>
         </div>
       </div>
     </div>
