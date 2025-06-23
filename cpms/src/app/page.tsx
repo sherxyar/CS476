@@ -19,16 +19,19 @@ const Home: NextPage = () => {
     fetchProjects();
   }, []);
 
-  const fetchProjects = async () => {
-    try {
-      const res = await fetch("/api/projects");
-      if (!res.ok) throw new Error("Failed to fetch projects");
-      const data = await res.json();
-      setProjects(data);
-    } catch (err) {
-      console.error("Project fetch failed:", err);
+const fetchProjects = async () => {
+  try {
+    const res = await fetch("/api/projects");
+    if (!res.ok) {
+      const text = await res.text();  
+      throw new Error(`status ${res.status} – ${text}`);
     }
-  };
+    const data = await res.json();
+    setProjects(data);
+  } catch (err) {
+    console.error("Project fetch failed:", err);
+  }
+};
 
   const openProject = async (p: Project) => {
     try {
