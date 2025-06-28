@@ -1,16 +1,19 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hashPassword } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 
-// Function with API route handling to run when register encounters a POST request
-export async function POST(req: Request) {
-    // read email and password sent via POST Request req from frontend
-    const { email, password } = await req.json();
-    const hashed_password = await hashPassword(password); // hash password
-    // create new user record in SQLite database using Prisma
-    const user = await prisma.user.create({
-        data: { email, password: hashed_password }
-    });
-    // return user id (auto generated from schema.prisma) and email
-    return NextResponse.json({ user: { id: user.id, email: user.email } });
+export async function POST(request: Request) {
+  const { email, password } = await request.json();
+
+
+  const hashed_password = await bcrypt.hash(password, 12);
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      hashed_password        
+    },
+  });
+
+  return NextResponse.json({ user: { id: user.id, email: user.email } });
 }
