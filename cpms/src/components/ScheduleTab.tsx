@@ -2,6 +2,7 @@
 "use client";
 import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
+import type { Project } from "@/types/Project";
 
 type Milestone = {
   task: string;
@@ -11,9 +12,10 @@ type Milestone = {
   status: "Not Started" | "In Progress" | "Completed" | "Closed";
 };
 
+/*
 type Props = {
-  project: any;
-};
+  project: Project;
+}; */
 
 export default function ScheduleTab({ project }: Props) {
   const [milestones, setMilestones] = useState<Milestone[]>([

@@ -4,6 +4,15 @@ import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
+
+ /* Commented out for deployment test.
+type Props = {
+ project: Project;
+};
+*/
+
+
+
 type RiskEntry = {
   id: string;
   date: string;
@@ -33,9 +42,6 @@ type LessonEntry = {
   documentedBy: string;
 };
 
-type Props = {
-  project: Project;
-};
 
 export default function DeliveryTab({ project }: Props) {
   const [activeSubTab, setActiveSubTab] = useState("Risk");

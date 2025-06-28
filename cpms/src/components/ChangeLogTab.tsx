@@ -20,9 +20,11 @@ type ChangeLogEntry = {
   estimatedImpact: string;
 };
 
+ /* Commented out for deployment test.
 type Props = {
-  project: Project;
+ project: Project;
 };
+*/
 
 export default function ChangeLogTab({ project }: Props) {
   const [showAddChange, setShowAddChange] = useState(false);
