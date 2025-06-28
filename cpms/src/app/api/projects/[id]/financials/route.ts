@@ -1,12 +1,12 @@
+// src/app/api/projects/[id]/financials/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-//  /api/projects/[id]/financials  (GET)
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }   
 ) {
-  const { id } = params;
+  const { id } = await params;                      
 
   try {
     const project = await prisma.project.findUnique({
@@ -17,22 +17,19 @@ export async function GET(
         actuals:  true,
         financialHistory: {
           include: {
-            changedBy: {
-              select: { id: true, name: true, email: true }
-            }
+            changedBy: { select: { id: true, name: true, email: true } },
           },
-          orderBy: { changedAt: "desc" }
-        }
-      }
+          orderBy: { changedAt: "desc" },
+        },
+      },
     });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
-
-    return NextResponse.json(project);              // 200 OK
+    return NextResponse.json(project);               // 200 OK
   } catch (err) {
-    console.error(`GET /api/projects/${id}/financials –`, err);
+    console.error(`GET /api/projects/${id}/financials -`, err);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
