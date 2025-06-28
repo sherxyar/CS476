@@ -7,8 +7,8 @@ export async function GET(req: Request) {
   const limit = Number(searchParams.get("limit") ?? 30);
 
   const users = await prisma.user.findMany({
-    where:  { name: { contains: q, mode: "insensitive" } },
-    select: { id: true, name: true, email: true },   // keep payload tiny
+    where:  { name: { contains: q} },
+    select: { id: true, name: true, email: true },   
     orderBy:{ name: "asc" },
     take:   limit,
   });
