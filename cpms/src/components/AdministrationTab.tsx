@@ -13,12 +13,12 @@ type TeamMember = {
   department: string;
   lastActivity: string;
 };
- /* Commented out for deployment test.
+
 type Props = {
  project: Project;
 };
-*/
-export default function AdministrationTab({ project }: Props) {
+
+export default function AdministrationTab({ _project }: Props) {
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");

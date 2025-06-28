@@ -20,13 +20,13 @@ type ChangeLogEntry = {
   estimatedImpact: string;
 };
 
- /* Commented out for deployment test.
+
 type Props = {
  project: Project;
 };
-*/
 
-export default function ChangeLogTab({ project }: Props) {
+
+export default function ChangeLogTab({ _project }: Props) {
   const [showAddChange, setShowAddChange] = useState(false);
   const [filterType, setFilterType] = useState<string>("All");
   const [filterStatus, setFilterStatus] = useState<string>("All");

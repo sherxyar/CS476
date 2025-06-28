@@ -12,12 +12,12 @@ type Milestone = {
   status: "Not Started" | "In Progress" | "Completed" | "Closed";
 };
 
-/*
+
 type Props = {
   project: Project;
-}; */
+}; 
 
-export default function ScheduleTab({ project }: Props) {
+export default function ScheduleTab({ _project }: Props) {
   const [milestones, setMilestones] = useState<Milestone[]>([
     {
       task: "Site Survey & Assessment",

@@ -5,11 +5,11 @@ import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
 
- /* Commented out for deployment test.
+
 type Props = {
  project: Project;
 };
-*/
+
 
 
 
@@ -43,7 +43,7 @@ type LessonEntry = {
 };
 
 
-export default function DeliveryTab({ project }: Props) {
+export default function DeliveryTab({ _project }: Props) {
   const [activeSubTab, setActiveSubTab] = useState("Risk");
   const [showAddRisk, setShowAddRisk] = useState(false);
   const [showAddLesson, setShowAddLesson] = useState(false);
