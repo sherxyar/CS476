@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 type Context = { params: { id: string } };
 
-// ───────────────────────────────────────────────────────────
+// 
 // GET /api/projects/[id]  – fetch a single project
-// ───────────────────────────────────────────────────────────
+// 
 export async function GET(_req: Request, { params }: Context) {
   const { id } = params;
 
@@ -38,14 +38,14 @@ export async function GET(_req: Request, { params }: Context) {
   }
 }
 
-// ───────────────────────────────────────────────────────────
+// 
 // PATCH /api/projects/[id]  – update phase / financials / add note
-// ───────────────────────────────────────────────────────────
+// 
 export async function PATCH(req: Request, { params }: Context) {
   const { id } = params;
   const body = await req.json();
 
-  // ----- Phase update --------------------------------------------------------
+  //  Phase update
   if (body.phase) {
     try {
       const updated = await prisma.project.update({
@@ -59,7 +59,7 @@ export async function PATCH(req: Request, { params }: Context) {
     }
   }
 
-  // ----- Add a PM note -------------------------------------------------------
+  //  Add a PM note 
   if (body.note) {
     const { note, userId } = body;
 
@@ -78,7 +78,7 @@ export async function PATCH(req: Request, { params }: Context) {
           pmNotesHistory: {
             create: {
               note: note.trim(),
-              userId,                // remove if your PMNote model has no userId
+              userId,               
             },
           },
         },
@@ -93,7 +93,7 @@ export async function PATCH(req: Request, { params }: Context) {
     }
   }
 
-  // ----- Financials update ---------------------------------------------------
+  //  Financials update 
   const { field, newValue, reason, userId } = body;
   if (!["forecast", "budget", "actuals"].includes(field)) {
     return NextResponse.json({ error: "Invalid field name" }, { status: 400 });
@@ -143,9 +143,9 @@ export async function PATCH(req: Request, { params }: Context) {
   }
 }
 
-// ───────────────────────────────────────────────────────────
+// 
 // DELETE /api/projects/[id]  – remove project
-// ───────────────────────────────────────────────────────────
+// 
 export async function DELETE(_req: Request, { params }: Context) {
   const { id } = params;
 
