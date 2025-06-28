@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 type Context = { params: { id: string } };
 
-// 
+//
 // GET /api/projects/[id]  – fetch a single project
-// 
+//
 export async function GET(_req: Request, { params }: Context) {
   const { id } = params;
 
@@ -17,11 +17,10 @@ export async function GET(_req: Request, { params }: Context) {
         pmNotesHistory: {
           orderBy: { createdAt: "desc" },
           include: {
-            author: {                          
-              select: { id: true, name: true, email: true },
-            },
+            author: { select: { id: true, name: true, email: true } },
           },
-        }, financialHistory: {
+        },
+        financialHistory: {
           include: { changedBy: { select: { id: true, name: true, email: true } } },
           orderBy: { changedAt: "desc" },
         },
@@ -38,14 +37,14 @@ export async function GET(_req: Request, { params }: Context) {
   }
 }
 
-// 
+//
 // PATCH /api/projects/[id]  – update phase / financials / add note
-// 
+//
 export async function PATCH(req: Request, { params }: Context) {
   const { id } = params;
   const body = await req.json();
 
-  //  Phase update
+  /* ---------- Phase update ---------- */
   if (body.phase) {
     try {
       const updated = await prisma.project.update({
@@ -59,7 +58,7 @@ export async function PATCH(req: Request, { params }: Context) {
     }
   }
 
-  //  Add a PM note 
+  /* ---------- Add a PM note ---------- */
   if (body.note) {
     const { note, userId } = body;
 
@@ -78,7 +77,7 @@ export async function PATCH(req: Request, { params }: Context) {
           pmNotesHistory: {
             create: {
               note: note.trim(),
-              userId,               
+              userId,
             },
           },
         },
@@ -93,8 +92,9 @@ export async function PATCH(req: Request, { params }: Context) {
     }
   }
 
-  //  Financials update 
+  /* ---------- Financials update ---------- */
   const { field, newValue, reason, userId } = body;
+
   if (!["forecast", "budget", "actuals"].includes(field)) {
     return NextResponse.json({ error: "Invalid field name" }, { status: 400 });
   }
@@ -104,18 +104,23 @@ export async function PATCH(req: Request, { params }: Context) {
   if (typeof userId !== "number") {
     return NextResponse.json({ error: "userId must be a number" }, { status: 400 });
   }
-  const numericField = field as "forecast" | "budget" | "actuals";
+
+  type NumericField = "forecast" | "budget" | "actuals";
+  const numericField = field as NumericField;
 
   try {
+    // Fetch all three numeric columns so the result is strongly typed
     const current = await prisma.project.findUnique({
       where: { id },
-      select: { [numericField]: true },
+      select: { forecast: true, budget: true, actuals: true },
     });
+
     if (!current) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const oldValue = (current as any)[numericField] as number;
+    const oldValue = current[numericField];
+
     if (oldValue === newValue) {
       return NextResponse.json({ message: "No changes detected" });
     }
@@ -143,9 +148,9 @@ export async function PATCH(req: Request, { params }: Context) {
   }
 }
 
-// 
+//
 // DELETE /api/projects/[id]  – remove project
-// 
+//
 export async function DELETE(_req: Request, { params }: Context) {
   const { id } = params;
 

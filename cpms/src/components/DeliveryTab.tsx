@@ -2,6 +2,7 @@
 "use client";
 import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
+import type { Project } from "@/types/Project";
 
 type RiskEntry = {
   id: string;
@@ -33,7 +34,7 @@ type LessonEntry = {
 };
 
 type Props = {
-  project: any;
+  project: Project;
 };
 
 export default function DeliveryTab({ project }: Props) {
