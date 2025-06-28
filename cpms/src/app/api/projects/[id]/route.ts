@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-type Context = { params: { id: string } };
+type Context = { params: Promise<{ id: string }> };
 
 //
 // GET /api/projects/[id]  – fetch a single project
 //
-export async function GET(_req: Request, { params }: Context) {
+export async function GET(_req: Request, props: Context) {
+  const params = await props.params;
   const { id } = params;
 
   try {
@@ -40,7 +41,8 @@ export async function GET(_req: Request, { params }: Context) {
 //
 // PATCH /api/projects/[id]  – update phase / financials / add note
 //
-export async function PATCH(req: Request, { params }: Context) {
+export async function PATCH(req: Request, props: Context) {
+  const params = await props.params;
   const { id } = params;
   const body = await req.json();
 
@@ -151,7 +153,8 @@ export async function PATCH(req: Request, { params }: Context) {
 //
 // DELETE /api/projects/[id]  – remove project
 //
-export async function DELETE(_req: Request, { params }: Context) {
+export async function DELETE(_req: Request, props: Context) {
+  const params = await props.params;
   const { id } = params;
 
   try {
