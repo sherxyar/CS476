@@ -43,7 +43,7 @@ type LessonEntry = {
 };
 
 
-export default function DeliveryTab({ _project }: Props) {
+export default function DeliveryTab({ project: _project }: Props) {
   const [activeSubTab, setActiveSubTab] = useState("Risk");
   const [showAddRisk, setShowAddRisk] = useState(false);
   const [showAddLesson, setShowAddLesson] = useState(false);

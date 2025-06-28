@@ -18,7 +18,7 @@ type Props = {
  project: Project;
 };
 
-export default function AdministrationTab({ _project }: Props) {
+export default function AdministrationTab({ project: _project }: Props) {
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");

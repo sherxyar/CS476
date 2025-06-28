@@ -26,7 +26,7 @@ type Props = {
 };
 
 
-export default function ChangeLogTab({ _project }: Props) {
+export default function ChangeLogTab({ project: _project }: Props) {
   const [showAddChange, setShowAddChange] = useState(false);
   const [filterType, setFilterType] = useState<string>("All");
   const [filterStatus, setFilterStatus] = useState<string>("All");
