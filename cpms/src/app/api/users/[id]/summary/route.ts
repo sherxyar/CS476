@@ -1,15 +1,16 @@
 // app/api/users/[id]/summary/route.ts
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextResponse, type NextRequest } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }       // ← keep this inline
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }   // 👈 promise!
 ) {
-  const id = Number(params.id);
+  const { id: idStr } = await params               // 👈 await before use
+  const id = Number(idStr)
 
   if (!Number.isInteger(id) || id <= 0) {
-    return NextResponse.json({ error: "Bad id" }, { status: 400 });
+    return NextResponse.json({ error: 'Bad id' }, { status: 400 })
   }
 
   const user = await prisma.user.findUnique({
@@ -20,14 +21,14 @@ export async function GET(
       email: true,
       _count: { select: { projects: true } },
       auditLogs: {
-        orderBy: { timestamp: "desc" },
+        orderBy: { timestamp: 'desc' },
         take: 10,
         select: { action: true, tableName: true, timestamp: true },
       },
     },
-  });
+  })
 
   return user
     ? NextResponse.json(user)
-    : NextResponse.json({ error: "Not found" }, { status: 404 });
+    : NextResponse.json({ error: 'Not found' }, { status: 404 })
 }
