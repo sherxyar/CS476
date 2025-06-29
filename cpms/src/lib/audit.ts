@@ -1,14 +1,13 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 interface AuditLogParams {
-  userId?: number;               
-  action: string;                
-  tableName: string;            
-  recordId: number;             
-  beforeData?: object | null;   
-  afterData?: object | null;    
+  userId?: number
+  action: string
+  tableName: string
+  recordId: number
+  beforeData?: object | null
+  afterData?: object | null
 }
 
 export async function logAudit({
@@ -16,8 +15,8 @@ export async function logAudit({
   action,
   tableName,
   recordId,
-  beforeData = null,
-  afterData = null,
+  beforeData,
+  afterData,
 }: AuditLogParams) {
   await prisma.auditLog.create({
     data: {
@@ -25,8 +24,8 @@ export async function logAudit({
       action,
       tableName,
       recordId,
-      beforeData: beforeData ? JSON.stringify(beforeData) : null,
-      afterData: afterData ? JSON.stringify(afterData) : null,
+      ...(beforeData && { beforeData: JSON.stringify(beforeData) }),
+      ...(afterData && { afterData: JSON.stringify(afterData) }),
     },
-  });
+  })
 }
