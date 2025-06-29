@@ -1,13 +1,17 @@
+// app/api/users/[id]/summary/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Record<string, string | string[]> }
-) {
+// ── context type ──────────────────────────────────────────────────────
+type RouteContext = {
+  params: {
+    id: string;           // only dynamic segment in this route
+  };
+};
+
+export async function GET(_req: Request, context: RouteContext) {
   // --- extract & validate id -----------------------------------------
-  const raw = Array.isArray(params.id) ? params.id[0] : params.id;
-  const id  = Number(raw);
+  const id = Number(context.params.id);
 
   if (!Number.isInteger(id) || id <= 0) {
     return NextResponse.json({ error: "Bad id" }, { status: 400 });
