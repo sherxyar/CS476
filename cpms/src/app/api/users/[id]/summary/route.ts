@@ -2,22 +2,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// ── context type ──────────────────────────────────────────────────────
-type RouteContext = {
-  params: {
-    id: string;           // only dynamic segment in this route
-  };
-};
-
-export async function GET(_req: Request, context: RouteContext) {
-  // --- extract & validate id -----------------------------------------
-  const id = Number(context.params.id);
+export async function GET(
+  _req: Request,
+  { params }: { params: { id: string } }       // ← keep this inline
+) {
+  const id = Number(params.id);
 
   if (!Number.isInteger(id) || id <= 0) {
     return NextResponse.json({ error: "Bad id" }, { status: 400 });
   }
 
-  // --- DB query -------------------------------------------------------
   const user = await prisma.user.findUnique({
     where: { id },
     select: {
@@ -33,7 +27,6 @@ export async function GET(_req: Request, context: RouteContext) {
     },
   });
 
-  // --- response -------------------------------------------------------
   return user
     ? NextResponse.json(user)
     : NextResponse.json({ error: "Not found" }, { status: 404 });
