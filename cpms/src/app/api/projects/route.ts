@@ -77,49 +77,43 @@ export async function GET() {
 
 
 // create a new project - POST reuquest
-
 export async function POST(req: Request) {
-  const body = await req.json();
+  const body = await req.json()
 
   if (!body.title) {
-    return NextResponse.json({ error: "title is required" }, { status: 400 });
+    return NextResponse.json({ error: 'title is required' }, { status: 400 })
   }
 
   const pmId =
     body.projectManagerId !== undefined && body.projectManagerId !== null
       ? Number(body.projectManagerId)
-      : null;
-
+      : null
   if (pmId !== null && Number.isNaN(pmId)) {
     return NextResponse.json(
-      { error: "projectManagerId must be a number" },
+      { error: 'projectManagerId must be a number' },
       { status: 400 }
-    );
+    )
   }
 
   try {
-    const project = await prisma.$transaction(async (tx) => {
-      const year = new Date().getFullYear();
+    const project = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const year = new Date().getFullYear()
       const countThisYear = await tx.project.count({
         where: { dateCreated: { gte: new Date(`${year}-01-01T00:00:00Z`) } },
-      });
+      })
 
-      const projectID = `${year}-${String(countThisYear + 1).padStart(4, "0")}`;
+      const projectID = `${year}-${String(countThisYear + 1).padStart(4, '0')}`
 
       return tx.project.create({
         data: {
           projectID,
           title: body.title,
-          description: body.description ?? "",
-          phase: body.phase ?? "Planning",
-
-          projectManager:
-            pmId !== null ? { connect: { id: pmId } } : undefined,
-
+          description: body.description ?? '',
+          phase: body.phase ?? 'Planning',
+          projectManager: pmId !== null ? { connect: { id: pmId } } : undefined,
           forecast: Number(body.forecast) || 0,
           actuals: Number(body.actuals) || 0,
           budget: Number(body.budget) || 0,
-
           plannedStartDate: new Date(body.plannedStartDate),
           plannedEndDate: new Date(body.plannedEndDate),
         },
@@ -138,22 +132,16 @@ export async function POST(req: Request) {
           actuals: true,
           budget: true,
           projectManagerId: true,
-          projectManager: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+          projectManager: { select: { id: true, name: true, email: true } },
           pmNotesHistory: true,
           financialHistory: true,
         },
-      });
-    });
+      })
+    })
 
-    return NextResponse.json(project, { status: 201 });
-  } catch (error) {
-    console.error("Failed to create project:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json(project, { status: 201 })
+  } catch (err) {
+    console.error('Failed to create project:', err)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
