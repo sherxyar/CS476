@@ -5,8 +5,7 @@ import useSWR from "swr";
 import { Combobox } from "@headlessui/react";
 
 type User = { id: number; name: string; email: string };
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export default function UserPicker({
   value,
@@ -16,24 +15,21 @@ export default function UserPicker({
   onChange: (id: number | null) => void;
 }) {
   const [query, setQuery] = useState("");
-  const { data: users = [] as User[] } = useSWR(
-    `/api/users?query=${query}`,
-    fetcher
-  );
+  const { data: users = [] } = useSWR<User[]>(`/api/users?query=${query}`, fetcher);
 
   return (
     <Combobox value={value} onChange={onChange}>
       <Combobox.Input
         className="border p-2 rounded w-full"
         displayValue={(id: number | null) =>
-          id ? users.find(({ id: uid }) => uid === id)?.name ?? "" : ""
+          id ? users.find(u => u.id === id)?.name ?? "" : ""
         }
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={e => setQuery(e.target.value)}
         placeholder="Select a Project Manager"
       />
 
       <Combobox.Options className="border mt-1 rounded max-h-60 overflow-y-auto bg-white">
-        {users.map((u) => (
+        {users.map(u => (
           <Combobox.Option
             key={u.id}
             value={u.id}
