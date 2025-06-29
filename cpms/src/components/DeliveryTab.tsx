@@ -311,8 +311,8 @@ export default function DeliveryTab({ project: _project }: Props) {
                 <span className={styles.summaryValue}>{risks.filter(r => r.riskLevel === "Critical").length}</span>
               </div>
               <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Open Risks</span>
-                <span className={styles.summaryValue}>{risks.filter(r => r.status === "Open").length}</span>
+                <span className={styles.summaryLabel}>Identified Risks</span>
+                <span className={styles.summaryValue}>{risks.filter(r => r.status === "Identified").length}</span>
               </div>
               <div className={styles.summaryItem}>
                 <span className={styles.summaryLabel}>Overdue Risks</span>
