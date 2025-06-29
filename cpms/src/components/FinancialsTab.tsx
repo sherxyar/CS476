@@ -1,205 +1,208 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import styles from "../styles/ProjectModal.module.css";
-import { useEffect } from "react";
+
 import type { Project } from "@/types/Project";
-import { toast } from 'react-toastify';
+
+/* Local helper types                                                 */
+
+type InvoiceStatus = "Paid" | "Not Paid";
+
+interface Invoice {
+  date: string;
+  invoiceNumber: string;
+
+  // i have formatted as "$12,345.67"
+  amount: string;                
+  status: InvoiceStatus;
+  vendor: string;
+}
+
+interface RawHistoryEntry {
+  changedAt: string;
+  field: "forecast" | "budget" | "actuals";
+  oldValue: number;
+  newValue: number;
+  reason?: string | null;
+  changedBy: { name?: string } | null;
+}
+
+interface HistoryItem {
+  date: string;
+  field: string;
+  oldValue: string;
+  newValue: string;
+  changedBy: string;
+  reason: string;
+}
 
 
-
-
-type Props = {
+interface Props {
   project: Project;
   registerChangeHandler: (getChanges: () => Partial<Project>) => void;
-};
+}
 
 
 export default function FinancialsTab({ project }: Props) {
-  const [isUpdating, setIsUpdating] = useState(false);
+  /*  Animation / loading flags  */
+  const [isCalculating, setIsCalculating] = useState(true);
+  const [isUpdating, setIsUpdating]       = useState(false);
 
-  // this is for animating the financial values
-  const [animatedValues, setAnimatedValues] = useState({
+  /*  Server data  */
+  const [financialValues, setFinancialValues] = useState({
     forecast: 0,
     budget: 0,
     actuals: 0,
   });
+  const [animatedValues, setAnimatedValues] = useState(financialValues);
+  const [financialHistory, setFinancialHistory] = useState<HistoryItem[]>([]);
 
-  // to show "calculating financials" animation, need to make it look better
-  const [isCalculating, setIsCalculating] = useState(true);
-
-
-  useEffect(() => {
-    async function fetchFinancials() {
-      try {
-        const res = await fetch(`/api/projects/${project.id}/financials`);
-        if (!res.ok) throw new Error("Failed to fetch project");
-
-        const fullProject = await res.json();
-
-        // this is show an animation for calculating financials to compensate for the delay
-
-        // Update financial values from DB
-        const target = {
-          forecast: fullProject.forecast ?? 0,
-          budget: fullProject.budget ?? 0,
-          actuals: fullProject.actuals ?? 0,
-        };
-
-        setIsCalculating(true);
-
-
-        setFinancialValues(target);
-        setAnimatedValues(target);
-        setIsCalculating(false);
-
-
-
-        // Format and set financial history
-        const formattedHistory = (fullProject.financialHistory ?? []).map((entry: any) => ({
-          date: new Date(entry.changedAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }),
-          field:
-            entry.field === "forecast"
-              ? "Total Project Forecast"
-              : entry.field === "budget"
-                ? "Total Project Budget"
-                : "Total Project Actuals to Date",
-          oldValue: `$${entry.oldValue.toFixed(2)}`,
-          newValue: `$${entry.newValue.toFixed(2)}`,
-          changedBy: entry.changedBy?.name ?? "Unknown",
-          reason: entry.reason ?? "—",
-        }));
-
-        setFinancialHistory(formattedHistory);
-      } catch (error) {
-        console.error("Error loading financials:", error);
-      }
-    }
-
-    fetchFinancials();
-  }, [project.id]);
-
-
-  // All this needs to be updated later when the backend is ready
-  const [showAddInvoice, setShowAddInvoice] = useState(false);
+  /*  UI state  */
+  const [showAddInvoice,   setShowAddInvoice]   = useState(false);
   const [showActualsPopup, setShowActualsPopup] = useState(false);
   const [showHistoryPopup, setShowHistoryPopup] = useState(false);
-  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
-  const [invoiceForm, setInvoiceForm] = useState({
-    date: "",
-    invoiceNumber: "",
-    amount: "",
-    status: "Not Paid",
-    vendor: ""
-  });
-  const [invoices, setInvoices] = useState([
+  const [showUpdatePopup,  setShowUpdatePopup]  = useState(false);
+
+  const [invoices, setInvoices] = useState<Invoice[]>([
     {
       date: "Jan 5, 2025",
       invoiceNumber: "INV-2025-001",
       amount: "$15,400.00",
       status: "Paid",
-      vendor: "ABC Construction"
+      vendor: "ABC Construction",
     },
     {
       date: "Jan 8, 2025",
       invoiceNumber: "INV-2025-002",
       amount: "$12,830.50",
       status: "Paid",
-      vendor: "Regina Materials Co."
+      vendor: "Regina Materials Co.",
     },
     {
       date: "Jan 12, 2025",
       invoiceNumber: "INV-2025-003",
       amount: "$17,000.00",
       status: "Not Paid",
-      vendor: "Equipment Rental Plus"
-    }
+      vendor: "Equipment Rental Plus",
+    },
   ]);
 
-  const [financialValues, setFinancialValues] = useState({
-    forecast: 0,
-    budget: 0,
-    actuals: 0,
+  /*  Forms  */
+  const [invoiceForm, setInvoiceForm] = useState({
+    date: "",
+    invoiceNumber: "",
+    amount: "",
+    status: "Not Paid" as InvoiceStatus,
+    vendor: "",
   });
 
   const [updateForm, setUpdateForm] = useState({
     field: "Total Project Forecast",
     currentValue: "",
     newValue: "",
-    reason: ""
+    reason: "",
   });
 
-  const [financialHistory, setFinancialHistory] = useState<any[]>([]);
+  // get latest financials through API
+   
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`/api/projects/${project.id}/financials`);
+        if (!res.ok) throw new Error("Failed to fetch project");
+        const fullProject = await res.json();
 
+        const target = {
+          forecast: fullProject.forecast ?? 0,
+          budget: fullProject.budget ?? 0,
+          actuals: fullProject.actuals ?? 0,
+        };
+
+        setIsCalculating(true);         
+        setFinancialValues(target);
+        setAnimatedValues(target);       
+        setIsCalculating(false);
+
+        /*  Map history to a display-friendly shape  */
+        const formattedHistory: HistoryItem[] =
+          (fullProject.financialHistory ?? []).map((entry: RawHistoryEntry) => ({
+            date: new Date(entry.changedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            field:
+              entry.field === "forecast"
+                ? "Total Project Forecast"
+                : entry.field === "budget"
+                ? "Total Project Budget"
+                : "Total Project Actuals to Date",
+            oldValue: `$${entry.oldValue.toFixed(2)}`,
+            newValue: `$${entry.newValue.toFixed(2)}`,
+            changedBy: entry.changedBy?.name ?? "Unknown",
+            reason: entry.reason ?? "—",
+          }));
+
+        setFinancialHistory(formattedHistory);
+      } catch (err) {
+        console.error("Error loading financials:", err);
+      }
+    })();
+  }, [project.id]);
+
+  
+   // Invoice helpers
+  
+  const handleInvoiceFormChange = (field: keyof typeof invoiceForm, value: string) => {
+    setInvoiceForm((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleAddInvoice = () => {
     if (invoiceForm.date && invoiceForm.invoiceNumber && invoiceForm.amount && invoiceForm.vendor) {
-      const newInvoice = {
-        date: invoiceForm.date,
-        invoiceNumber: invoiceForm.invoiceNumber,
-        amount: invoiceForm.amount.startsWith('$') ? invoiceForm.amount : `$${invoiceForm.amount}`,
-        status: invoiceForm.status,
-        vendor: invoiceForm.vendor
+      const newInvoice: Invoice = {
+        ...invoiceForm,
+        amount: invoiceForm.amount.startsWith("$")
+          ? invoiceForm.amount
+          : `$${invoiceForm.amount}`,
       };
-      setInvoices([...invoices, newInvoice]);
+      setInvoices((prev) => [...prev, newInvoice]);
       setInvoiceForm({
         date: "",
         invoiceNumber: "",
         amount: "",
         status: "Not Paid",
-        vendor: ""
+        vendor: "",
       });
       setShowAddInvoice(false);
     }
   };
 
-  const handleFormChange = (field: string, value: string) => {
-    setInvoiceForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
+   // Update financial values (PATCH)
+
+  const fieldMap: Record<string, "forecast" | "budget"> = {
+    "Total Project Forecast": "forecast",
+    "Total Project Budget": "budget",
   };
 
   const handleUpdateFieldChange = (field: string) => {
     let currentValue = "";
-    switch (field) {
-      case "Total Project Forecast":
-        currentValue = `$${financialValues.forecast.toFixed(2)}`;
-        break;
-      case "Total Project Budget":
-        currentValue = `$${financialValues.budget.toFixed(2)}`;
-        break;
-      case "Total Project Actuals to Date":
-        currentValue = `$${financialValues.actuals.toFixed(2)}`;
-        break;
-    }
-    setUpdateForm({
-      field,
-      currentValue,
-      newValue: "",
-      reason: ""
-    });
+    if (field === "Total Project Forecast") currentValue = `$${financialValues.forecast.toFixed(2)}`;
+    if (field === "Total Project Budget")   currentValue = `$${financialValues.budget.toFixed(2)}`;
+
+    setUpdateForm({ field, currentValue, newValue: "", reason: "" });
   };
 
   const handleSaveUpdate = async () => {
     if (!updateForm.newValue || !updateForm.reason) return;
 
-    const newValueNum = parseFloat(updateForm.newValue.replace('$', '').replace(',', ''));
-    const userId = 1; // Replace with real user ID later
-
-    const fieldMap: Record<string, "forecast" | "budget"> = {
-      "Total Project Forecast": "forecast",
-      "Total Project Budget": "budget",
-    };
-
+    setIsUpdating(true);
+    const userId = 1; // TODO: Replace with real user ID
+    const newValueNum = parseFloat(updateForm.newValue.replace(/[$,]/g, ""));
     const fieldKey = fieldMap[updateForm.field];
 
     try {
-      setIsUpdating(true); // start loading
-
       const res = await fetch(`/api/projects/${project.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -210,19 +213,14 @@ export default function FinancialsTab({ project }: Props) {
           userId,
         }),
       });
-
       if (!res.ok) throw new Error("Failed to update financials");
 
-      // Backend returns the updated financial history (and possibly project)
-      const updatedProject = await res.json();
-
-      // Update UI state
+      // Update UI state 
       const updatedValues = { ...financialValues, [fieldKey]: newValueNum };
       setFinancialValues(updatedValues);
       setAnimatedValues(updatedValues);
 
-      // Add new history entry
-      const historyEntry = {
+      const historyEntry: HistoryItem = {
         date: new Date().toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
@@ -231,22 +229,13 @@ export default function FinancialsTab({ project }: Props) {
         field: updateForm.field,
         oldValue: updateForm.currentValue,
         newValue: `$${newValueNum.toFixed(2)}`,
-         // TODO: Replace later with real user
         changedBy: "Current User",
         reason: updateForm.reason,
       };
-      setFinancialHistory([historyEntry, ...financialHistory]);
-
-      // Clear form and close popup
-      setUpdateForm({
-        field: "Total Project Forecast",
-        currentValue: "",
-        newValue: "",
-        reason: "",
-      });
-      setShowUpdatePopup(false);
+      setFinancialHistory((prev) => [historyEntry, ...prev]);
 
       toast.success(`${updateForm.field} updated successfully!`);
+      setShowUpdatePopup(false);
     } catch (err) {
       console.error("Financial update failed:", err);
       toast.error("Something went wrong while updating.");
@@ -255,19 +244,19 @@ export default function FinancialsTab({ project }: Props) {
     }
   };
 
+ // renderr
   return (
     <>
+      {/* Financial summary */}
       <div className={styles.financialsContent}>
-        <div className={styles.actualsHeader} style={{ marginBottom: '16px' }}>
+        <div className={styles.actualsHeader} style={{ marginBottom: 16 }}>
           <label>Financial Summary</label>
           <button
             className={styles.addInvoiceButton}
-
             onClick={() => {
               handleUpdateFieldChange(updateForm.field);
               setShowUpdatePopup(true);
             }}
-
           >
             Update Values
           </button>
@@ -275,56 +264,50 @@ export default function FinancialsTab({ project }: Props) {
 
         <div className={styles.topSection}>
           <div className={styles.leftColumn}>
-            <div className={styles.fieldGroup}>
-              <label>Total Project Forecast</label>
-              <div className={styles.fieldValue}>
-                {isCalculating
-                  ? <span className={styles.calculating}>Calculating...</span>
-                  : `$${animatedValues.forecast.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                }
+            {[
+              ["Total Project Forecast", animatedValues.forecast],
+              ["Total Project Budget", animatedValues.budget],
+            ].map(([label, val]) => (
+              <div className={styles.fieldGroup} key={label}>
+                <label>{label}</label>
+                <div className={styles.fieldValue}>
+                  {isCalculating ? (
+                    <span className={styles.calculating}>Calculating...</span>
+                  ) : (
+                    `$${val.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                  )}
+                </div>
               </div>
-
-            </div>
-
-            <div className={styles.fieldGroup}>
-              <label>Total Project Budget</label>
-              <div className={styles.fieldValue}>
-                {isCalculating
-                  ? <span className={styles.calculating}>Calculating...</span>
-                  : `$${animatedValues.budget.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                }
-              </div>
-
-            </div>
+            ))}
           </div>
 
           <div className={styles.rightColumn}>
             <div className={styles.fieldGroup}>
-              <label>Total Project Actuals to Date </label> <div className={styles.fieldValue}>
-                {isCalculating
-                  ? <span className={styles.calculating}>Calculating...</span>
-                  : `$${animatedValues.actuals.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                }
+              <label>Total Project Actuals to Date</label>
+              <div className={styles.fieldValue}>
+                {isCalculating ? (
+                  <span className={styles.calculating}>Calculating...</span>
+                ) : (
+                  `$${animatedValues.actuals.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                )}
               </div>
-
             </div>
           </div>
         </div>
 
-        <div className={styles.divider}></div>
+        <div className={styles.divider} />
 
+        {/* Actuals summary */}
         <div className={styles.actualsSection}>
           <div className={styles.fieldGroup}>
             <div className={styles.actualsHeader}>
               <label>Actuals Summary</label>
-              <div className={styles.buttonGroup}>
-                <button
-                  className={styles.viewDetailsButton}
-                  onClick={() => setShowActualsPopup(true)}
-                >
-                  View Details
-                </button>
-              </div>
+              <button
+                className={styles.viewDetailsButton}
+                onClick={() => setShowActualsPopup(true)}
+              >
+                View Details
+              </button>
             </div>
             <div className={styles.summaryCard}>
               <div className={styles.summaryItem}>
@@ -343,8 +326,9 @@ export default function FinancialsTab({ project }: Props) {
           </div>
         </div>
 
-        <div className={styles.divider}></div>
+        <div className={styles.divider} />
 
+        {/* Financial history */}
         <div className={styles.historySection}>
           <div className={styles.fieldGroup}>
             <div className={styles.actualsHeader}>
@@ -363,18 +347,22 @@ export default function FinancialsTab({ project }: Props) {
               </div>
               <div className={styles.summaryItem}>
                 <span className={styles.summaryLabel}>Last Updated:</span>
-                <span className={styles.summaryValue}>Jan 1, 2025</span>
+                <span className={styles.summaryValue}>
+                  {financialHistory[0]?.date ?? "—"}
+                </span>
               </div>
               <div className={styles.summaryItem}>
                 <span className={styles.summaryLabel}>Updated By:</span>
-                <span className={styles.summaryValue}>John Doe</span>
+                <span className={styles.summaryValue}>
+                  {financialHistory[0]?.changedBy ?? "—"}
+                </span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Actuals Popup */}
+      {/* Actuals popup */}
       {showActualsPopup && (
         <div className={styles.popupOverlay} onClick={() => setShowActualsPopup(false)}>
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
@@ -387,6 +375,7 @@ export default function FinancialsTab({ project }: Props) {
                 ✖
               </button>
             </div>
+
             <div className={styles.popupContent}>
               <div className={styles.actualsHeader}>
                 <label>Invoice Management</label>
@@ -398,6 +387,7 @@ export default function FinancialsTab({ project }: Props) {
                 </button>
               </div>
 
+              {/*  Add-invoice form  */}
               {showAddInvoice && (
                 <div className={styles.invoiceForm}>
                   <div className={styles.formRow}>
@@ -406,7 +396,9 @@ export default function FinancialsTab({ project }: Props) {
                       <input
                         type="date"
                         value={invoiceForm.date}
-                        onChange={(e) => handleFormChange('date', e.target.value)}
+                        onChange={(e) =>
+                          handleInvoiceFormChange("date", e.target.value)
+                        }
                         className={styles.formInput}
                       />
                     </div>
@@ -415,19 +407,24 @@ export default function FinancialsTab({ project }: Props) {
                       <input
                         type="text"
                         value={invoiceForm.invoiceNumber}
-                        onChange={(e) => handleFormChange('invoiceNumber', e.target.value)}
+                        onChange={(e) =>
+                          handleInvoiceFormChange("invoiceNumber", e.target.value)
+                        }
                         placeholder="INV-2025-004"
                         className={styles.formInput}
                       />
                     </div>
                   </div>
+
                   <div className={styles.formRow}>
                     <div className={styles.formField}>
                       <label>Amount</label>
                       <input
                         type="text"
                         value={invoiceForm.amount}
-                        onChange={(e) => handleFormChange('amount', e.target.value)}
+                        onChange={(e) =>
+                          handleInvoiceFormChange("amount", e.target.value)
+                        }
                         placeholder="15000.00"
                         className={styles.formInput}
                       />
@@ -436,7 +433,9 @@ export default function FinancialsTab({ project }: Props) {
                       <label>Status</label>
                       <select
                         value={invoiceForm.status}
-                        onChange={(e) => handleFormChange('status', e.target.value)}
+                        onChange={(e) =>
+                          handleInvoiceFormChange("status", e.target.value)
+                        }
                         className={styles.formSelect}
                       >
                         <option value="Not Paid">Not Paid</option>
@@ -444,35 +443,34 @@ export default function FinancialsTab({ project }: Props) {
                       </select>
                     </div>
                   </div>
+
                   <div className={styles.formRow}>
                     <div className={styles.formField}>
                       <label>Vendor</label>
                       <input
                         type="text"
                         value={invoiceForm.vendor}
-                        onChange={(e) => handleFormChange('vendor', e.target.value)}
+                        onChange={(e) =>
+                          handleInvoiceFormChange("vendor", e.target.value)
+                        }
                         placeholder="Vendor Name"
                         className={styles.formInput}
                       />
                     </div>
+
                     <div className={styles.formActions}>
                       <button
                         className={styles.saveInvoiceButton}
-                        onClick={handleSaveUpdate}
-                        disabled={isUpdating || !updateForm.newValue || !updateForm.reason}
-                        style={{
-                          opacity: (!updateForm.newValue || !updateForm.reason) ? 0.5 : 1,
-                          cursor: (!updateForm.newValue || !updateForm.reason) ? 'not-allowed' : 'pointer',
-                        }}
+                        onClick={handleAddInvoice}
                       >
-                        {isUpdating ? "Saving..." : "Save Update"}
+                        Save Invoice
                       </button>
-
                     </div>
                   </div>
                 </div>
               )}
 
+              {/*  Invoice table  */}
               <div className={styles.tableContainer}>
                 <table className={styles.actualsTable}>
                   <thead>
@@ -485,17 +483,23 @@ export default function FinancialsTab({ project }: Props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {invoices.map((invoice, index) => (
-                      <tr key={index}>
-                        <td>{invoice.date}</td>
-                        <td>{invoice.invoiceNumber}</td>
-                        <td>{invoice.amount}</td>
+                    {invoices.map((inv, idx) => (
+                      <tr key={idx}>
+                        <td>{inv.date}</td>
+                        <td>{inv.invoiceNumber}</td>
+                        <td>{inv.amount}</td>
                         <td>
-                          <span className={invoice.status === "Paid" ? styles.statusPaid : styles.statusNotPaid}>
-                            {invoice.status}
+                          <span
+                            className={
+                              inv.status === "Paid"
+                                ? styles.statusPaid
+                                : styles.statusNotPaid
+                            }
+                          >
+                            {inv.status}
                           </span>
                         </td>
-                        <td>{invoice.vendor}</td>
+                        <td>{inv.vendor}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -506,7 +510,7 @@ export default function FinancialsTab({ project }: Props) {
         </div>
       )}
 
-      {/* Financial History Popup */}
+      {/* History popup */}
       {showHistoryPopup && (
         <div className={styles.popupOverlay} onClick={() => setShowHistoryPopup(false)}>
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
@@ -519,6 +523,7 @@ export default function FinancialsTab({ project }: Props) {
                 ✖
               </button>
             </div>
+
             <div className={styles.popupContent}>
               <div className={styles.tableContainer}>
                 <table className={styles.historyTable}>
@@ -533,14 +538,14 @@ export default function FinancialsTab({ project }: Props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {financialHistory.map((entry, index) => (
-                      <tr key={index}>
-                        <td>{entry.date}</td>
-                        <td>{entry.field}</td>
-                        <td className={styles.oldValue}>{entry.oldValue}</td>
-                        <td className={styles.newValue}>{entry.newValue}</td>
-                        <td>{entry.changedBy}</td>
-                        <td>{entry.reason}</td>
+                    {financialHistory.map((h, idx) => (
+                      <tr key={idx}>
+                        <td>{h.date}</td>
+                        <td>{h.field}</td>
+                        <td className={styles.oldValue}>{h.oldValue}</td>
+                        <td className={styles.newValue}>{h.newValue}</td>
+                        <td>{h.changedBy}</td>
+                        <td>{h.reason}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -551,7 +556,7 @@ export default function FinancialsTab({ project }: Props) {
         </div>
       )}
 
-      {/* Update Financial Values Popup */}
+      {/* Update-values popup */}
       {showUpdatePopup && (
         <div className={styles.popupOverlay} onClick={() => setShowUpdatePopup(false)}>
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
@@ -564,6 +569,7 @@ export default function FinancialsTab({ project }: Props) {
                 ✖
               </button>
             </div>
+
             <div className={styles.popupContent}>
               <div className={styles.invoiceForm}>
                 <div className={styles.formRow}>
@@ -579,6 +585,7 @@ export default function FinancialsTab({ project }: Props) {
                     </select>
                   </div>
                 </div>
+
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
                     <label>Current Value</label>
@@ -587,7 +594,7 @@ export default function FinancialsTab({ project }: Props) {
                       className={styles.formInput}
                       value={updateForm.currentValue}
                       disabled
-                      style={{ backgroundColor: '#f0f0f0', color: '#666' }}
+                      style={{ backgroundColor: "#f0f0f0", color: "#666" }}
                     />
                   </div>
                   <div className={styles.formField}>
@@ -596,11 +603,14 @@ export default function FinancialsTab({ project }: Props) {
                       type="text"
                       className={styles.formInput}
                       value={updateForm.newValue}
-                      onChange={(e) => setUpdateForm({ ...updateForm, newValue: e.target.value })}
+                      onChange={(e) =>
+                        setUpdateForm({ ...updateForm, newValue: e.target.value })
+                      }
                       placeholder="125000.00"
                     />
                   </div>
                 </div>
+
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
                     <label>Reason for Change</label>
@@ -608,21 +618,28 @@ export default function FinancialsTab({ project }: Props) {
                       type="text"
                       className={styles.formInput}
                       value={updateForm.reason}
-                      onChange={(e) => setUpdateForm({ ...updateForm, reason: e.target.value })}
+                      onChange={(e) =>
+                        setUpdateForm({ ...updateForm, reason: e.target.value })
+                      }
                       placeholder="Explain why this value is being updated..."
                     />
                   </div>
+
                   <div className={styles.formActions}>
                     <button
                       className={styles.saveInvoiceButton}
                       onClick={handleSaveUpdate}
-                      disabled={!updateForm.newValue || !updateForm.reason}
+                      disabled={!updateForm.newValue || !updateForm.reason || isUpdating}
                       style={{
-                        opacity: (!updateForm.newValue || !updateForm.reason) ? 0.5 : 1,
-                        cursor: (!updateForm.newValue || !updateForm.reason) ? 'not-allowed' : 'pointer'
+                        opacity:
+                          !updateForm.newValue || !updateForm.reason ? 0.5 : 1,
+                        cursor:
+                          !updateForm.newValue || !updateForm.reason
+                            ? "not-allowed"
+                            : "pointer",
                       }}
                     >
-                      Save Update
+                      {isUpdating ? "Saving…" : "Save Update"}
                     </button>
                   </div>
                 </div>
