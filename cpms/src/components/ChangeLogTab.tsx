@@ -139,10 +139,10 @@ export default function ChangeLogTab({ project: _project }: Props) {
     }
   };
 
-  /* ----------------------------- UI ------------------------------ */
+  /*  UI  */
   return (
     <div className={styles.generalContent}>
-      {/* ─── summary boxes ────────────────────────────── */}
+      {/*  summary boxes  */}
       <div className={styles.topSection}>
         <div className={styles.leftColumn}>
           <div className={styles.fieldGroup}>
@@ -168,7 +168,7 @@ export default function ChangeLogTab({ project: _project }: Props) {
 
       <div className={styles.divider} />
 
-      {/* ─── filters & add button ─────────────────────── */}
+      {/*  filters & add button  */}
       <div className={styles.actualsSection}>
         <div className={styles.fieldGroup}>
           <div className={styles.actualsHeader}>
@@ -259,7 +259,7 @@ export default function ChangeLogTab({ project: _project }: Props) {
         </div>
       </div>
 
-      {/* ─── add‑change popup ───────────────────────────── */}
+      {/*  add‑change popup  */}
       {showAddChange && (
         <div className={styles.popupOverlay} onClick={() => setShowAddChange(false)}>
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>

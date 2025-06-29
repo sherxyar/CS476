@@ -1,4 +1,3 @@
-// src/app/api/projects/[id]/financials/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 

@@ -6,16 +6,16 @@ import styles from "../styles/ProjectModal.module.css";
 
 import type { Project } from "@/types/Project";
 
-/* ------------------------------------------------------------------ */
 /* Local helper types                                                 */
-/* ------------------------------------------------------------------ */
 
 type InvoiceStatus = "Paid" | "Not Paid";
 
 interface Invoice {
   date: string;
   invoiceNumber: string;
-  amount: string;                // formatted with $ and commas
+
+  // i have formatted as "$12,345.67"
+  amount: string;                
   status: InvoiceStatus;
   vendor: string;
 }
@@ -38,21 +38,19 @@ interface HistoryItem {
   reason: string;
 }
 
-/* ------------------------------------------------------------------ */
 
 interface Props {
   project: Project;
   registerChangeHandler: (getChanges: () => Partial<Project>) => void;
 }
 
-/* ------------------------------------------------------------------ */
 
 export default function FinancialsTab({ project }: Props) {
-  /* ----- Animation / loading flags -------------------------------- */
+  /*  Animation / loading flags  */
   const [isCalculating, setIsCalculating] = useState(true);
   const [isUpdating, setIsUpdating]       = useState(false);
 
-  /* ----- Server data ---------------------------------------------- */
+  /*  Server data  */
   const [financialValues, setFinancialValues] = useState({
     forecast: 0,
     budget: 0,
@@ -61,7 +59,7 @@ export default function FinancialsTab({ project }: Props) {
   const [animatedValues, setAnimatedValues] = useState(financialValues);
   const [financialHistory, setFinancialHistory] = useState<HistoryItem[]>([]);
 
-  /* ----- UI state ------------------------------------------------- */
+  /*  UI state  */
   const [showAddInvoice,   setShowAddInvoice]   = useState(false);
   const [showActualsPopup, setShowActualsPopup] = useState(false);
   const [showHistoryPopup, setShowHistoryPopup] = useState(false);
@@ -91,7 +89,7 @@ export default function FinancialsTab({ project }: Props) {
     },
   ]);
 
-  /* ----- Forms ---------------------------------------------------- */
+  /*  Forms  */
   const [invoiceForm, setInvoiceForm] = useState({
     date: "",
     invoiceNumber: "",
@@ -107,9 +105,8 @@ export default function FinancialsTab({ project }: Props) {
     reason: "",
   });
 
-  /* =================================================================
-   * → Load latest financials from API
-   * ================================================================= */
+  // get latest financials through API
+   
   useEffect(() => {
     (async () => {
       try {
@@ -123,12 +120,12 @@ export default function FinancialsTab({ project }: Props) {
           actuals: fullProject.actuals ?? 0,
         };
 
-        setIsCalculating(true);          // show skeleton
+        setIsCalculating(true);         
         setFinancialValues(target);
-        setAnimatedValues(target);       // could animate later
+        setAnimatedValues(target);       
         setIsCalculating(false);
 
-        /* ---- Map history to a display-friendly shape ------------- */
+        /*  Map history to a display-friendly shape  */
         const formattedHistory: HistoryItem[] =
           (fullProject.financialHistory ?? []).map((entry: RawHistoryEntry) => ({
             date: new Date(entry.changedAt).toLocaleDateString("en-US", {
@@ -155,9 +152,9 @@ export default function FinancialsTab({ project }: Props) {
     })();
   }, [project.id]);
 
-  /* =================================================================
-   * → Invoice helpers
-   * ================================================================= */
+  
+   // Invoice helpers
+  
   const handleInvoiceFormChange = (field: keyof typeof invoiceForm, value: string) => {
     setInvoiceForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -182,9 +179,8 @@ export default function FinancialsTab({ project }: Props) {
     }
   };
 
-  /* =================================================================
-   * → Update financial values (PATCH)
-   * ================================================================= */
+   // Update financial values (PATCH)
+
   const fieldMap: Record<string, "forecast" | "budget"> = {
     "Total Project Forecast": "forecast",
     "Total Project Budget": "budget",
@@ -219,7 +215,7 @@ export default function FinancialsTab({ project }: Props) {
       });
       if (!res.ok) throw new Error("Failed to update financials");
 
-      /* ---- Update UI state -------------------------------------- */
+      // Update UI state 
       const updatedValues = { ...financialValues, [fieldKey]: newValueNum };
       setFinancialValues(updatedValues);
       setAnimatedValues(updatedValues);
@@ -248,14 +244,10 @@ export default function FinancialsTab({ project }: Props) {
     }
   };
 
-  /* ----------------------------------------------------------------
-   * Render
-   * ---------------------------------------------------------------- */
+ // renderr
   return (
     <>
-      {/* ============================================================
-       * Financial summary
-       * ============================================================ */}
+      {/* Financial summary */}
       <div className={styles.financialsContent}>
         <div className={styles.actualsHeader} style={{ marginBottom: 16 }}>
           <label>Financial Summary</label>
@@ -305,9 +297,7 @@ export default function FinancialsTab({ project }: Props) {
 
         <div className={styles.divider} />
 
-        {/* ============================================================
-         * Actuals summary
-         * ============================================================ */}
+        {/* Actuals summary */}
         <div className={styles.actualsSection}>
           <div className={styles.fieldGroup}>
             <div className={styles.actualsHeader}>
@@ -338,9 +328,7 @@ export default function FinancialsTab({ project }: Props) {
 
         <div className={styles.divider} />
 
-        {/* ============================================================
-         * Financial history
-         * ============================================================ */}
+        {/* Financial history */}
         <div className={styles.historySection}>
           <div className={styles.fieldGroup}>
             <div className={styles.actualsHeader}>
@@ -374,9 +362,7 @@ export default function FinancialsTab({ project }: Props) {
         </div>
       </div>
 
-      {/* ============================================================
-       * Actuals popup
-       * ============================================================ */}
+      {/* Actuals popup */}
       {showActualsPopup && (
         <div className={styles.popupOverlay} onClick={() => setShowActualsPopup(false)}>
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
@@ -401,7 +387,7 @@ export default function FinancialsTab({ project }: Props) {
                 </button>
               </div>
 
-              {/* ---- Add-invoice form -------------------------------- */}
+              {/*  Add-invoice form  */}
               {showAddInvoice && (
                 <div className={styles.invoiceForm}>
                   <div className={styles.formRow}>
@@ -484,7 +470,7 @@ export default function FinancialsTab({ project }: Props) {
                 </div>
               )}
 
-              {/* ---- Invoice table ---------------------------------- */}
+              {/*  Invoice table  */}
               <div className={styles.tableContainer}>
                 <table className={styles.actualsTable}>
                   <thead>
@@ -524,9 +510,7 @@ export default function FinancialsTab({ project }: Props) {
         </div>
       )}
 
-      {/* ============================================================
-       * History popup
-       * ============================================================ */}
+      {/* History popup */}
       {showHistoryPopup && (
         <div className={styles.popupOverlay} onClick={() => setShowHistoryPopup(false)}>
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
@@ -572,9 +556,7 @@ export default function FinancialsTab({ project }: Props) {
         </div>
       )}
 
-      {/* ============================================================
-       * Update-values popup
-       * ============================================================ */}
+      {/* Update-values popup */}
       {showUpdatePopup && (
         <div className={styles.popupOverlay} onClick={() => setShowUpdatePopup(false)}>
           <div className={styles.popup} onClick={(e) => e.stopPropagation()}>

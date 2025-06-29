@@ -1,4 +1,3 @@
-// app/api/users/[id]/summary/route.ts
 import { NextResponse, type NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 

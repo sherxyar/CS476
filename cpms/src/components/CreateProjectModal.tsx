@@ -4,7 +4,7 @@ import { useState, ChangeEvent, FormEvent } from "react";
 
 interface ProjectForm {
   title: string;
-  projectManagerId: string;      // FK → User.id  (string for the input, number later)
+  projectManagerId: string;     
   description: string;
   forecast: string;
   actuals: string;
@@ -16,7 +16,7 @@ interface ProjectForm {
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (draft: ProjectForm) => void;  // parent handles API + parsing
+  onCreate: (draft: ProjectForm) => void;  
 }
 
 export default function CreateProjectModal({
@@ -43,7 +43,7 @@ export default function CreateProjectModal({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onCreate(form);          // parent will POST, parse numbers, reset list
+    onCreate(form);          
     onClose();
     setForm({
       title: "",
@@ -72,7 +72,7 @@ export default function CreateProjectModal({
             required
           />
 
-          {/* FK ⇢ User.id, keep simple numeric input for now */}
+
           <input
             name="projectManagerId"
             type="number"

@@ -1,42 +1,36 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-/**
- * GET /api/users?query=ali&limit=20&skip=0
- *
- * - `query`  optional substring to match in name OR email (ASCII-case-insensitive)
- * - `limit`  max rows to return (default 30, hard-capped at 50)
- * - `skip`   how many rows to skip (for simple pagination; default 0)
- */
+// list users - GET request
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
-  // ---- query string --------------------------------------------------
+  //  query string 
   const qRaw  = (searchParams.get("query") ?? "").trim();
   const query = qRaw.length ? qRaw : "";      // avoid falsy-but-not-empty issues
 
-  // ---- limit ---------------------------------------------------------
+  //  limit 
   const limitParam = Number(searchParams.get("limit"));
   const limit =
     Number.isFinite(limitParam) && limitParam > 0
       ? Math.min(limitParam, 50)               // safety cap
       : 30;                                    // default
 
-  // ---- skip (optional pagination) ------------------------------------
+  //  skip (pagination) 
   const skipParam = Number(searchParams.get("skip"));
   const skip =
     Number.isFinite(skipParam) && skipParam >= 0 ? skipParam : 0;
 
-  // ---- DB query ------------------------------------------------------
+  //  DB query 
   const users = await prisma.user.findMany({
     where: query
       ? {
           OR: [
-            { name:  { contains: query } },   // LIKE '%query%'  (ASCII CI)
+            { name:  { contains: query } },  
             { email: { contains: query } },
           ],
         }
-      : undefined,                            // empty query → no filter
+      : undefined,                            
     select: { id: true, name: true, email: true },
     orderBy: { name: "asc" },
     take: limit,

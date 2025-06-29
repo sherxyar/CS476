@@ -46,7 +46,7 @@ export async function PATCH(req: Request, props: Context) {
   const { id } = params;
   const body = await req.json();
 
-  /* ---------- Phase update ---------- */
+  /*  Phase update  */
   if (body.phase) {
     try {
       const updated = await prisma.project.update({
@@ -60,7 +60,7 @@ export async function PATCH(req: Request, props: Context) {
     }
   }
 
-  /* ---------- Add a PM note ---------- */
+  /*  Add a PM note */
   if (body.note) {
     const { note, userId } = body;
 
@@ -94,7 +94,7 @@ export async function PATCH(req: Request, props: Context) {
     }
   }
 
-  /* ---------- Financials update ---------- */
+  /*  Financials update  */
   const { field, newValue, reason, userId } = body;
 
   if (!["forecast", "budget", "actuals"].includes(field)) {
