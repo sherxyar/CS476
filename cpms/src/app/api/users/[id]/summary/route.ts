@@ -1,23 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-/**
- * GET /api/users/17
- *
- * Returns basic profile, project count, and the 10 most recent audit-log entries.
- */
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
-  const id = Number(params.id);
+  // --- extract & validate id -----------------------------------------
+  const raw = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id  = Number(raw);
 
-  // ---- guard-rails ---------------------------------------------------
   if (!Number.isInteger(id) || id <= 0) {
     return NextResponse.json({ error: "Bad id" }, { status: 400 });
   }
 
-  // ---- DB query ------------------------------------------------------
+  // --- DB query -------------------------------------------------------
   const user = await prisma.user.findUnique({
     where: { id },
     select: {
@@ -33,7 +29,7 @@ export async function GET(
     },
   });
 
-  // ---- response ------------------------------------------------------
+  // --- response -------------------------------------------------------
   return user
     ? NextResponse.json(user)
     : NextResponse.json({ error: "Not found" }, { status: 404 });
