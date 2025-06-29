@@ -26,7 +26,7 @@ export default function UserPicker({
       <Combobox.Input
         className="border p-2 rounded w-full"
         displayValue={(id: number | null) =>
-          id ? users.find((u) => u.id === id)?.name ?? "" : ""
+          id ? users.find(({ id: uid }) => uid === id)?.name ?? "" : ""
         }
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Select a Project Manager"
