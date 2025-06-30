@@ -1,10 +1,17 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import {
+  useState,
+  ChangeEvent,
+  FormEvent,
+  useRef,
+  useEffect,
+  KeyboardEvent,
+} from "react";
 
 interface ProjectForm {
   title: string;
-  projectManagerId: string;     
+  projectManagerId: string;
   description: string;
   forecast: string;
   actuals: string;
@@ -16,7 +23,7 @@ interface ProjectForm {
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (draft: ProjectForm) => void;  
+  onCreate: (draft: ProjectForm) => void;
 }
 
 export default function CreateProjectModal({
@@ -24,9 +31,10 @@ export default function CreateProjectModal({
   onClose,
   onCreate,
 }: CreateProjectModalProps) {
+
   const [form, setForm] = useState<ProjectForm>({
     title: "",
-    projectManagerId: "1",      // default to user #1 while testing
+    projectManagerId: "1", // default to user #1 while testing
     description: "",
     forecast: "",
     actuals: "",
@@ -34,6 +42,16 @@ export default function CreateProjectModal({
     startDate: "",
     endDate: "",
   });
+
+  const firstInputRef = useRef<HTMLInputElement>(null);
+
+
+  useEffect(() => {
+    if (isOpen) {
+      firstInputRef.current?.focus();
+    }
+  }, [isOpen]);
+
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -43,8 +61,9 @@ export default function CreateProjectModal({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onCreate(form);          
+    onCreate(form);
     onClose();
+    // reset
     setForm({
       title: "",
       projectManagerId: "1",
@@ -57,113 +76,251 @@ export default function CreateProjectModal({
     });
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Escape") onClose();
+  };
+
   if (!isOpen) return null;
 
+
   return (
-    <div className="modal-backdrop">
+    <div
+      className="modal-backdrop"
+      onKeyDown={handleKeyDown}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="modal">
-        <h2>Create New Project</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            name="title"
-            placeholder="Project Title"
-            value={form.title}
-            onChange={handleChange}
-            required
-          />
+        <h2 className="heading">Create New Project</h2>
+        <form onSubmit={handleSubmit} className="form">
+          {/* Title  */}
+          <label className="field">
+            <span>Project Title *</span>
+            <input
+              ref={firstInputRef}
+              name="title"
+              placeholder="Regina General Hospital Renovation"
+              value={form.title}
+              onChange={handleChange}
+              required
+            />
+          </label>
 
+          {/* PM ID - to be replaced by Name  */}
+          <label className="field">
+            <span>Manager User ID *</span>
+            <input
+              name="projectManagerId"
+              type="number"
+              min="1"
+              placeholder="1"
+              value={form.projectManagerId}
+              onChange={handleChange}
+              required
+            />
+          </label>
 
-          <input
-            name="projectManagerId"
-            type="number"
-            placeholder="Manager User ID"
-            value={form.projectManagerId}
-            onChange={handleChange}
-            min="1"
-            required
-          />
+          {/* Description  */}
+          <label className="field">
+            <span>Project Description *</span>
+            <textarea
+              name="description"
+              placeholder="Brief project overview..."
+              value={form.description}
+              onChange={handleChange}
+              rows={3}
+              required
+            />
+          </label>
 
-          <textarea
-            name="description"
-            placeholder="Project Description"
-            value={form.description}
-            onChange={handleChange}
-            required
-          />
+          {/* Financials  */}
+          <div className="grid">
+            <label className="field">
+              <span>Forecast *</span>
+              <input
+                name="forecast"
+                type="number"
+                placeholder="0.00"
+                value={form.forecast}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-          <input
-            name="forecast"
-            type="number"
-            placeholder="Total Project Forecast"
-            value={form.forecast}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="actuals"
-            type="number"
-            placeholder="Total Project Actuals to Date"
-            value={form.actuals}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="budget"
-            type="number"
-            placeholder="Total Project Budget"
-            value={form.budget}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="startDate"
-            type="date"
-            placeholder="Planned Start Date"
-            value={form.startDate}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="endDate"
-            type="date"
-            placeholder="Planned End Date"
-            value={form.endDate}
-            onChange={handleChange}
-            required
-          />
+            <label className="field">
+              <span>Actuals *</span>
+              <input
+                name="actuals"
+                type="number"
+                placeholder="0.00"
+                value={form.actuals}
+                onChange={handleChange}
+                required
+              />
+            </label>
 
-          <button type="submit">Create Project</button>
-          <button type="button" onClick={onClose}>
-            Cancel
-          </button>
+            <label className="field">
+              <span>Budget *</span>
+              <input
+                name="budget"
+                type="number"
+                placeholder="0.00"
+                value={form.budget}
+                onChange={handleChange}
+                required
+              />
+            </label>
+          </div>
+
+          {/* Dates  */}
+          <div className="grid">
+            <label className="field">
+              <span>Start Date *</span>
+              <input
+                name="startDate"
+                type="date"
+                value={form.startDate}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label className="field">
+              <span>End Date *</span>
+              <input
+                name="endDate"
+                type="date"
+                value={form.endDate}
+                onChange={handleChange}
+                required
+              />
+            </label>
+          </div>
+
+          {/* Buttons  */}
+          <div className="actions">
+            <button type="submit" className="btn primary">
+              Create Project
+            </button>
+            <button type="button" className="btn" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
 
-      {/* --- quick CSS-in-JS for the demo --- */}
+      {/* ---this is css for the modal--- */}
       <style jsx>{`
+        /* Backdrop */
         .modal-backdrop {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(0 0 0 / 0.4);
           display: flex;
           align-items: center;
           justify-content: center;
+          z-index: 50;
         }
+
+        /* Card */
         .modal {
           background: #fff;
-          padding: 2rem;
-          border-radius: 8px;
-          min-width: 320px;
+          color: #111827;
+          width: 90%;
+          max-width: 500px;
+          padding: 2rem 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 10px 25px rgba(0 0 0 / 0.1);
+          animation: fadeIn 0.2s ease-out;
         }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Typography */
+        .heading {
+          margin-bottom: 1.5rem;
+          font-size: 1.375rem;
+          font-weight: 600;
+          text-align: center;
+        }
+
+        /* Layout helpers */
+        .form {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 1rem;
+        }
+
+        /* Field wrapper */
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          font-size: 0.875rem;
+        }
+
+        .field > span {
+          font-weight: 500;
+        }
+
         input,
         textarea {
-          display: block;
-          width: 100%;
-          margin-bottom: 1rem;
-          padding: 0.5rem;
+          padding: 0.55rem 0.75rem;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          font-size: 0.95rem;
         }
-        button {
-          margin-right: 1rem;
+
+        input:focus-visible,
+        textarea:focus-visible {
+          outline: 2px solid #2563eb;
+          outline-offset: 2px;
+        }
+
+        /* Buttons */
+        .actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+          margin-top: 0.5rem;
+        }
+
+        .btn {
+          padding: 0.5rem 1.25rem;
+          border-radius: 6px;
+          font-weight: 500;
+          border: 1px solid transparent;
+          cursor: pointer;
+          transition: background 0.15s;
+          background: #f3f4f6;
+        }
+
+        .btn:hover {
+          background: #e5e7eb;
+        }
+
+        .btn.primary {
+          background: #2563eb;
+          color: #fff;
+        }
+
+        .btn.primary:hover {
+          background: #1e4fd6;
         }
       `}</style>
     </div>
