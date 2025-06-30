@@ -2,6 +2,16 @@
 "use client";
 import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
+import type { Project } from "@/types/Project";
+
+
+
+type Props = {
+ project: Project;
+};
+
+
+
 
 type RiskEntry = {
   id: string;
@@ -32,11 +42,8 @@ type LessonEntry = {
   documentedBy: string;
 };
 
-type Props = {
-  project: any;
-};
 
-export default function DeliveryTab({ project }: Props) {
+export default function DeliveryTab({ project: _project }: Props) {
   const [activeSubTab, setActiveSubTab] = useState("Risk");
   const [showAddRisk, setShowAddRisk] = useState(false);
   const [showAddLesson, setShowAddLesson] = useState(false);
@@ -304,8 +311,8 @@ export default function DeliveryTab({ project }: Props) {
                 <span className={styles.summaryValue}>{risks.filter(r => r.riskLevel === "Critical").length}</span>
               </div>
               <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Open Risks</span>
-                <span className={styles.summaryValue}>{risks.filter(r => r.status === "Open").length}</span>
+                <span className={styles.summaryLabel}>Identified Risks</span>
+                <span className={styles.summaryValue}>{risks.filter(r => r.status === "Identified").length}</span>
               </div>
               <div className={styles.summaryItem}>
                 <span className={styles.summaryLabel}>Overdue Risks</span>

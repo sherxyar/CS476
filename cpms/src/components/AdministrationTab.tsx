@@ -2,6 +2,7 @@
 "use client";
 import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
+import type { Project } from "@/types/Project";
 
 type TeamMember = {
   id: string;
@@ -14,10 +15,10 @@ type TeamMember = {
 };
 
 type Props = {
-  project: any;
+ project: Project;
 };
 
-export default function AdministrationTab({ project }: Props) {
+export default function AdministrationTab({ project: _project }: Props) {
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");

@@ -24,7 +24,7 @@ const fetchProjects = async () => {
     const res = await fetch("/api/projects");
     if (!res.ok) {
       const text = await res.text();  
-      throw new Error(`status ${res.status} – ${text}`);
+      throw new Error(`status ${res.status} , ${text}`);
     }
     const data = await res.json();
     setProjects(data);
@@ -88,8 +88,8 @@ const fetchProjects = async () => {
       setProjects((prev) => [saved, ...prev]);
       setIsCreateOpen(false);
     } catch (err) {
-      console.error("Project create failed:", err);
-      alert("Could not save project – check console for details.");
+      console.error("Project creation failed:", err);
+      alert("Could not save project, check console for details.");
     }
   };
 
@@ -103,7 +103,7 @@ const fetchProjects = async () => {
   return (
     <>
       <Head>
-        <title>Planova – Home</title>
+        <title>Planova - Home</title>
         <meta name="description" content="Planova Project Management Dashboard" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -113,9 +113,6 @@ const fetchProjects = async () => {
         <nav>
           <ul>
             <li className={styles.active}><span className={styles.icon}>🏠</span>HOME</li>
-            <li><span className={styles.icon}>📁</span>PROJECTS</li>
-            <li><span className={styles.icon}>👥</span>TEAMS</li>
-            <li><span className={styles.icon}>⚙️</span>SETTINGS</li>
           </ul>
         </nav>
       </div>
