@@ -55,7 +55,7 @@ export default function DeliveryTab({ project: _project }: Props) {
       dueDate: "Feb 15, 2025",
       responseStrategy: "Mitigate"
     }
-    // ... add more risk entries as needed
+    
   ]);
 
   const [lessons, setLessons] = useState<LessonEntry[]>([
@@ -71,7 +71,7 @@ export default function DeliveryTab({ project: _project }: Props) {
       priority: "High",
       documentedBy: "Jane Smith"
     }
-    // ... add more lesson entries as needed
+    
   ]);
 
   // Tab list and tab navigation style
