@@ -7,6 +7,8 @@ import {
   useRef,
   useEffect,
   KeyboardEvent,
+  useCallback,
+  useMemo,
 } from "react";
 
 interface ProjectForm {
@@ -26,25 +28,32 @@ interface CreateProjectModalProps {
   onCreate: (draft: ProjectForm) => void;
 }
 
+// Small helper to generate ID for accessibility
+// This ensures the ID is unique across renders and resets
+const useUID = (() => {
+  let uid = 0;
+  return () => useMemo(() => `uid-${++uid}`, []);
+})();
+
+const INITIAL_FORM: ProjectForm = {
+  title: "",
+  projectManagerId: "1", // default to user #1 while testing
+  description: "",
+  forecast: "",
+  actuals: "",
+  budget: "",
+  startDate: "",
+  endDate: "",
+};
+
 export default function CreateProjectModal({
   isOpen,
   onClose,
   onCreate,
 }: CreateProjectModalProps) {
-
-  const [form, setForm] = useState<ProjectForm>({
-    title: "",
-    projectManagerId: "1", // default to user #1 while testing
-    description: "",
-    forecast: "",
-    actuals: "",
-    budget: "",
-    startDate: "",
-    endDate: "",
-  });
-
+  const [form, setForm] = useState<ProjectForm>(INITIAL_FORM);
+  const headingId = useUID();
   const firstInputRef = useRef<HTMLInputElement>(null);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -52,36 +61,32 @@ export default function CreateProjectModal({
     }
   }, [isOpen]);
 
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    },
+    []
+  );
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleSubmit = useCallback(
+    (e: FormEvent) => {
+      e.preventDefault();
+      onCreate(form);
+      onClose();
+      // reset
+      setForm(INITIAL_FORM);
+    },
+    [form, onCreate, onClose]
+  );
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onCreate(form);
-    onClose();
-    // reset
-    setForm({
-      title: "",
-      projectManagerId: "1",
-      description: "",
-      forecast: "",
-      actuals: "",
-      budget: "",
-      startDate: "",
-      endDate: "",
-    });
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Escape") onClose();
-  };
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === "Escape") onClose();
+    },
+    [onClose]
+  );
 
   if (!isOpen) return null;
-
 
   return (
     <div
@@ -90,13 +95,16 @@ export default function CreateProjectModal({
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
+      aria-labelledby={headingId}
     >
       <div className="modal">
-        <h2 className="heading">Create New Project</h2>
-        <form onSubmit={handleSubmit} className="form">
+        <h2 id={headingId} className="heading">
+          Create New Project
+        </h2>
+        <form onSubmit={handleSubmit} className="form" noValidate>
           {/* Title  */}
           <label className="field">
-            <span>Project Title *</span>
+            <span>Project Title </span>
             <input
               ref={firstInputRef}
               name="title"
@@ -104,12 +112,13 @@ export default function CreateProjectModal({
               value={form.title}
               onChange={handleChange}
               required
+              autoComplete="off"
             />
           </label>
 
           {/* PM ID - to be replaced by Name  */}
           <label className="field">
-            <span>Manager User ID *</span>
+            <span>Manager User ID </span>
             <input
               name="projectManagerId"
               type="number"
@@ -118,12 +127,13 @@ export default function CreateProjectModal({
               value={form.projectManagerId}
               onChange={handleChange}
               required
+              inputMode="numeric"
             />
           </label>
 
           {/* Description  */}
           <label className="field">
-            <span>Project Description *</span>
+            <span>Project Description </span>
             <textarea
               name="description"
               placeholder="Brief project overview..."
@@ -137,38 +147,44 @@ export default function CreateProjectModal({
           {/* Financials  */}
           <div className="grid">
             <label className="field">
-              <span>Forecast *</span>
+              <span>Forecast </span>
               <input
                 name="forecast"
                 type="number"
+                step="0.01"
                 placeholder="0.00"
                 value={form.forecast}
                 onChange={handleChange}
                 required
+                inputMode="decimal"
               />
             </label>
 
             <label className="field">
-              <span>Actuals *</span>
+              <span>Actuals </span>
               <input
                 name="actuals"
                 type="number"
+                step="0.01"
                 placeholder="0.00"
                 value={form.actuals}
                 onChange={handleChange}
                 required
+                inputMode="decimal"
               />
             </label>
 
             <label className="field">
-              <span>Budget *</span>
+              <span>Budget </span>
               <input
                 name="budget"
                 type="number"
+                step="0.01"
                 placeholder="0.00"
                 value={form.budget}
                 onChange={handleChange}
                 required
+                inputMode="decimal"
               />
             </label>
           </div>
@@ -176,23 +192,25 @@ export default function CreateProjectModal({
           {/* Dates  */}
           <div className="grid">
             <label className="field">
-              <span>Start Date *</span>
+              <span>Start Date </span>
               <input
                 name="startDate"
                 type="date"
                 value={form.startDate}
                 onChange={handleChange}
                 required
+                autoComplete="off"
               />
             </label>
             <label className="field">
-              <span>End Date *</span>
+              <span>End Date </span>
               <input
                 name="endDate"
                 type="date"
                 value={form.endDate}
                 onChange={handleChange}
                 required
+                autoComplete="off"
               />
             </label>
           </div>
@@ -319,6 +337,7 @@ export default function CreateProjectModal({
           color: #fff;
         }
 
+        .
         .btn.primary:hover {
           background: #1e4fd6;
         }
