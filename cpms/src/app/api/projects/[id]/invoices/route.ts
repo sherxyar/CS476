@@ -1,41 +1,47 @@
-// this file creates and gets invoices.
+// src/app/api/projects/[id]/invoices/route.ts
+import { Prisma, PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-import { Prisma } from "@prisma/client";
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-prisma.invoice.findMany();
 
-type Params = { id: string }; 
+type Params = { id: string };
+type CreateInvoicePayload = {
+  invoiceNumber: string;
+  dateIssued: string;  
+  amount: string | number;
+  vendor: string;
+  status?: 'PAID' | 'NOT_PAID';
+};
 
-// Get Request for invoices
+// GET /api/projects/[id]/invoices
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<Params> }
+  { params }: { params: Params }
 ) {
-  const { id } = await params;
+  const { id } = params;
 
   try {
     const invoices = await prisma.invoice.findMany({
       where: { projectId: id },
-      orderBy: { dateIssued: "desc" },
+      orderBy: { dateIssued: 'desc' },
     });
 
-    return NextResponse.json(invoices); // 200
-  } catch (err) {
+    return NextResponse.json(invoices);            // 200
+  } catch (err: unknown) {
     console.error(`GET /api/projects/${id}/invoices -`, err);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
 
-// Post Request to create a new invoice
+//  POST 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<Params> }
+  { params }: { params: Params }
 ) {
-  const { id } = await params;
-  const body = await req.json();
+  const { id } = params;
+  const body = (await req.json()) as CreateInvoicePayload;
 
+  // Payload validation
   if (
     !body.invoiceNumber ||
     !body.dateIssued ||
@@ -43,29 +49,29 @@ export async function POST(
     !body.vendor
   ) {
     return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
+      { error: 'Missing required fields' },
+      { status: 400 },
     );
   }
 
   try {
-    const amount = new Prisma.Decimal(body.amount); // keep cents precision
+    // keep cent-level precision
+    const amount = new Prisma.Decimal(body.amount);
 
     const newInvoice = await prisma.$transaction(async (tx) => {
-      // Create the invoice
       const invoice = await tx.invoice.create({
         data: {
           projectId: id,
           invoiceNumber: body.invoiceNumber,
           dateIssued: new Date(body.dateIssued),
           amount,
-          status: body.status ?? "NOT_PAID",
+          status: body.status ?? 'NOT_PAID',
           vendor: body.vendor,
         },
       });
 
-      // If invoice is paid, update project's actuals
-      if (invoice.status === "PAID") {
+      // If invoice is paid, update project.actuals
+      if (invoice.status === 'PAID') {
         await tx.project.update({
           where: { id },
           data: { actuals: { increment: amount.toNumber() } },
@@ -76,17 +82,20 @@ export async function POST(
     });
 
     return NextResponse.json(newInvoice, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
 
-    // Duplicate invoice number catch
-    if (err.code === "P2002") {
+    //  Prisma duplication error (code P2002)                               
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
+    ) {
       return NextResponse.json(
-        { error: "Invoice number already exists for this project" },
-        { status: 409 }
+        { error: 'Invoice number already exists for this project' },
+        { status: 409 },
       );
     }
 
-    console.error(`POST /api/projects/${id}/invoices –`, err);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error(`POST /api/projects/${id}/invoices -`, err);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
