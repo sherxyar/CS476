@@ -3,7 +3,7 @@ import { useState, type CSSProperties } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
-// ────────────────────────────────────────────────────────────── types
+//  types
 
 type ChangeLogEntry = {
   id: string;

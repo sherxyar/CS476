@@ -1,8 +1,12 @@
-import { prisma } from "@/lib/prisma";
+// this file creates and gets invoices.
+
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+prisma.invoice.findMany();
 
-type Params = { id: string }; // project UUID
+type Params = { id: string }; 
 
 // Get Request for invoices
 export async function GET(
@@ -19,7 +23,7 @@ export async function GET(
 
     return NextResponse.json(invoices); // 200
   } catch (err) {
-    console.error(`GET /api/projects/${id}/invoices –`, err);
+    console.error(`GET /api/projects/${id}/invoices -`, err);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
@@ -64,7 +68,7 @@ export async function POST(
       if (invoice.status === "PAID") {
         await tx.project.update({
           where: { id },
-          data: { actuals: { increment: amount } },
+          data: { actuals: { increment: amount.toNumber() } },
         });
       }
 

@@ -1,5 +1,7 @@
-import { prisma, Prisma } from "@/lib/prisma";
+// 
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import Decimal from "decimal.js";
 
 type Params = { invoiceId: string };
 
@@ -18,10 +20,10 @@ export async function PATCH(
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
 
   try {
-    const amount = new Prisma.Decimal(body.amount ?? existing.amount);
+    const amount = new Decimal(body.amount ?? existing.amount);
     const newStatus = (body.status ?? existing.status) as "PAID" | "NOT_PAID";
 
-    let delta = new Prisma.Decimal(0);
+    let delta = new Decimal(0);
     if (existing.status === "NOT_PAID" && newStatus === "PAID") delta = amount;
     if (existing.status === "PAID" && newStatus === "NOT_PAID")
       delta = amount.neg();
@@ -34,7 +36,7 @@ export async function PATCH(
           dateIssued: body.dateIssued
             ? new Date(body.dateIssued)
             : existing.dateIssued,
-          amount,
+          amount: amount.toNumber(),
           status: newStatus,
           vendor: body.vendor ?? existing.vendor,
         },
@@ -43,7 +45,7 @@ export async function PATCH(
       if (!delta.isZero()) {
         await tx.project.update({
           where: { id: existing.projectId },
-          data: { actuals: { increment: delta } },
+          data: { actuals: { increment: delta.toNumber() } },
         });
       }
 
@@ -75,7 +77,7 @@ export async function DELETE(
       if (existing.status === "PAID") {
         await tx.project.update({
           where: { id: existing.projectId },
-          data: { actuals: { decrement: existing.amount } },
+          data: { actuals: { decrement: Number(existing.amount) } },
         });
       }
 
