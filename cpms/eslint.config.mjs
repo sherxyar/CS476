@@ -23,8 +23,6 @@ const eslintConfig = [
       // Show <img> warnings but don’t fail the build
       "@next/next/no-img-element": "warn",
 
-      // (Optional) allow `any` while prototyping
-      // "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 ];
