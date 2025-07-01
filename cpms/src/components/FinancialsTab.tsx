@@ -318,10 +318,7 @@ export default function FinancialsTab({ project }: Props) {
                 <span className={styles.summaryLabel}>Paid Amount:</span>
                 <span className={styles.summaryValue}>$28,230.50</span>
               </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Pending Amount:</span>
-                <span className={styles.summaryValue}>$17,000.00</span>
-              </div>
+              
             </div>
           </div>
         </div>
