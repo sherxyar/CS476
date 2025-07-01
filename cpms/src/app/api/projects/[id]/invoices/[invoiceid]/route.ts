@@ -6,7 +6,7 @@ import Decimal from "decimal.js";
 type Params = { invoiceId: string };
 
 
-// Patch Request to update an existing invoice
+// Patch Request to update an existing invoice - not used.
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<Params> }
@@ -59,7 +59,7 @@ export async function PATCH(
   }
 }
 
-// Delete Request to remove an invoice
+// Delete Request to remove an invoice - not used.
 export async function DELETE(
   _req: Request,
   { params }: { params: Promise<Params> }

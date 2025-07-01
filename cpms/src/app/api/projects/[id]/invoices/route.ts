@@ -1,24 +1,24 @@
-// src/app/api/projects/[id]/invoices/route.ts
 import { Prisma, PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
 type Params = { id: string };
+
 type CreateInvoicePayload = {
   invoiceNumber: string;
-  dateIssued: string;  
+  dateIssued: string;            
   amount: string | number;
   vendor: string;
   status?: 'PAID' | 'NOT_PAID';
 };
 
-// GET /api/projects/[id]/invoices
+// GET 
 export async function GET(
   _req: Request,
-  { params }: { params: Params }
+  { params }: { params: Promise<Params> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const invoices = await prisma.invoice.findMany({
@@ -36,9 +36,9 @@ export async function GET(
 //  POST 
 export async function POST(
   req: Request,
-  { params }: { params: Params }
+  { params }: { params: Promise<Params> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const body = (await req.json()) as CreateInvoicePayload;
 
   // Payload validation
