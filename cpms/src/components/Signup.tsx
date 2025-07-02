@@ -1,5 +1,6 @@
 'use client';
 import { useState } from "react";
+import { PassThrough } from "stream";
 
 export default function Signup() {
     const [form, setForm] = useState({ name: "", email: "", password: "" })
@@ -8,6 +9,11 @@ export default function Signup() {
     const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
+
+    const isValidPassword = (password: string) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+        return regex.test(password);
+    }
 
     const submitHandler = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -48,6 +54,12 @@ export default function Signup() {
                 <input type="password" name="password" value={form.password} onChange={changeHandler} required />
                 <br />
                 <br />
+                {!isValidPassword(form.password) && form.password && (
+                    <p style={{color:"red"}}>
+                        Password must contain atleast one lowercase letter, one uppercase letter, one number, one special character, and must be atleast 8 characters in length
+                    </p>
+                )
+                }
                 <button type="submit">Submit</button>
             </form>
             {message && <p style={{ marginTop: "1rem", color: "blue" }}>{message}</p>}
