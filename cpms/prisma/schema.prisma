@@ -17,6 +17,8 @@ model User {
   notes            PMNote[]
   projects         Project[]               @relation("ManagerProjects")
   auditLogs        AuditLog[]
+  tabRequests      TabAccessRequest[]      @relation("RequestUser")
+  approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
 }
 
 model Project {
@@ -93,4 +95,16 @@ model Invoice {
 enum InvoiceStatus {
   PAID
   NOT_PAID
+}
+
+model TabAccessRequest {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  approvedBy  Int?
+  status      String    @default("Pending") // Pending, Approved, Rejected
+  requestedAt DateTime  @default(now())
+  approvedAt  DateTime?
+
+  user     User  @relation("RequestUser", fields: [userId], references: [id])
+  approver User? @relation("ApproveUser", fields: [approvedBy], references: [id])
 }

@@ -43,6 +43,11 @@ export type FinancialHistoryEntry = $Result.DefaultSelection<Prisma.$FinancialHi
  * 
  */
 export type Invoice = $Result.DefaultSelection<Prisma.$InvoicePayload>
+/**
+ * Model TabAccessRequest
+ * 
+ */
+export type TabAccessRequest = $Result.DefaultSelection<Prisma.$TabAccessRequestPayload>
 
 /**
  * Enums
@@ -245,6 +250,16 @@ export class PrismaClient<
     * ```
     */
   get invoice(): Prisma.InvoiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tabAccessRequest`: Exposes CRUD operations for the **TabAccessRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TabAccessRequests
+    * const tabAccessRequests = await prisma.tabAccessRequest.findMany()
+    * ```
+    */
+  get tabAccessRequest(): Prisma.TabAccessRequestDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -690,7 +705,8 @@ export namespace Prisma {
     AuditLog: 'AuditLog',
     PMNote: 'PMNote',
     FinancialHistoryEntry: 'FinancialHistoryEntry',
-    Invoice: 'Invoice'
+    Invoice: 'Invoice',
+    TabAccessRequest: 'TabAccessRequest'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -709,7 +725,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "project" | "auditLog" | "pMNote" | "financialHistoryEntry" | "invoice"
+      modelProps: "user" | "project" | "auditLog" | "pMNote" | "financialHistoryEntry" | "invoice" | "tabAccessRequest"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1157,6 +1173,80 @@ export namespace Prisma {
           }
         }
       }
+      TabAccessRequest: {
+        payload: Prisma.$TabAccessRequestPayload<ExtArgs>
+        fields: Prisma.TabAccessRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TabAccessRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TabAccessRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.TabAccessRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TabAccessRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>
+          }
+          findMany: {
+            args: Prisma.TabAccessRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>[]
+          }
+          create: {
+            args: Prisma.TabAccessRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>
+          }
+          createMany: {
+            args: Prisma.TabAccessRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TabAccessRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.TabAccessRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>
+          }
+          update: {
+            args: Prisma.TabAccessRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.TabAccessRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TabAccessRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TabAccessRequestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>[]
+          }
+          upsert: {
+            args: Prisma.TabAccessRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TabAccessRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.TabAccessRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTabAccessRequest>
+          }
+          groupBy: {
+            args: Prisma.TabAccessRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TabAccessRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TabAccessRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<TabAccessRequestCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1247,6 +1337,7 @@ export namespace Prisma {
     pMNote?: PMNoteOmit
     financialHistoryEntry?: FinancialHistoryEntryOmit
     invoice?: InvoiceOmit
+    tabAccessRequest?: TabAccessRequestOmit
   }
 
   /* Types for Logging */
@@ -1345,6 +1436,8 @@ export namespace Prisma {
     notes: number
     projects: number
     auditLogs: number
+    tabRequests: number
+    approvedTabs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1352,6 +1445,8 @@ export namespace Prisma {
     notes?: boolean | UserCountOutputTypeCountNotesArgs
     projects?: boolean | UserCountOutputTypeCountProjectsArgs
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+    tabRequests?: boolean | UserCountOutputTypeCountTabRequestsArgs
+    approvedTabs?: boolean | UserCountOutputTypeCountApprovedTabsArgs
   }
 
   // Custom InputTypes
@@ -1391,6 +1486,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AuditLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTabRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TabAccessRequestWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountApprovedTabsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TabAccessRequestWhereInput
   }
 
 
@@ -1641,6 +1750,8 @@ export namespace Prisma {
     notes?: boolean | User$notesArgs<ExtArgs>
     projects?: boolean | User$projectsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    tabRequests?: boolean | User$tabRequestsArgs<ExtArgs>
+    approvedTabs?: boolean | User$approvedTabsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1671,6 +1782,8 @@ export namespace Prisma {
     notes?: boolean | User$notesArgs<ExtArgs>
     projects?: boolean | User$projectsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    tabRequests?: boolean | User$tabRequestsArgs<ExtArgs>
+    approvedTabs?: boolean | User$approvedTabsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1683,6 +1796,8 @@ export namespace Prisma {
       notes: Prisma.$PMNotePayload<ExtArgs>[]
       projects: Prisma.$ProjectPayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+      tabRequests: Prisma.$TabAccessRequestPayload<ExtArgs>[]
+      approvedTabs: Prisma.$TabAccessRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -2087,6 +2202,8 @@ export namespace Prisma {
     notes<T extends User$notesArgs<ExtArgs> = {}>(args?: Subset<T, User$notesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PMNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     projects<T extends User$projectsArgs<ExtArgs> = {}>(args?: Subset<T, User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tabRequests<T extends User$tabRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$tabRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    approvedTabs<T extends User$approvedTabsArgs<ExtArgs> = {}>(args?: Subset<T, User$approvedTabsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2601,6 +2718,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * User.tabRequests
+   */
+  export type User$tabRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    where?: TabAccessRequestWhereInput
+    orderBy?: TabAccessRequestOrderByWithRelationInput | TabAccessRequestOrderByWithRelationInput[]
+    cursor?: TabAccessRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TabAccessRequestScalarFieldEnum | TabAccessRequestScalarFieldEnum[]
+  }
+
+  /**
+   * User.approvedTabs
+   */
+  export type User$approvedTabsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    where?: TabAccessRequestWhereInput
+    orderBy?: TabAccessRequestOrderByWithRelationInput | TabAccessRequestOrderByWithRelationInput[]
+    cursor?: TabAccessRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TabAccessRequestScalarFieldEnum | TabAccessRequestScalarFieldEnum[]
   }
 
   /**
@@ -8540,6 +8705,1146 @@ export namespace Prisma {
 
 
   /**
+   * Model TabAccessRequest
+   */
+
+  export type AggregateTabAccessRequest = {
+    _count: TabAccessRequestCountAggregateOutputType | null
+    _avg: TabAccessRequestAvgAggregateOutputType | null
+    _sum: TabAccessRequestSumAggregateOutputType | null
+    _min: TabAccessRequestMinAggregateOutputType | null
+    _max: TabAccessRequestMaxAggregateOutputType | null
+  }
+
+  export type TabAccessRequestAvgAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    approvedBy: number | null
+  }
+
+  export type TabAccessRequestSumAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    approvedBy: number | null
+  }
+
+  export type TabAccessRequestMinAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    approvedBy: number | null
+    status: string | null
+    requestedAt: Date | null
+    approvedAt: Date | null
+  }
+
+  export type TabAccessRequestMaxAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    approvedBy: number | null
+    status: string | null
+    requestedAt: Date | null
+    approvedAt: Date | null
+  }
+
+  export type TabAccessRequestCountAggregateOutputType = {
+    id: number
+    userId: number
+    approvedBy: number
+    status: number
+    requestedAt: number
+    approvedAt: number
+    _all: number
+  }
+
+
+  export type TabAccessRequestAvgAggregateInputType = {
+    id?: true
+    userId?: true
+    approvedBy?: true
+  }
+
+  export type TabAccessRequestSumAggregateInputType = {
+    id?: true
+    userId?: true
+    approvedBy?: true
+  }
+
+  export type TabAccessRequestMinAggregateInputType = {
+    id?: true
+    userId?: true
+    approvedBy?: true
+    status?: true
+    requestedAt?: true
+    approvedAt?: true
+  }
+
+  export type TabAccessRequestMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    approvedBy?: true
+    status?: true
+    requestedAt?: true
+    approvedAt?: true
+  }
+
+  export type TabAccessRequestCountAggregateInputType = {
+    id?: true
+    userId?: true
+    approvedBy?: true
+    status?: true
+    requestedAt?: true
+    approvedAt?: true
+    _all?: true
+  }
+
+  export type TabAccessRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TabAccessRequest to aggregate.
+     */
+    where?: TabAccessRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TabAccessRequests to fetch.
+     */
+    orderBy?: TabAccessRequestOrderByWithRelationInput | TabAccessRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TabAccessRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TabAccessRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TabAccessRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TabAccessRequests
+    **/
+    _count?: true | TabAccessRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TabAccessRequestAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TabAccessRequestSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TabAccessRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TabAccessRequestMaxAggregateInputType
+  }
+
+  export type GetTabAccessRequestAggregateType<T extends TabAccessRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateTabAccessRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTabAccessRequest[P]>
+      : GetScalarType<T[P], AggregateTabAccessRequest[P]>
+  }
+
+
+
+
+  export type TabAccessRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TabAccessRequestWhereInput
+    orderBy?: TabAccessRequestOrderByWithAggregationInput | TabAccessRequestOrderByWithAggregationInput[]
+    by: TabAccessRequestScalarFieldEnum[] | TabAccessRequestScalarFieldEnum
+    having?: TabAccessRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TabAccessRequestCountAggregateInputType | true
+    _avg?: TabAccessRequestAvgAggregateInputType
+    _sum?: TabAccessRequestSumAggregateInputType
+    _min?: TabAccessRequestMinAggregateInputType
+    _max?: TabAccessRequestMaxAggregateInputType
+  }
+
+  export type TabAccessRequestGroupByOutputType = {
+    id: number
+    userId: number
+    approvedBy: number | null
+    status: string
+    requestedAt: Date
+    approvedAt: Date | null
+    _count: TabAccessRequestCountAggregateOutputType | null
+    _avg: TabAccessRequestAvgAggregateOutputType | null
+    _sum: TabAccessRequestSumAggregateOutputType | null
+    _min: TabAccessRequestMinAggregateOutputType | null
+    _max: TabAccessRequestMaxAggregateOutputType | null
+  }
+
+  type GetTabAccessRequestGroupByPayload<T extends TabAccessRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TabAccessRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TabAccessRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TabAccessRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], TabAccessRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TabAccessRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    approvedBy?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    approvedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | TabAccessRequest$approverArgs<ExtArgs>
+  }, ExtArgs["result"]["tabAccessRequest"]>
+
+  export type TabAccessRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    approvedBy?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    approvedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | TabAccessRequest$approverArgs<ExtArgs>
+  }, ExtArgs["result"]["tabAccessRequest"]>
+
+  export type TabAccessRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    approvedBy?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    approvedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | TabAccessRequest$approverArgs<ExtArgs>
+  }, ExtArgs["result"]["tabAccessRequest"]>
+
+  export type TabAccessRequestSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    approvedBy?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    approvedAt?: boolean
+  }
+
+  export type TabAccessRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "approvedBy" | "status" | "requestedAt" | "approvedAt", ExtArgs["result"]["tabAccessRequest"]>
+  export type TabAccessRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | TabAccessRequest$approverArgs<ExtArgs>
+  }
+  export type TabAccessRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | TabAccessRequest$approverArgs<ExtArgs>
+  }
+  export type TabAccessRequestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approver?: boolean | TabAccessRequest$approverArgs<ExtArgs>
+  }
+
+  export type $TabAccessRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TabAccessRequest"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      approver: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: number
+      approvedBy: number | null
+      status: string
+      requestedAt: Date
+      approvedAt: Date | null
+    }, ExtArgs["result"]["tabAccessRequest"]>
+    composites: {}
+  }
+
+  type TabAccessRequestGetPayload<S extends boolean | null | undefined | TabAccessRequestDefaultArgs> = $Result.GetResult<Prisma.$TabAccessRequestPayload, S>
+
+  type TabAccessRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TabAccessRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TabAccessRequestCountAggregateInputType | true
+    }
+
+  export interface TabAccessRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TabAccessRequest'], meta: { name: 'TabAccessRequest' } }
+    /**
+     * Find zero or one TabAccessRequest that matches the filter.
+     * @param {TabAccessRequestFindUniqueArgs} args - Arguments to find a TabAccessRequest
+     * @example
+     * // Get one TabAccessRequest
+     * const tabAccessRequest = await prisma.tabAccessRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TabAccessRequestFindUniqueArgs>(args: SelectSubset<T, TabAccessRequestFindUniqueArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TabAccessRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TabAccessRequestFindUniqueOrThrowArgs} args - Arguments to find a TabAccessRequest
+     * @example
+     * // Get one TabAccessRequest
+     * const tabAccessRequest = await prisma.tabAccessRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TabAccessRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, TabAccessRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TabAccessRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TabAccessRequestFindFirstArgs} args - Arguments to find a TabAccessRequest
+     * @example
+     * // Get one TabAccessRequest
+     * const tabAccessRequest = await prisma.tabAccessRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TabAccessRequestFindFirstArgs>(args?: SelectSubset<T, TabAccessRequestFindFirstArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TabAccessRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TabAccessRequestFindFirstOrThrowArgs} args - Arguments to find a TabAccessRequest
+     * @example
+     * // Get one TabAccessRequest
+     * const tabAccessRequest = await prisma.tabAccessRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TabAccessRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, TabAccessRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TabAccessRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TabAccessRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TabAccessRequests
+     * const tabAccessRequests = await prisma.tabAccessRequest.findMany()
+     * 
+     * // Get first 10 TabAccessRequests
+     * const tabAccessRequests = await prisma.tabAccessRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tabAccessRequestWithIdOnly = await prisma.tabAccessRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TabAccessRequestFindManyArgs>(args?: SelectSubset<T, TabAccessRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TabAccessRequest.
+     * @param {TabAccessRequestCreateArgs} args - Arguments to create a TabAccessRequest.
+     * @example
+     * // Create one TabAccessRequest
+     * const TabAccessRequest = await prisma.tabAccessRequest.create({
+     *   data: {
+     *     // ... data to create a TabAccessRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends TabAccessRequestCreateArgs>(args: SelectSubset<T, TabAccessRequestCreateArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TabAccessRequests.
+     * @param {TabAccessRequestCreateManyArgs} args - Arguments to create many TabAccessRequests.
+     * @example
+     * // Create many TabAccessRequests
+     * const tabAccessRequest = await prisma.tabAccessRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TabAccessRequestCreateManyArgs>(args?: SelectSubset<T, TabAccessRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TabAccessRequests and returns the data saved in the database.
+     * @param {TabAccessRequestCreateManyAndReturnArgs} args - Arguments to create many TabAccessRequests.
+     * @example
+     * // Create many TabAccessRequests
+     * const tabAccessRequest = await prisma.tabAccessRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TabAccessRequests and only return the `id`
+     * const tabAccessRequestWithIdOnly = await prisma.tabAccessRequest.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TabAccessRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, TabAccessRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TabAccessRequest.
+     * @param {TabAccessRequestDeleteArgs} args - Arguments to delete one TabAccessRequest.
+     * @example
+     * // Delete one TabAccessRequest
+     * const TabAccessRequest = await prisma.tabAccessRequest.delete({
+     *   where: {
+     *     // ... filter to delete one TabAccessRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TabAccessRequestDeleteArgs>(args: SelectSubset<T, TabAccessRequestDeleteArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TabAccessRequest.
+     * @param {TabAccessRequestUpdateArgs} args - Arguments to update one TabAccessRequest.
+     * @example
+     * // Update one TabAccessRequest
+     * const tabAccessRequest = await prisma.tabAccessRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TabAccessRequestUpdateArgs>(args: SelectSubset<T, TabAccessRequestUpdateArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TabAccessRequests.
+     * @param {TabAccessRequestDeleteManyArgs} args - Arguments to filter TabAccessRequests to delete.
+     * @example
+     * // Delete a few TabAccessRequests
+     * const { count } = await prisma.tabAccessRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TabAccessRequestDeleteManyArgs>(args?: SelectSubset<T, TabAccessRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TabAccessRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TabAccessRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TabAccessRequests
+     * const tabAccessRequest = await prisma.tabAccessRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TabAccessRequestUpdateManyArgs>(args: SelectSubset<T, TabAccessRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TabAccessRequests and returns the data updated in the database.
+     * @param {TabAccessRequestUpdateManyAndReturnArgs} args - Arguments to update many TabAccessRequests.
+     * @example
+     * // Update many TabAccessRequests
+     * const tabAccessRequest = await prisma.tabAccessRequest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TabAccessRequests and only return the `id`
+     * const tabAccessRequestWithIdOnly = await prisma.tabAccessRequest.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TabAccessRequestUpdateManyAndReturnArgs>(args: SelectSubset<T, TabAccessRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TabAccessRequest.
+     * @param {TabAccessRequestUpsertArgs} args - Arguments to update or create a TabAccessRequest.
+     * @example
+     * // Update or create a TabAccessRequest
+     * const tabAccessRequest = await prisma.tabAccessRequest.upsert({
+     *   create: {
+     *     // ... data to create a TabAccessRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TabAccessRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TabAccessRequestUpsertArgs>(args: SelectSubset<T, TabAccessRequestUpsertArgs<ExtArgs>>): Prisma__TabAccessRequestClient<$Result.GetResult<Prisma.$TabAccessRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TabAccessRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TabAccessRequestCountArgs} args - Arguments to filter TabAccessRequests to count.
+     * @example
+     * // Count the number of TabAccessRequests
+     * const count = await prisma.tabAccessRequest.count({
+     *   where: {
+     *     // ... the filter for the TabAccessRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends TabAccessRequestCountArgs>(
+      args?: Subset<T, TabAccessRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TabAccessRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TabAccessRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TabAccessRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TabAccessRequestAggregateArgs>(args: Subset<T, TabAccessRequestAggregateArgs>): Prisma.PrismaPromise<GetTabAccessRequestAggregateType<T>>
+
+    /**
+     * Group by TabAccessRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TabAccessRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TabAccessRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TabAccessRequestGroupByArgs['orderBy'] }
+        : { orderBy?: TabAccessRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TabAccessRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTabAccessRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TabAccessRequest model
+   */
+  readonly fields: TabAccessRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TabAccessRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TabAccessRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    approver<T extends TabAccessRequest$approverArgs<ExtArgs> = {}>(args?: Subset<T, TabAccessRequest$approverArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TabAccessRequest model
+   */
+  interface TabAccessRequestFieldRefs {
+    readonly id: FieldRef<"TabAccessRequest", 'Int'>
+    readonly userId: FieldRef<"TabAccessRequest", 'Int'>
+    readonly approvedBy: FieldRef<"TabAccessRequest", 'Int'>
+    readonly status: FieldRef<"TabAccessRequest", 'String'>
+    readonly requestedAt: FieldRef<"TabAccessRequest", 'DateTime'>
+    readonly approvedAt: FieldRef<"TabAccessRequest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TabAccessRequest findUnique
+   */
+  export type TabAccessRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TabAccessRequest to fetch.
+     */
+    where: TabAccessRequestWhereUniqueInput
+  }
+
+  /**
+   * TabAccessRequest findUniqueOrThrow
+   */
+  export type TabAccessRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TabAccessRequest to fetch.
+     */
+    where: TabAccessRequestWhereUniqueInput
+  }
+
+  /**
+   * TabAccessRequest findFirst
+   */
+  export type TabAccessRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TabAccessRequest to fetch.
+     */
+    where?: TabAccessRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TabAccessRequests to fetch.
+     */
+    orderBy?: TabAccessRequestOrderByWithRelationInput | TabAccessRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TabAccessRequests.
+     */
+    cursor?: TabAccessRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TabAccessRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TabAccessRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TabAccessRequests.
+     */
+    distinct?: TabAccessRequestScalarFieldEnum | TabAccessRequestScalarFieldEnum[]
+  }
+
+  /**
+   * TabAccessRequest findFirstOrThrow
+   */
+  export type TabAccessRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TabAccessRequest to fetch.
+     */
+    where?: TabAccessRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TabAccessRequests to fetch.
+     */
+    orderBy?: TabAccessRequestOrderByWithRelationInput | TabAccessRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TabAccessRequests.
+     */
+    cursor?: TabAccessRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TabAccessRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TabAccessRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TabAccessRequests.
+     */
+    distinct?: TabAccessRequestScalarFieldEnum | TabAccessRequestScalarFieldEnum[]
+  }
+
+  /**
+   * TabAccessRequest findMany
+   */
+  export type TabAccessRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which TabAccessRequests to fetch.
+     */
+    where?: TabAccessRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TabAccessRequests to fetch.
+     */
+    orderBy?: TabAccessRequestOrderByWithRelationInput | TabAccessRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TabAccessRequests.
+     */
+    cursor?: TabAccessRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TabAccessRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TabAccessRequests.
+     */
+    skip?: number
+    distinct?: TabAccessRequestScalarFieldEnum | TabAccessRequestScalarFieldEnum[]
+  }
+
+  /**
+   * TabAccessRequest create
+   */
+  export type TabAccessRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TabAccessRequest.
+     */
+    data: XOR<TabAccessRequestCreateInput, TabAccessRequestUncheckedCreateInput>
+  }
+
+  /**
+   * TabAccessRequest createMany
+   */
+  export type TabAccessRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TabAccessRequests.
+     */
+    data: TabAccessRequestCreateManyInput | TabAccessRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TabAccessRequest createManyAndReturn
+   */
+  export type TabAccessRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * The data used to create many TabAccessRequests.
+     */
+    data: TabAccessRequestCreateManyInput | TabAccessRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TabAccessRequest update
+   */
+  export type TabAccessRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TabAccessRequest.
+     */
+    data: XOR<TabAccessRequestUpdateInput, TabAccessRequestUncheckedUpdateInput>
+    /**
+     * Choose, which TabAccessRequest to update.
+     */
+    where: TabAccessRequestWhereUniqueInput
+  }
+
+  /**
+   * TabAccessRequest updateMany
+   */
+  export type TabAccessRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TabAccessRequests.
+     */
+    data: XOR<TabAccessRequestUpdateManyMutationInput, TabAccessRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which TabAccessRequests to update
+     */
+    where?: TabAccessRequestWhereInput
+    /**
+     * Limit how many TabAccessRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TabAccessRequest updateManyAndReturn
+   */
+  export type TabAccessRequestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * The data used to update TabAccessRequests.
+     */
+    data: XOR<TabAccessRequestUpdateManyMutationInput, TabAccessRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which TabAccessRequests to update
+     */
+    where?: TabAccessRequestWhereInput
+    /**
+     * Limit how many TabAccessRequests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TabAccessRequest upsert
+   */
+  export type TabAccessRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TabAccessRequest to update in case it exists.
+     */
+    where: TabAccessRequestWhereUniqueInput
+    /**
+     * In case the TabAccessRequest found by the `where` argument doesn't exist, create a new TabAccessRequest with this data.
+     */
+    create: XOR<TabAccessRequestCreateInput, TabAccessRequestUncheckedCreateInput>
+    /**
+     * In case the TabAccessRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TabAccessRequestUpdateInput, TabAccessRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * TabAccessRequest delete
+   */
+  export type TabAccessRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+    /**
+     * Filter which TabAccessRequest to delete.
+     */
+    where: TabAccessRequestWhereUniqueInput
+  }
+
+  /**
+   * TabAccessRequest deleteMany
+   */
+  export type TabAccessRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TabAccessRequests to delete
+     */
+    where?: TabAccessRequestWhereInput
+    /**
+     * Limit how many TabAccessRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TabAccessRequest.approver
+   */
+  export type TabAccessRequest$approverArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * TabAccessRequest without action
+   */
+  export type TabAccessRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TabAccessRequest
+     */
+    select?: TabAccessRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TabAccessRequest
+     */
+    omit?: TabAccessRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TabAccessRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -8635,6 +9940,18 @@ export namespace Prisma {
   };
 
   export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+  export const TabAccessRequestScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    approvedBy: 'approvedBy',
+    status: 'status',
+    requestedAt: 'requestedAt',
+    approvedAt: 'approvedAt'
+  };
+
+  export type TabAccessRequestScalarFieldEnum = (typeof TabAccessRequestScalarFieldEnum)[keyof typeof TabAccessRequestScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -8796,6 +10113,8 @@ export namespace Prisma {
     notes?: PMNoteListRelationFilter
     projects?: ProjectListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    tabRequests?: TabAccessRequestListRelationFilter
+    approvedTabs?: TabAccessRequestListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -8807,6 +10126,8 @@ export namespace Prisma {
     notes?: PMNoteOrderByRelationAggregateInput
     projects?: ProjectOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
+    tabRequests?: TabAccessRequestOrderByRelationAggregateInput
+    approvedTabs?: TabAccessRequestOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -8821,6 +10142,8 @@ export namespace Prisma {
     notes?: PMNoteListRelationFilter
     projects?: ProjectListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    tabRequests?: TabAccessRequestListRelationFilter
+    approvedTabs?: TabAccessRequestListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -9240,6 +10563,71 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
   }
 
+  export type TabAccessRequestWhereInput = {
+    AND?: TabAccessRequestWhereInput | TabAccessRequestWhereInput[]
+    OR?: TabAccessRequestWhereInput[]
+    NOT?: TabAccessRequestWhereInput | TabAccessRequestWhereInput[]
+    id?: IntFilter<"TabAccessRequest"> | number
+    userId?: IntFilter<"TabAccessRequest"> | number
+    approvedBy?: IntNullableFilter<"TabAccessRequest"> | number | null
+    status?: StringFilter<"TabAccessRequest"> | string
+    requestedAt?: DateTimeFilter<"TabAccessRequest"> | Date | string
+    approvedAt?: DateTimeNullableFilter<"TabAccessRequest"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approver?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type TabAccessRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    approvedBy?: SortOrderInput | SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+    approver?: UserOrderByWithRelationInput
+  }
+
+  export type TabAccessRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: TabAccessRequestWhereInput | TabAccessRequestWhereInput[]
+    OR?: TabAccessRequestWhereInput[]
+    NOT?: TabAccessRequestWhereInput | TabAccessRequestWhereInput[]
+    userId?: IntFilter<"TabAccessRequest"> | number
+    approvedBy?: IntNullableFilter<"TabAccessRequest"> | number | null
+    status?: StringFilter<"TabAccessRequest"> | string
+    requestedAt?: DateTimeFilter<"TabAccessRequest"> | Date | string
+    approvedAt?: DateTimeNullableFilter<"TabAccessRequest"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approver?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type TabAccessRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    approvedBy?: SortOrderInput | SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    _count?: TabAccessRequestCountOrderByAggregateInput
+    _avg?: TabAccessRequestAvgOrderByAggregateInput
+    _max?: TabAccessRequestMaxOrderByAggregateInput
+    _min?: TabAccessRequestMinOrderByAggregateInput
+    _sum?: TabAccessRequestSumOrderByAggregateInput
+  }
+
+  export type TabAccessRequestScalarWhereWithAggregatesInput = {
+    AND?: TabAccessRequestScalarWhereWithAggregatesInput | TabAccessRequestScalarWhereWithAggregatesInput[]
+    OR?: TabAccessRequestScalarWhereWithAggregatesInput[]
+    NOT?: TabAccessRequestScalarWhereWithAggregatesInput | TabAccessRequestScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TabAccessRequest"> | number
+    userId?: IntWithAggregatesFilter<"TabAccessRequest"> | number
+    approvedBy?: IntNullableWithAggregatesFilter<"TabAccessRequest"> | number | null
+    status?: StringWithAggregatesFilter<"TabAccessRequest"> | string
+    requestedAt?: DateTimeWithAggregatesFilter<"TabAccessRequest"> | Date | string
+    approvedAt?: DateTimeNullableWithAggregatesFilter<"TabAccessRequest"> | Date | string | null
+  }
+
   export type UserCreateInput = {
     name: string
     email: string
@@ -9248,6 +10636,8 @@ export namespace Prisma {
     notes?: PMNoteCreateNestedManyWithoutAuthorInput
     projects?: ProjectCreateNestedManyWithoutProjectManagerInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -9259,6 +10649,8 @@ export namespace Prisma {
     notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserUpdateInput = {
@@ -9269,6 +10661,8 @@ export namespace Prisma {
     notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -9280,6 +10674,8 @@ export namespace Prisma {
     notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -9708,6 +11104,64 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TabAccessRequestCreateInput = {
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutTabRequestsInput
+    approver?: UserCreateNestedOneWithoutApprovedTabsInput
+  }
+
+  export type TabAccessRequestUncheckedCreateInput = {
+    id?: number
+    userId: number
+    approvedBy?: number | null
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+  }
+
+  export type TabAccessRequestUpdateInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutTabRequestsNestedInput
+    approver?: UserUpdateOneWithoutApprovedTabsNestedInput
+  }
+
+  export type TabAccessRequestUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    approvedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TabAccessRequestCreateManyInput = {
+    id?: number
+    userId: number
+    approvedBy?: number | null
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+  }
+
+  export type TabAccessRequestUpdateManyMutationInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TabAccessRequestUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    approvedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -9758,6 +11212,12 @@ export namespace Prisma {
     none?: AuditLogWhereInput
   }
 
+  export type TabAccessRequestListRelationFilter = {
+    every?: TabAccessRequestWhereInput
+    some?: TabAccessRequestWhereInput
+    none?: TabAccessRequestWhereInput
+  }
+
   export type FinancialHistoryEntryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -9771,6 +11231,10 @@ export namespace Prisma {
   }
 
   export type AuditLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TabAccessRequestOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -10325,6 +11789,50 @@ export namespace Prisma {
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
   }
 
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type TabAccessRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    approvedBy?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    approvedAt?: SortOrder
+  }
+
+  export type TabAccessRequestAvgOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    approvedBy?: SortOrder
+  }
+
+  export type TabAccessRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    approvedBy?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    approvedAt?: SortOrder
+  }
+
+  export type TabAccessRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    approvedBy?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    approvedAt?: SortOrder
+  }
+
+  export type TabAccessRequestSumOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    approvedBy?: SortOrder
+  }
+
   export type FinancialHistoryEntryCreateNestedManyWithoutChangedByInput = {
     create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
     connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
@@ -10353,6 +11861,20 @@ export namespace Prisma {
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
+  export type TabAccessRequestCreateNestedManyWithoutUserInput = {
+    create?: XOR<TabAccessRequestCreateWithoutUserInput, TabAccessRequestUncheckedCreateWithoutUserInput> | TabAccessRequestCreateWithoutUserInput[] | TabAccessRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutUserInput | TabAccessRequestCreateOrConnectWithoutUserInput[]
+    createMany?: TabAccessRequestCreateManyUserInputEnvelope
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+  }
+
+  export type TabAccessRequestCreateNestedManyWithoutApproverInput = {
+    create?: XOR<TabAccessRequestCreateWithoutApproverInput, TabAccessRequestUncheckedCreateWithoutApproverInput> | TabAccessRequestCreateWithoutApproverInput[] | TabAccessRequestUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutApproverInput | TabAccessRequestCreateOrConnectWithoutApproverInput[]
+    createMany?: TabAccessRequestCreateManyApproverInputEnvelope
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+  }
+
   export type FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput = {
     create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
     connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
@@ -10379,6 +11901,20 @@ export namespace Prisma {
     connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
     createMany?: AuditLogCreateManyUserInputEnvelope
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
+  export type TabAccessRequestUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TabAccessRequestCreateWithoutUserInput, TabAccessRequestUncheckedCreateWithoutUserInput> | TabAccessRequestCreateWithoutUserInput[] | TabAccessRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutUserInput | TabAccessRequestCreateOrConnectWithoutUserInput[]
+    createMany?: TabAccessRequestCreateManyUserInputEnvelope
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+  }
+
+  export type TabAccessRequestUncheckedCreateNestedManyWithoutApproverInput = {
+    create?: XOR<TabAccessRequestCreateWithoutApproverInput, TabAccessRequestUncheckedCreateWithoutApproverInput> | TabAccessRequestCreateWithoutApproverInput[] | TabAccessRequestUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutApproverInput | TabAccessRequestCreateOrConnectWithoutApproverInput[]
+    createMany?: TabAccessRequestCreateManyApproverInputEnvelope
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -10439,6 +11975,34 @@ export namespace Prisma {
     update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type TabAccessRequestUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TabAccessRequestCreateWithoutUserInput, TabAccessRequestUncheckedCreateWithoutUserInput> | TabAccessRequestCreateWithoutUserInput[] | TabAccessRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutUserInput | TabAccessRequestCreateOrConnectWithoutUserInput[]
+    upsert?: TabAccessRequestUpsertWithWhereUniqueWithoutUserInput | TabAccessRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TabAccessRequestCreateManyUserInputEnvelope
+    set?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    disconnect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    delete?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    update?: TabAccessRequestUpdateWithWhereUniqueWithoutUserInput | TabAccessRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TabAccessRequestUpdateManyWithWhereWithoutUserInput | TabAccessRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TabAccessRequestScalarWhereInput | TabAccessRequestScalarWhereInput[]
+  }
+
+  export type TabAccessRequestUpdateManyWithoutApproverNestedInput = {
+    create?: XOR<TabAccessRequestCreateWithoutApproverInput, TabAccessRequestUncheckedCreateWithoutApproverInput> | TabAccessRequestCreateWithoutApproverInput[] | TabAccessRequestUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutApproverInput | TabAccessRequestCreateOrConnectWithoutApproverInput[]
+    upsert?: TabAccessRequestUpsertWithWhereUniqueWithoutApproverInput | TabAccessRequestUpsertWithWhereUniqueWithoutApproverInput[]
+    createMany?: TabAccessRequestCreateManyApproverInputEnvelope
+    set?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    disconnect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    delete?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    update?: TabAccessRequestUpdateWithWhereUniqueWithoutApproverInput | TabAccessRequestUpdateWithWhereUniqueWithoutApproverInput[]
+    updateMany?: TabAccessRequestUpdateManyWithWhereWithoutApproverInput | TabAccessRequestUpdateManyWithWhereWithoutApproverInput[]
+    deleteMany?: TabAccessRequestScalarWhereInput | TabAccessRequestScalarWhereInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -10503,6 +12067,34 @@ export namespace Prisma {
     update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type TabAccessRequestUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TabAccessRequestCreateWithoutUserInput, TabAccessRequestUncheckedCreateWithoutUserInput> | TabAccessRequestCreateWithoutUserInput[] | TabAccessRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutUserInput | TabAccessRequestCreateOrConnectWithoutUserInput[]
+    upsert?: TabAccessRequestUpsertWithWhereUniqueWithoutUserInput | TabAccessRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TabAccessRequestCreateManyUserInputEnvelope
+    set?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    disconnect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    delete?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    update?: TabAccessRequestUpdateWithWhereUniqueWithoutUserInput | TabAccessRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TabAccessRequestUpdateManyWithWhereWithoutUserInput | TabAccessRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TabAccessRequestScalarWhereInput | TabAccessRequestScalarWhereInput[]
+  }
+
+  export type TabAccessRequestUncheckedUpdateManyWithoutApproverNestedInput = {
+    create?: XOR<TabAccessRequestCreateWithoutApproverInput, TabAccessRequestUncheckedCreateWithoutApproverInput> | TabAccessRequestCreateWithoutApproverInput[] | TabAccessRequestUncheckedCreateWithoutApproverInput[]
+    connectOrCreate?: TabAccessRequestCreateOrConnectWithoutApproverInput | TabAccessRequestCreateOrConnectWithoutApproverInput[]
+    upsert?: TabAccessRequestUpsertWithWhereUniqueWithoutApproverInput | TabAccessRequestUpsertWithWhereUniqueWithoutApproverInput[]
+    createMany?: TabAccessRequestCreateManyApproverInputEnvelope
+    set?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    disconnect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    delete?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    connect?: TabAccessRequestWhereUniqueInput | TabAccessRequestWhereUniqueInput[]
+    update?: TabAccessRequestUpdateWithWhereUniqueWithoutApproverInput | TabAccessRequestUpdateWithWhereUniqueWithoutApproverInput[]
+    updateMany?: TabAccessRequestUpdateManyWithWhereWithoutApproverInput | TabAccessRequestUpdateManyWithWhereWithoutApproverInput[]
+    deleteMany?: TabAccessRequestScalarWhereInput | TabAccessRequestScalarWhereInput[]
   }
 
   export type FinancialHistoryEntryCreateNestedManyWithoutProjectInput = {
@@ -10775,6 +12367,36 @@ export namespace Prisma {
     upsert?: ProjectUpsertWithoutInvoiceInput
     connect?: ProjectWhereUniqueInput
     update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutInvoiceInput, ProjectUpdateWithoutInvoiceInput>, ProjectUncheckedUpdateWithoutInvoiceInput>
+  }
+
+  export type UserCreateNestedOneWithoutTabRequestsInput = {
+    create?: XOR<UserCreateWithoutTabRequestsInput, UserUncheckedCreateWithoutTabRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTabRequestsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutApprovedTabsInput = {
+    create?: XOR<UserCreateWithoutApprovedTabsInput, UserUncheckedCreateWithoutApprovedTabsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApprovedTabsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutTabRequestsNestedInput = {
+    create?: XOR<UserCreateWithoutTabRequestsInput, UserUncheckedCreateWithoutTabRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTabRequestsInput
+    upsert?: UserUpsertWithoutTabRequestsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTabRequestsInput, UserUpdateWithoutTabRequestsInput>, UserUncheckedUpdateWithoutTabRequestsInput>
+  }
+
+  export type UserUpdateOneWithoutApprovedTabsNestedInput = {
+    create?: XOR<UserCreateWithoutApprovedTabsInput, UserUncheckedCreateWithoutApprovedTabsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApprovedTabsInput
+    upsert?: UserUpsertWithoutApprovedTabsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutApprovedTabsInput, UserUpdateWithoutApprovedTabsInput>, UserUncheckedUpdateWithoutApprovedTabsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -11177,6 +12799,56 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TabAccessRequestCreateWithoutUserInput = {
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+    approver?: UserCreateNestedOneWithoutApprovedTabsInput
+  }
+
+  export type TabAccessRequestUncheckedCreateWithoutUserInput = {
+    id?: number
+    approvedBy?: number | null
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+  }
+
+  export type TabAccessRequestCreateOrConnectWithoutUserInput = {
+    where: TabAccessRequestWhereUniqueInput
+    create: XOR<TabAccessRequestCreateWithoutUserInput, TabAccessRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type TabAccessRequestCreateManyUserInputEnvelope = {
+    data: TabAccessRequestCreateManyUserInput | TabAccessRequestCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TabAccessRequestCreateWithoutApproverInput = {
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutTabRequestsInput
+  }
+
+  export type TabAccessRequestUncheckedCreateWithoutApproverInput = {
+    id?: number
+    userId: number
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+  }
+
+  export type TabAccessRequestCreateOrConnectWithoutApproverInput = {
+    where: TabAccessRequestWhereUniqueInput
+    create: XOR<TabAccessRequestCreateWithoutApproverInput, TabAccessRequestUncheckedCreateWithoutApproverInput>
+  }
+
+  export type TabAccessRequestCreateManyApproverInputEnvelope = {
+    data: TabAccessRequestCreateManyApproverInput | TabAccessRequestCreateManyApproverInput[]
+    skipDuplicates?: boolean
+  }
+
   export type FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput = {
     where: FinancialHistoryEntryWhereUniqueInput
     update: XOR<FinancialHistoryEntryUpdateWithoutChangedByInput, FinancialHistoryEntryUncheckedUpdateWithoutChangedByInput>
@@ -11300,6 +12972,50 @@ export namespace Prisma {
     timestamp?: DateTimeFilter<"AuditLog"> | Date | string
   }
 
+  export type TabAccessRequestUpsertWithWhereUniqueWithoutUserInput = {
+    where: TabAccessRequestWhereUniqueInput
+    update: XOR<TabAccessRequestUpdateWithoutUserInput, TabAccessRequestUncheckedUpdateWithoutUserInput>
+    create: XOR<TabAccessRequestCreateWithoutUserInput, TabAccessRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type TabAccessRequestUpdateWithWhereUniqueWithoutUserInput = {
+    where: TabAccessRequestWhereUniqueInput
+    data: XOR<TabAccessRequestUpdateWithoutUserInput, TabAccessRequestUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TabAccessRequestUpdateManyWithWhereWithoutUserInput = {
+    where: TabAccessRequestScalarWhereInput
+    data: XOR<TabAccessRequestUpdateManyMutationInput, TabAccessRequestUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TabAccessRequestScalarWhereInput = {
+    AND?: TabAccessRequestScalarWhereInput | TabAccessRequestScalarWhereInput[]
+    OR?: TabAccessRequestScalarWhereInput[]
+    NOT?: TabAccessRequestScalarWhereInput | TabAccessRequestScalarWhereInput[]
+    id?: IntFilter<"TabAccessRequest"> | number
+    userId?: IntFilter<"TabAccessRequest"> | number
+    approvedBy?: IntNullableFilter<"TabAccessRequest"> | number | null
+    status?: StringFilter<"TabAccessRequest"> | string
+    requestedAt?: DateTimeFilter<"TabAccessRequest"> | Date | string
+    approvedAt?: DateTimeNullableFilter<"TabAccessRequest"> | Date | string | null
+  }
+
+  export type TabAccessRequestUpsertWithWhereUniqueWithoutApproverInput = {
+    where: TabAccessRequestWhereUniqueInput
+    update: XOR<TabAccessRequestUpdateWithoutApproverInput, TabAccessRequestUncheckedUpdateWithoutApproverInput>
+    create: XOR<TabAccessRequestCreateWithoutApproverInput, TabAccessRequestUncheckedCreateWithoutApproverInput>
+  }
+
+  export type TabAccessRequestUpdateWithWhereUniqueWithoutApproverInput = {
+    where: TabAccessRequestWhereUniqueInput
+    data: XOR<TabAccessRequestUpdateWithoutApproverInput, TabAccessRequestUncheckedUpdateWithoutApproverInput>
+  }
+
+  export type TabAccessRequestUpdateManyWithWhereWithoutApproverInput = {
+    where: TabAccessRequestScalarWhereInput
+    data: XOR<TabAccessRequestUpdateManyMutationInput, TabAccessRequestUncheckedUpdateManyWithoutApproverInput>
+  }
+
   export type FinancialHistoryEntryCreateWithoutProjectInput = {
     field: string
     oldValue: number
@@ -11390,6 +13106,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
     notes?: PMNoteCreateNestedManyWithoutAuthorInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutProjectsInput = {
@@ -11400,6 +13118,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
     notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutProjectsInput = {
@@ -11488,6 +13208,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -11498,6 +13220,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -11507,6 +13231,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
     notes?: PMNoteCreateNestedManyWithoutAuthorInput
     projects?: ProjectCreateNestedManyWithoutProjectManagerInput
+    tabRequests?: TabAccessRequestCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -11517,6 +13243,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
     notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
+    tabRequests?: TabAccessRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -11542,6 +13270,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
+    tabRequests?: TabAccessRequestUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -11552,6 +13282,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
+    tabRequests?: TabAccessRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type ProjectCreateWithoutPmNotesHistoryInput = {
@@ -11604,6 +13336,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
     projects?: ProjectCreateNestedManyWithoutProjectManagerInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutNotesInput = {
@@ -11614,6 +13348,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
     projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutNotesInput = {
@@ -11688,6 +13424,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
     projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotesInput = {
@@ -11698,6 +13436,8 @@ export namespace Prisma {
     financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type ProjectCreateWithoutFinancialHistoryInput = {
@@ -11750,6 +13490,8 @@ export namespace Prisma {
     notes?: PMNoteCreateNestedManyWithoutAuthorInput
     projects?: ProjectCreateNestedManyWithoutProjectManagerInput
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestCreateNestedManyWithoutApproverInput
   }
 
   export type UserUncheckedCreateWithoutFinancialChangesInput = {
@@ -11760,6 +13502,8 @@ export namespace Prisma {
     notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestUncheckedCreateNestedManyWithoutApproverInput
   }
 
   export type UserCreateOrConnectWithoutFinancialChangesInput = {
@@ -11834,6 +13578,8 @@ export namespace Prisma {
     notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUpdateManyWithoutApproverNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFinancialChangesInput = {
@@ -11844,6 +13590,8 @@ export namespace Prisma {
     notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUncheckedUpdateManyWithoutApproverNestedInput
   }
 
   export type ProjectCreateWithoutInvoiceInput = {
@@ -11938,6 +13686,130 @@ export namespace Prisma {
     pmNotesHistory?: PMNoteUncheckedUpdateManyWithoutProjectNestedInput
   }
 
+  export type UserCreateWithoutTabRequestsInput = {
+    name: string
+    email: string
+    hashedPassword: string
+    financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
+    notes?: PMNoteCreateNestedManyWithoutAuthorInput
+    projects?: ProjectCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserUncheckedCreateWithoutTabRequestsInput = {
+    id?: number
+    name: string
+    email: string
+    hashedPassword: string
+    financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
+    notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    approvedTabs?: TabAccessRequestUncheckedCreateNestedManyWithoutApproverInput
+  }
+
+  export type UserCreateOrConnectWithoutTabRequestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTabRequestsInput, UserUncheckedCreateWithoutTabRequestsInput>
+  }
+
+  export type UserCreateWithoutApprovedTabsInput = {
+    name: string
+    email: string
+    hashedPassword: string
+    financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
+    notes?: PMNoteCreateNestedManyWithoutAuthorInput
+    projects?: ProjectCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutApprovedTabsInput = {
+    id?: number
+    name: string
+    email: string
+    hashedPassword: string
+    financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
+    notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    tabRequests?: TabAccessRequestUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutApprovedTabsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutApprovedTabsInput, UserUncheckedCreateWithoutApprovedTabsInput>
+  }
+
+  export type UserUpsertWithoutTabRequestsInput = {
+    update: XOR<UserUpdateWithoutTabRequestsInput, UserUncheckedUpdateWithoutTabRequestsInput>
+    create: XOR<UserCreateWithoutTabRequestsInput, UserUncheckedCreateWithoutTabRequestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTabRequestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTabRequestsInput, UserUncheckedUpdateWithoutTabRequestsInput>
+  }
+
+  export type UserUpdateWithoutTabRequestsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
+    notes?: PMNoteUpdateManyWithoutAuthorNestedInput
+    projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUpdateManyWithoutApproverNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTabRequestsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
+    notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    approvedTabs?: TabAccessRequestUncheckedUpdateManyWithoutApproverNestedInput
+  }
+
+  export type UserUpsertWithoutApprovedTabsInput = {
+    update: XOR<UserUpdateWithoutApprovedTabsInput, UserUncheckedUpdateWithoutApprovedTabsInput>
+    create: XOR<UserCreateWithoutApprovedTabsInput, UserUncheckedCreateWithoutApprovedTabsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutApprovedTabsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutApprovedTabsInput, UserUncheckedUpdateWithoutApprovedTabsInput>
+  }
+
+  export type UserUpdateWithoutApprovedTabsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
+    notes?: PMNoteUpdateManyWithoutAuthorNestedInput
+    projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutApprovedTabsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
+    notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    tabRequests?: TabAccessRequestUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type FinancialHistoryEntryCreateManyChangedByInput = {
     id?: number
     projectId: string
@@ -11979,6 +13851,22 @@ export namespace Prisma {
     beforeData?: NullableJsonNullValueInput | InputJsonValue
     afterData?: NullableJsonNullValueInput | InputJsonValue
     timestamp?: Date | string
+  }
+
+  export type TabAccessRequestCreateManyUserInput = {
+    id?: number
+    approvedBy?: number | null
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
+  }
+
+  export type TabAccessRequestCreateManyApproverInput = {
+    id?: number
+    userId: number
+    status?: string
+    requestedAt?: Date | string
+    approvedAt?: Date | string | null
   }
 
   export type FinancialHistoryEntryUpdateWithoutChangedByInput = {
@@ -12111,6 +13999,52 @@ export namespace Prisma {
     beforeData?: NullableJsonNullValueInput | InputJsonValue
     afterData?: NullableJsonNullValueInput | InputJsonValue
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TabAccessRequestUpdateWithoutUserInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approver?: UserUpdateOneWithoutApprovedTabsNestedInput
+  }
+
+  export type TabAccessRequestUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    approvedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TabAccessRequestUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    approvedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TabAccessRequestUpdateWithoutApproverInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutTabRequestsNestedInput
+  }
+
+  export type TabAccessRequestUncheckedUpdateWithoutApproverInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TabAccessRequestUncheckedUpdateManyWithoutApproverInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type FinancialHistoryEntryCreateManyProjectInput = {

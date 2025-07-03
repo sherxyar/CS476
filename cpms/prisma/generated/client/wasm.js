@@ -186,6 +186,15 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TabAccessRequestScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  approvedBy: 'approvedBy',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  approvedAt: 'approvedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -222,7 +231,8 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   PMNote: 'PMNote',
   FinancialHistoryEntry: 'FinancialHistoryEntry',
-  Invoice: 'Invoice'
+  Invoice: 'Invoice',
+  TabAccessRequest: 'TabAccessRequest'
 };
 
 /**
