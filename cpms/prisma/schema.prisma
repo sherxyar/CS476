@@ -36,10 +36,12 @@ model Project {
   lastUpdated      DateTime?
   status           String?
   pmNotesHistory   PMNote[]
-  financialHistory FinancialHistoryEntry[] //
+  financialHistory FinancialHistoryEntry[]
 
   projectManagerId Int?
   projectManager   User? @relation("ManagerProjects", fields: [projectManagerId], references: [id])
+
+  schedule ProjectSchedule? @relation("ProjectScheduleRelation")
 }
 
 model AuditLog {
@@ -85,4 +87,23 @@ model FinancialHistoryEntry {
 
   userId    Int?
   changedBy User? @relation("UserFinancialChanges", fields: [userId], references: [id])
+}
+
+//The below 2 tables are for Schedule tab
+model Milestone {
+  id          Int             @id @default(autoincrement())
+  title       String          // Changed from task to title for consistency
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  status      String
+  scheduleId  Int
+  schedule    ProjectSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+}
+
+model ProjectSchedule {
+  id         Int         @id @default(autoincrement())
+  projectId  String      @unique
+  project    Project     @relation("ProjectScheduleRelation", fields: [projectId], references: [id], onDelete: Cascade)
+  milestones Milestone[]
 }
