@@ -3,20 +3,20 @@ import { useState, type CSSProperties } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
-// ────────────────────────────────────────────────────────────── types
+//  types
 
 type ChangeLogEntry = {
   id: string;
   date: string;
   changeType: "Financial" | "Schedule" | "Scope" | "Resource" | "Risk";
   category:
-    | "Budget"
-    | "Forecast"
-    | "Actuals"
-    | "Timeline"
-    | "Milestone"
-    | "Deliverable"
-    | "Other";
+  | "Budget"
+  | "Forecast"
+  | "Actuals"
+  | "Timeline"
+  | "Milestone"
+  | "Deliverable"
+  | "Other";
   description: string;
   impactArea: string;
   oldValue?: string;
@@ -33,10 +33,10 @@ type Props = {
   project: Project; // reserved for future use
 };
 
-// ────────────────────────────────────────────────────────────── component
+//  component
 
 export default function ChangeLogTab({ project: _project }: Props) {
-  /* ----------------------------- state ----------------------------- */
+  /*  state  */
   const [showAddChange, setShowAddChange] = useState(false);
   const [filterType, setFilterType] = useState<string>("All");
   const [filterStatus, setFilterStatus] = useState<string>("All");
@@ -57,7 +57,7 @@ export default function ChangeLogTab({ project: _project }: Props) {
     estimatedImpact: "",
   });
 
-  /* ---------------------------- helpers ---------------------------- */
+  /*  helpers  */
   const getStatusClass = (status: ChangeLogEntry["status"]) => {
     switch (status) {
       case "Implemented":
@@ -97,14 +97,14 @@ export default function ChangeLogTab({ project: _project }: Props) {
     }
   };
 
-  /* ------------------------- derived values ------------------------ */
+  /*  derived values  */
   const filteredChanges = changeLog.filter((c) => {
     const typeMatch = filterType === "All" || c.changeType === filterType;
     const statusMatch = filterStatus === "All" || c.status === filterStatus;
     return typeMatch && statusMatch;
   });
 
-  /* --------------------------- handlers ---------------------------- */
+  /*  handlers  */
   const handleAddChange = () => {
     if (
       newChange.description &&
@@ -288,23 +288,20 @@ export default function ChangeLogTab({ project: _project }: Props) {
                       <option value="Risk">Risk</option>
                     </select>
                   </div>
-
                   <div className={styles.formField}>
-                    <label>Category</label>
+                    <label>Priority</label>
                     <select
                       className={styles.formSelect}
-                      value={newChange.category}
-                      onChange={(e) => setNewChange({ ...newChange, category: e.target.value as ChangeLogEntry["category"] })}
+                      value={newChange.priority}
+                      onChange={(e) => setNewChange({ ...newChange, priority: e.target.value as ChangeLogEntry["priority"] })}
                     >
-                      <option value="Budget">Budget</option>
-                      <option value="Forecast">Forecast</option>
-                      <option value="Actuals">Actuals</option>
-                      <option value="Timeline">Timeline</option>
-                      <option value="Milestone">Milestone</option>
-                      <option value="Deliverable">Deliverable</option>
-                      <option value="Other">Other</option>
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                      <option value="Critical">Critical</option>
                     </select>
                   </div>
+
                 </div>
 
                 {/* row 2 */}
@@ -320,15 +317,16 @@ export default function ChangeLogTab({ project: _project }: Props) {
                     />
                   </div>
                   <div className={styles.formField}>
-                    <label>Impact Area</label>
+                    <label>Requested By</label>
                     <input
                       type="text"
                       className={styles.formInput}
-                      value={newChange.impactArea}
-                      onChange={(e) => setNewChange({ ...newChange, impactArea: e.target.value })}
-                      placeholder="What area of the project is affected"
+                      value={newChange.requestedBy}
+                      onChange={(e) => setNewChange({ ...newChange, requestedBy: e.target.value })}
+                      placeholder="Name of requester"
                     />
                   </div>
+
                 </div>
 
                 {/* row 3 */}
@@ -355,67 +353,25 @@ export default function ChangeLogTab({ project: _project }: Props) {
                   </div>
                 </div>
 
-                {/* row 4 */}
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Justification</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newChange.justification}
-                      onChange={(e) => setNewChange({ ...newChange, justification: e.target.value })}
-                      placeholder="Business justification for the change"
-                    />
-                  </div>
-                  <div className={styles.formField}>
-                    <label>Requested By</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newChange.requestedBy}
-                      onChange={(e) => setNewChange({ ...newChange, requestedBy: e.target.value })}
-                      placeholder="Name of requester"
-                    />
-                  </div>
-                </div>
+              </div>
 
-                {/* row 5 */}
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Priority</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newChange.priority}
-                      onChange={(e) => setNewChange({ ...newChange, priority: e.target.value as ChangeLogEntry["priority"] })}
-                    >
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="High">High</option>
-                      <option value="Critical">Critical</option>
-                    </select>
-                  </div>
-                  <div className={styles.formField}>
-                    <label>Estimated Impact</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newChange.estimatedImpact}
-                      onChange={(e) => setNewChange({ ...newChange, estimatedImpact: e.target.value })}
-                      placeholder="Expected impact (cost, schedule, scope)"
-                    />
-                  </div>
-                </div>
+              {/* row 5 */}
+              <div className={styles.formRow}>
 
-                <div className={styles.formActions}>
-                  <button className={styles.saveInvoiceButton} onClick={handleAddChange}>
-                    Submit Change Request
-                  </button>
-                </div>
+
+              </div>
+
+              <div className={styles.formActions}>
+                <button className={styles.saveInvoiceButton} onClick={handleAddChange}>
+                  Submit Change Request
+                </button>
               </div>
             </div>
           </div>
         </div>
-      )}
-    </div>
+
+      )
+      }
+    </div >
   );
 }

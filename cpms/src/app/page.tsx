@@ -103,13 +103,13 @@ const fetchProjects = async () => {
   return (
     <>
       <Head>
-        <title>Planova - Home</title>
-        <meta name="description" content="Planova Project Management Dashboard" />
+        <title>InfraPro - Home</title>
+        <meta name="description" content="InfraPro Project Management Dashboard" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <div className={styles.sidebar}>
-        <img src="/PlanovaLogo.png" alt="Logo" className={styles.sidebarLogo} />
+        <img src="/InfraProLogo.png" alt="Logo" className={styles.sidebarLogo} />
         <nav>
           <ul>
             <li className={styles.active}><span className={styles.icon}>🏠</span>HOME</li>
@@ -118,7 +118,7 @@ const fetchProjects = async () => {
       </div>
 
       <div className={styles.topbar}>
-        <div className={styles.logoText}>Planova</div>
+        <div className={styles.logoText}>InfraPro</div>
         <input type="text" className={styles.searchBox} placeholder="Search" />
         <div className={styles.topbarActions}>
           <a href="/signup" className={styles.topbarButton}>Sign Up</a>

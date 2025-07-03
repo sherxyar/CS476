@@ -38,6 +38,7 @@ model Project {
   pmNotesHistory   PMNote[]
   financialHistory FinancialHistoryEntry[]
 
+  invoices         Invoice[]
   projectManagerId Int?
   projectManager   User? @relation("ManagerProjects", fields: [projectManagerId], references: [id])
 
@@ -87,6 +88,47 @@ model FinancialHistoryEntry {
 
   userId    Int?
   changedBy User? @relation("UserFinancialChanges", fields: [userId], references: [id])
+}
+
+// invoice table
+model Invoice {
+  id            Int           @id @default(autoincrement())
+  projectId     String                   
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  invoiceNumber String
+  dateIssued    DateTime
+  amount        Decimal        @db.Decimal(12, 2)
+  status        InvoiceStatus  @default(NOT_PAID)
+  vendor        String
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+}
+
+enum InvoiceStatus {
+  PAID
+  NOT_PAID
+}
+
+model TabAccessRequest {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+
+  tabName    String   // 예: "Financials", "Admin"
+  status     AccessStatus @default(PENDING)
+
+  requestedAt DateTime @default(now())
+  approvedBy  Int?
+  approver    User?    @relation("Approver", fields: [approvedBy], references: [id])
+}
+
+enum AccessStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 //The below 2 tables are for Schedule tab
