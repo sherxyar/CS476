@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.9.0
- * Query Engine version: 81e4af48011447c3cc503a190e86995b66d2a28e
+ * Prisma Client JS version: 6.10.1
+ * Query Engine version: 9b628578b3b7cae625e8c927178f15a170e74a9c
  */
 Prisma.prismaVersion = {
-  client: "6.9.0",
-  engine: "81e4af48011447c3cc503a190e86995b66d2a28e"
+  client: "6.10.1",
+  engine: "9b628578b3b7cae625e8c927178f15a170e74a9c"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -114,6 +114,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -171,6 +174,18 @@ exports.Prisma.FinancialHistoryEntryScalarFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  invoiceNumber: 'invoiceNumber',
+  dateIssued: 'dateIssued',
+  amount: 'amount',
+  status: 'status',
+  vendor: 'vendor',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -179,6 +194,11 @@ exports.Prisma.SortOrder = {
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 };
 
 exports.Prisma.NullsOrder = {
@@ -191,19 +211,18 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
+  PAID: 'PAID',
+  NOT_PAID: 'NOT_PAID'
 };
-
 
 exports.Prisma.ModelName = {
   User: 'User',
   Project: 'Project',
   AuditLog: 'AuditLog',
   PMNote: 'PMNote',
-  FinancialHistoryEntry: 'FinancialHistoryEntry'
+  FinancialHistoryEntry: 'FinancialHistoryEntry',
+  Invoice: 'Invoice'
 };
 
 /**

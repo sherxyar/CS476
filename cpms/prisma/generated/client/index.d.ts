@@ -38,6 +38,28 @@ export type PMNote = $Result.DefaultSelection<Prisma.$PMNotePayload>
  * 
  */
 export type FinancialHistoryEntry = $Result.DefaultSelection<Prisma.$FinancialHistoryEntryPayload>
+/**
+ * Model Invoice
+ * 
+ */
+export type Invoice = $Result.DefaultSelection<Prisma.$InvoicePayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const InvoiceStatus: {
+  PAID: 'PAID',
+  NOT_PAID: 'NOT_PAID'
+};
+
+export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus]
+
+}
+
+export type InvoiceStatus = $Enums.InvoiceStatus
+
+export const InvoiceStatus: typeof $Enums.InvoiceStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -213,6 +235,16 @@ export class PrismaClient<
     * ```
     */
   get financialHistoryEntry(): Prisma.FinancialHistoryEntryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.invoice`: Exposes CRUD operations for the **Invoice** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Invoices
+    * const invoices = await prisma.invoice.findMany()
+    * ```
+    */
+  get invoice(): Prisma.InvoiceDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -271,8 +303,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.9.0
-   * Query Engine version: 81e4af48011447c3cc503a190e86995b66d2a28e
+   * Prisma Client JS version: 6.10.1
+   * Query Engine version: 9b628578b3b7cae625e8c927178f15a170e74a9c
    */
   export type PrismaVersion = {
     client: string
@@ -657,7 +689,8 @@ export namespace Prisma {
     Project: 'Project',
     AuditLog: 'AuditLog',
     PMNote: 'PMNote',
-    FinancialHistoryEntry: 'FinancialHistoryEntry'
+    FinancialHistoryEntry: 'FinancialHistoryEntry',
+    Invoice: 'Invoice'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -676,7 +709,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "project" | "auditLog" | "pMNote" | "financialHistoryEntry"
+      modelProps: "user" | "project" | "auditLog" | "pMNote" | "financialHistoryEntry" | "invoice"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1050,6 +1083,80 @@ export namespace Prisma {
           }
         }
       }
+      Invoice: {
+        payload: Prisma.$InvoicePayload<ExtArgs>
+        fields: Prisma.InvoiceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InvoiceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InvoiceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          findFirst: {
+            args: Prisma.InvoiceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InvoiceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          findMany: {
+            args: Prisma.InvoiceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+          }
+          create: {
+            args: Prisma.InvoiceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          createMany: {
+            args: Prisma.InvoiceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InvoiceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+          }
+          delete: {
+            args: Prisma.InvoiceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          update: {
+            args: Prisma.InvoiceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          deleteMany: {
+            args: Prisma.InvoiceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InvoiceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.InvoiceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+          }
+          upsert: {
+            args: Prisma.InvoiceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvoicePayload>
+          }
+          aggregate: {
+            args: Prisma.InvoiceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInvoice>
+          }
+          groupBy: {
+            args: Prisma.InvoiceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InvoiceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InvoiceCountArgs<ExtArgs>
+            result: $Utils.Optional<InvoiceCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1139,6 +1246,7 @@ export namespace Prisma {
     auditLog?: AuditLogOmit
     pMNote?: PMNoteOmit
     financialHistoryEntry?: FinancialHistoryEntryOmit
+    invoice?: InvoiceOmit
   }
 
   /* Types for Logging */
@@ -1233,17 +1341,17 @@ export namespace Prisma {
    */
 
   export type UserCountOutputType = {
-    auditLogs: number
+    financialChanges: number
     notes: number
     projects: number
-    financialChanges: number
+    auditLogs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+    financialChanges?: boolean | UserCountOutputTypeCountFinancialChangesArgs
     notes?: boolean | UserCountOutputTypeCountNotesArgs
     projects?: boolean | UserCountOutputTypeCountProjectsArgs
-    financialChanges?: boolean | UserCountOutputTypeCountFinancialChangesArgs
+    auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   }
 
   // Custom InputTypes
@@ -1260,8 +1368,8 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AuditLogWhereInput
+  export type UserCountOutputTypeCountFinancialChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinancialHistoryEntryWhereInput
   }
 
   /**
@@ -1281,8 +1389,8 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountFinancialChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FinancialHistoryEntryWhereInput
+  export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogWhereInput
   }
 
 
@@ -1291,13 +1399,15 @@ export namespace Prisma {
    */
 
   export type ProjectCountOutputType = {
-    pmNotesHistory: number
     financialHistory: number
+    Invoice: number
+    pmNotesHistory: number
   }
 
   export type ProjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pmNotesHistory?: boolean | ProjectCountOutputTypeCountPmNotesHistoryArgs
     financialHistory?: boolean | ProjectCountOutputTypeCountFinancialHistoryArgs
+    Invoice?: boolean | ProjectCountOutputTypeCountInvoiceArgs
+    pmNotesHistory?: boolean | ProjectCountOutputTypeCountPmNotesHistoryArgs
   }
 
   // Custom InputTypes
@@ -1314,15 +1424,22 @@ export namespace Prisma {
   /**
    * ProjectCountOutputType without action
    */
-  export type ProjectCountOutputTypeCountPmNotesHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PMNoteWhereInput
+  export type ProjectCountOutputTypeCountFinancialHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinancialHistoryEntryWhereInput
   }
 
   /**
    * ProjectCountOutputType without action
    */
-  export type ProjectCountOutputTypeCountFinancialHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FinancialHistoryEntryWhereInput
+  export type ProjectCountOutputTypeCountInvoiceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceWhereInput
+  }
+
+  /**
+   * ProjectCountOutputType without action
+   */
+  export type ProjectCountOutputTypeCountPmNotesHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PMNoteWhereInput
   }
 
 
@@ -1520,10 +1637,10 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     hashedPassword?: boolean
-    auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    financialChanges?: boolean | User$financialChangesArgs<ExtArgs>
     notes?: boolean | User$notesArgs<ExtArgs>
     projects?: boolean | User$projectsArgs<ExtArgs>
-    financialChanges?: boolean | User$financialChangesArgs<ExtArgs>
+    auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1550,10 +1667,10 @@ export namespace Prisma {
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "hashedPassword", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    financialChanges?: boolean | User$financialChangesArgs<ExtArgs>
     notes?: boolean | User$notesArgs<ExtArgs>
     projects?: boolean | User$projectsArgs<ExtArgs>
-    financialChanges?: boolean | User$financialChangesArgs<ExtArgs>
+    auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1562,10 +1679,10 @@ export namespace Prisma {
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
-      auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+      financialChanges: Prisma.$FinancialHistoryEntryPayload<ExtArgs>[]
       notes: Prisma.$PMNotePayload<ExtArgs>[]
       projects: Prisma.$ProjectPayload<ExtArgs>[]
-      financialChanges: Prisma.$FinancialHistoryEntryPayload<ExtArgs>[]
+      auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -1966,10 +2083,10 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    financialChanges<T extends User$financialChangesArgs<ExtArgs> = {}>(args?: Subset<T, User$financialChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialHistoryEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notes<T extends User$notesArgs<ExtArgs> = {}>(args?: Subset<T, User$notesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PMNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     projects<T extends User$projectsArgs<ExtArgs> = {}>(args?: Subset<T, User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    financialChanges<T extends User$financialChangesArgs<ExtArgs> = {}>(args?: Subset<T, User$financialChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialHistoryEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2232,6 +2349,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2250,6 +2368,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2389,27 +2508,27 @@ export namespace Prisma {
   }
 
   /**
-   * User.auditLogs
+   * User.financialChanges
    */
-  export type User$auditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$financialChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AuditLog
+     * Select specific fields to fetch from the FinancialHistoryEntry
      */
-    select?: AuditLogSelect<ExtArgs> | null
+    select?: FinancialHistoryEntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
+     * Omit specific fields from the FinancialHistoryEntry
      */
-    omit?: AuditLogOmit<ExtArgs> | null
+    omit?: FinancialHistoryEntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AuditLogInclude<ExtArgs> | null
-    where?: AuditLogWhereInput
-    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
-    cursor?: AuditLogWhereUniqueInput
+    include?: FinancialHistoryEntryInclude<ExtArgs> | null
+    where?: FinancialHistoryEntryWhereInput
+    orderBy?: FinancialHistoryEntryOrderByWithRelationInput | FinancialHistoryEntryOrderByWithRelationInput[]
+    cursor?: FinancialHistoryEntryWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+    distinct?: FinancialHistoryEntryScalarFieldEnum | FinancialHistoryEntryScalarFieldEnum[]
   }
 
   /**
@@ -2461,27 +2580,27 @@ export namespace Prisma {
   }
 
   /**
-   * User.financialChanges
+   * User.auditLogs
    */
-  export type User$financialChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$auditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FinancialHistoryEntry
+     * Select specific fields to fetch from the AuditLog
      */
-    select?: FinancialHistoryEntrySelect<ExtArgs> | null
+    select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the FinancialHistoryEntry
+     * Omit specific fields from the AuditLog
      */
-    omit?: FinancialHistoryEntryOmit<ExtArgs> | null
+    omit?: AuditLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FinancialHistoryEntryInclude<ExtArgs> | null
-    where?: FinancialHistoryEntryWhereInput
-    orderBy?: FinancialHistoryEntryOrderByWithRelationInput | FinancialHistoryEntryOrderByWithRelationInput[]
-    cursor?: FinancialHistoryEntryWhereUniqueInput
+    include?: AuditLogInclude<ExtArgs> | null
+    where?: AuditLogWhereInput
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    cursor?: AuditLogWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: FinancialHistoryEntryScalarFieldEnum | FinancialHistoryEntryScalarFieldEnum[]
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
   }
 
   /**
@@ -2785,8 +2904,9 @@ export namespace Prisma {
     lastUpdated?: boolean
     status?: boolean
     projectManagerId?: boolean
-    pmNotesHistory?: boolean | Project$pmNotesHistoryArgs<ExtArgs>
     financialHistory?: boolean | Project$financialHistoryArgs<ExtArgs>
+    Invoice?: boolean | Project$InvoiceArgs<ExtArgs>
+    pmNotesHistory?: boolean | Project$pmNotesHistoryArgs<ExtArgs>
     projectManager?: boolean | Project$projectManagerArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -2846,8 +2966,9 @@ export namespace Prisma {
 
   export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectID" | "title" | "phase" | "description" | "forecast" | "actuals" | "budget" | "plannedStartDate" | "plannedEndDate" | "dateCreated" | "lastUpdated" | "status" | "projectManagerId", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pmNotesHistory?: boolean | Project$pmNotesHistoryArgs<ExtArgs>
     financialHistory?: boolean | Project$financialHistoryArgs<ExtArgs>
+    Invoice?: boolean | Project$InvoiceArgs<ExtArgs>
+    pmNotesHistory?: boolean | Project$pmNotesHistoryArgs<ExtArgs>
     projectManager?: boolean | Project$projectManagerArgs<ExtArgs>
     _count?: boolean | ProjectCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -2861,8 +2982,9 @@ export namespace Prisma {
   export type $ProjectPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Project"
     objects: {
-      pmNotesHistory: Prisma.$PMNotePayload<ExtArgs>[]
       financialHistory: Prisma.$FinancialHistoryEntryPayload<ExtArgs>[]
+      Invoice: Prisma.$InvoicePayload<ExtArgs>[]
+      pmNotesHistory: Prisma.$PMNotePayload<ExtArgs>[]
       projectManager: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -3274,8 +3396,9 @@ export namespace Prisma {
    */
   export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    pmNotesHistory<T extends Project$pmNotesHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Project$pmNotesHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PMNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     financialHistory<T extends Project$financialHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Project$financialHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialHistoryEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    Invoice<T extends Project$InvoiceArgs<ExtArgs> = {}>(args?: Subset<T, Project$InvoiceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    pmNotesHistory<T extends Project$pmNotesHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Project$pmNotesHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PMNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     projectManager<T extends Project$projectManagerArgs<ExtArgs> = {}>(args?: Subset<T, Project$projectManagerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3549,6 +3672,7 @@ export namespace Prisma {
      * The data used to create many Projects.
      */
     data: ProjectCreateManyInput | ProjectCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3567,6 +3691,7 @@ export namespace Prisma {
      * The data used to create many Projects.
      */
     data: ProjectCreateManyInput | ProjectCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3714,30 +3839,6 @@ export namespace Prisma {
   }
 
   /**
-   * Project.pmNotesHistory
-   */
-  export type Project$pmNotesHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the PMNote
-     */
-    select?: PMNoteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the PMNote
-     */
-    omit?: PMNoteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: PMNoteInclude<ExtArgs> | null
-    where?: PMNoteWhereInput
-    orderBy?: PMNoteOrderByWithRelationInput | PMNoteOrderByWithRelationInput[]
-    cursor?: PMNoteWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: PMNoteScalarFieldEnum | PMNoteScalarFieldEnum[]
-  }
-
-  /**
    * Project.financialHistory
    */
   export type Project$financialHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3759,6 +3860,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FinancialHistoryEntryScalarFieldEnum | FinancialHistoryEntryScalarFieldEnum[]
+  }
+
+  /**
+   * Project.Invoice
+   */
+  export type Project$InvoiceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    where?: InvoiceWhereInput
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    cursor?: InvoiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Project.pmNotesHistory
+   */
+  export type Project$pmNotesHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PMNote
+     */
+    select?: PMNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PMNote
+     */
+    omit?: PMNoteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PMNoteInclude<ExtArgs> | null
+    where?: PMNoteWhereInput
+    orderBy?: PMNoteOrderByWithRelationInput | PMNoteOrderByWithRelationInput[]
+    cursor?: PMNoteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PMNoteScalarFieldEnum | PMNoteScalarFieldEnum[]
   }
 
   /**
@@ -4745,6 +4894,7 @@ export namespace Prisma {
      * The data used to create many AuditLogs.
      */
     data: AuditLogCreateManyInput | AuditLogCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -4763,6 +4913,7 @@ export namespace Prisma {
      * The data used to create many AuditLogs.
      */
     data: AuditLogCreateManyInput | AuditLogCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5866,6 +6017,7 @@ export namespace Prisma {
      * The data used to create many PMNotes.
      */
     data: PMNoteCreateManyInput | PMNoteCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5884,6 +6036,7 @@ export namespace Prisma {
      * The data used to create many PMNotes.
      */
     data: PMNoteCreateManyInput | PMNoteCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7034,6 +7187,7 @@ export namespace Prisma {
      * The data used to create many FinancialHistoryEntries.
      */
     data: FinancialHistoryEntryCreateManyInput | FinancialHistoryEntryCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -7052,6 +7206,7 @@ export namespace Prisma {
      * The data used to create many FinancialHistoryEntries.
      */
     data: FinancialHistoryEntryCreateManyInput | FinancialHistoryEntryCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7237,10 +7392,1161 @@ export namespace Prisma {
 
 
   /**
+   * Model Invoice
+   */
+
+  export type AggregateInvoice = {
+    _count: InvoiceCountAggregateOutputType | null
+    _avg: InvoiceAvgAggregateOutputType | null
+    _sum: InvoiceSumAggregateOutputType | null
+    _min: InvoiceMinAggregateOutputType | null
+    _max: InvoiceMaxAggregateOutputType | null
+  }
+
+  export type InvoiceAvgAggregateOutputType = {
+    id: number | null
+    amount: Decimal | null
+  }
+
+  export type InvoiceSumAggregateOutputType = {
+    id: number | null
+    amount: Decimal | null
+  }
+
+  export type InvoiceMinAggregateOutputType = {
+    id: number | null
+    projectId: string | null
+    invoiceNumber: string | null
+    dateIssued: Date | null
+    amount: Decimal | null
+    status: $Enums.InvoiceStatus | null
+    vendor: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InvoiceMaxAggregateOutputType = {
+    id: number | null
+    projectId: string | null
+    invoiceNumber: string | null
+    dateIssued: Date | null
+    amount: Decimal | null
+    status: $Enums.InvoiceStatus | null
+    vendor: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InvoiceCountAggregateOutputType = {
+    id: number
+    projectId: number
+    invoiceNumber: number
+    dateIssued: number
+    amount: number
+    status: number
+    vendor: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type InvoiceAvgAggregateInputType = {
+    id?: true
+    amount?: true
+  }
+
+  export type InvoiceSumAggregateInputType = {
+    id?: true
+    amount?: true
+  }
+
+  export type InvoiceMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    invoiceNumber?: true
+    dateIssued?: true
+    amount?: true
+    status?: true
+    vendor?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InvoiceMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    invoiceNumber?: true
+    dateIssued?: true
+    amount?: true
+    status?: true
+    vendor?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InvoiceCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    invoiceNumber?: true
+    dateIssued?: true
+    amount?: true
+    status?: true
+    vendor?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type InvoiceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invoice to aggregate.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Invoices
+    **/
+    _count?: true | InvoiceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: InvoiceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: InvoiceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InvoiceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InvoiceMaxAggregateInputType
+  }
+
+  export type GetInvoiceAggregateType<T extends InvoiceAggregateArgs> = {
+        [P in keyof T & keyof AggregateInvoice]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInvoice[P]>
+      : GetScalarType<T[P], AggregateInvoice[P]>
+  }
+
+
+
+
+  export type InvoiceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvoiceWhereInput
+    orderBy?: InvoiceOrderByWithAggregationInput | InvoiceOrderByWithAggregationInput[]
+    by: InvoiceScalarFieldEnum[] | InvoiceScalarFieldEnum
+    having?: InvoiceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InvoiceCountAggregateInputType | true
+    _avg?: InvoiceAvgAggregateInputType
+    _sum?: InvoiceSumAggregateInputType
+    _min?: InvoiceMinAggregateInputType
+    _max?: InvoiceMaxAggregateInputType
+  }
+
+  export type InvoiceGroupByOutputType = {
+    id: number
+    projectId: string
+    invoiceNumber: string
+    dateIssued: Date
+    amount: Decimal
+    status: $Enums.InvoiceStatus
+    vendor: string
+    createdAt: Date
+    updatedAt: Date
+    _count: InvoiceCountAggregateOutputType | null
+    _avg: InvoiceAvgAggregateOutputType | null
+    _sum: InvoiceSumAggregateOutputType | null
+    _min: InvoiceMinAggregateOutputType | null
+    _max: InvoiceMaxAggregateOutputType | null
+  }
+
+  type GetInvoiceGroupByPayload<T extends InvoiceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InvoiceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InvoiceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InvoiceGroupByOutputType[P]>
+            : GetScalarType<T[P], InvoiceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InvoiceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    invoiceNumber?: boolean
+    dateIssued?: boolean
+    amount?: boolean
+    status?: boolean
+    vendor?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    Project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invoice"]>
+
+  export type InvoiceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    invoiceNumber?: boolean
+    dateIssued?: boolean
+    amount?: boolean
+    status?: boolean
+    vendor?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    Project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invoice"]>
+
+  export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    invoiceNumber?: boolean
+    dateIssued?: boolean
+    amount?: boolean
+    status?: boolean
+    vendor?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    Project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invoice"]>
+
+  export type InvoiceSelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    invoiceNumber?: boolean
+    dateIssued?: boolean
+    amount?: boolean
+    status?: boolean
+    vendor?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type InvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "invoiceNumber" | "dateIssued" | "amount" | "status" | "vendor" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+  export type InvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    Project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+  export type InvoiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    Project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+  export type InvoiceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    Project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+
+  export type $InvoicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Invoice"
+    objects: {
+      Project: Prisma.$ProjectPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      projectId: string
+      invoiceNumber: string
+      dateIssued: Date
+      amount: Prisma.Decimal
+      status: $Enums.InvoiceStatus
+      vendor: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["invoice"]>
+    composites: {}
+  }
+
+  type InvoiceGetPayload<S extends boolean | null | undefined | InvoiceDefaultArgs> = $Result.GetResult<Prisma.$InvoicePayload, S>
+
+  type InvoiceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InvoiceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: InvoiceCountAggregateInputType | true
+    }
+
+  export interface InvoiceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Invoice'], meta: { name: 'Invoice' } }
+    /**
+     * Find zero or one Invoice that matches the filter.
+     * @param {InvoiceFindUniqueArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InvoiceFindUniqueArgs>(args: SelectSubset<T, InvoiceFindUniqueArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Invoice that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {InvoiceFindUniqueOrThrowArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InvoiceFindUniqueOrThrowArgs>(args: SelectSubset<T, InvoiceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Invoice that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceFindFirstArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InvoiceFindFirstArgs>(args?: SelectSubset<T, InvoiceFindFirstArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Invoice that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceFindFirstOrThrowArgs} args - Arguments to find a Invoice
+     * @example
+     * // Get one Invoice
+     * const invoice = await prisma.invoice.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InvoiceFindFirstOrThrowArgs>(args?: SelectSubset<T, InvoiceFindFirstOrThrowArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Invoices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Invoices
+     * const invoices = await prisma.invoice.findMany()
+     * 
+     * // Get first 10 Invoices
+     * const invoices = await prisma.invoice.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const invoiceWithIdOnly = await prisma.invoice.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InvoiceFindManyArgs>(args?: SelectSubset<T, InvoiceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Invoice.
+     * @param {InvoiceCreateArgs} args - Arguments to create a Invoice.
+     * @example
+     * // Create one Invoice
+     * const Invoice = await prisma.invoice.create({
+     *   data: {
+     *     // ... data to create a Invoice
+     *   }
+     * })
+     * 
+     */
+    create<T extends InvoiceCreateArgs>(args: SelectSubset<T, InvoiceCreateArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Invoices.
+     * @param {InvoiceCreateManyArgs} args - Arguments to create many Invoices.
+     * @example
+     * // Create many Invoices
+     * const invoice = await prisma.invoice.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InvoiceCreateManyArgs>(args?: SelectSubset<T, InvoiceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Invoices and returns the data saved in the database.
+     * @param {InvoiceCreateManyAndReturnArgs} args - Arguments to create many Invoices.
+     * @example
+     * // Create many Invoices
+     * const invoice = await prisma.invoice.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Invoices and only return the `id`
+     * const invoiceWithIdOnly = await prisma.invoice.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InvoiceCreateManyAndReturnArgs>(args?: SelectSubset<T, InvoiceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Invoice.
+     * @param {InvoiceDeleteArgs} args - Arguments to delete one Invoice.
+     * @example
+     * // Delete one Invoice
+     * const Invoice = await prisma.invoice.delete({
+     *   where: {
+     *     // ... filter to delete one Invoice
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InvoiceDeleteArgs>(args: SelectSubset<T, InvoiceDeleteArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Invoice.
+     * @param {InvoiceUpdateArgs} args - Arguments to update one Invoice.
+     * @example
+     * // Update one Invoice
+     * const invoice = await prisma.invoice.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InvoiceUpdateArgs>(args: SelectSubset<T, InvoiceUpdateArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Invoices.
+     * @param {InvoiceDeleteManyArgs} args - Arguments to filter Invoices to delete.
+     * @example
+     * // Delete a few Invoices
+     * const { count } = await prisma.invoice.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InvoiceDeleteManyArgs>(args?: SelectSubset<T, InvoiceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Invoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Invoices
+     * const invoice = await prisma.invoice.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InvoiceUpdateManyArgs>(args: SelectSubset<T, InvoiceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Invoices and returns the data updated in the database.
+     * @param {InvoiceUpdateManyAndReturnArgs} args - Arguments to update many Invoices.
+     * @example
+     * // Update many Invoices
+     * const invoice = await prisma.invoice.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Invoices and only return the `id`
+     * const invoiceWithIdOnly = await prisma.invoice.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InvoiceUpdateManyAndReturnArgs>(args: SelectSubset<T, InvoiceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Invoice.
+     * @param {InvoiceUpsertArgs} args - Arguments to update or create a Invoice.
+     * @example
+     * // Update or create a Invoice
+     * const invoice = await prisma.invoice.upsert({
+     *   create: {
+     *     // ... data to create a Invoice
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Invoice we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InvoiceUpsertArgs>(args: SelectSubset<T, InvoiceUpsertArgs<ExtArgs>>): Prisma__InvoiceClient<$Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Invoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceCountArgs} args - Arguments to filter Invoices to count.
+     * @example
+     * // Count the number of Invoices
+     * const count = await prisma.invoice.count({
+     *   where: {
+     *     // ... the filter for the Invoices we want to count
+     *   }
+     * })
+    **/
+    count<T extends InvoiceCountArgs>(
+      args?: Subset<T, InvoiceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InvoiceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Invoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InvoiceAggregateArgs>(args: Subset<T, InvoiceAggregateArgs>): Prisma.PrismaPromise<GetInvoiceAggregateType<T>>
+
+    /**
+     * Group by Invoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvoiceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InvoiceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InvoiceGroupByArgs['orderBy'] }
+        : { orderBy?: InvoiceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InvoiceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInvoiceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Invoice model
+   */
+  readonly fields: InvoiceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Invoice.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InvoiceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    Project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Invoice model
+   */
+  interface InvoiceFieldRefs {
+    readonly id: FieldRef<"Invoice", 'Int'>
+    readonly projectId: FieldRef<"Invoice", 'String'>
+    readonly invoiceNumber: FieldRef<"Invoice", 'String'>
+    readonly dateIssued: FieldRef<"Invoice", 'DateTime'>
+    readonly amount: FieldRef<"Invoice", 'Decimal'>
+    readonly status: FieldRef<"Invoice", 'InvoiceStatus'>
+    readonly vendor: FieldRef<"Invoice", 'String'>
+    readonly createdAt: FieldRef<"Invoice", 'DateTime'>
+    readonly updatedAt: FieldRef<"Invoice", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Invoice findUnique
+   */
+  export type InvoiceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice findUniqueOrThrow
+   */
+  export type InvoiceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice findFirst
+   */
+  export type InvoiceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invoices.
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invoices.
+     */
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice findFirstOrThrow
+   */
+  export type InvoiceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoice to fetch.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invoices.
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invoices.
+     */
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice findMany
+   */
+  export type InvoiceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which Invoices to fetch.
+     */
+    where?: InvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invoices to fetch.
+     */
+    orderBy?: InvoiceOrderByWithRelationInput | InvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Invoices.
+     */
+    cursor?: InvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invoices.
+     */
+    skip?: number
+    distinct?: InvoiceScalarFieldEnum | InvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * Invoice create
+   */
+  export type InvoiceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Invoice.
+     */
+    data: XOR<InvoiceCreateInput, InvoiceUncheckedCreateInput>
+  }
+
+  /**
+   * Invoice createMany
+   */
+  export type InvoiceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Invoices.
+     */
+    data: InvoiceCreateManyInput | InvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Invoice createManyAndReturn
+   */
+  export type InvoiceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to create many Invoices.
+     */
+    data: InvoiceCreateManyInput | InvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Invoice update
+   */
+  export type InvoiceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Invoice.
+     */
+    data: XOR<InvoiceUpdateInput, InvoiceUncheckedUpdateInput>
+    /**
+     * Choose, which Invoice to update.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice updateMany
+   */
+  export type InvoiceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Invoices.
+     */
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which Invoices to update
+     */
+    where?: InvoiceWhereInput
+    /**
+     * Limit how many Invoices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Invoice updateManyAndReturn
+   */
+  export type InvoiceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to update Invoices.
+     */
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which Invoices to update
+     */
+    where?: InvoiceWhereInput
+    /**
+     * Limit how many Invoices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Invoice upsert
+   */
+  export type InvoiceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Invoice to update in case it exists.
+     */
+    where: InvoiceWhereUniqueInput
+    /**
+     * In case the Invoice found by the `where` argument doesn't exist, create a new Invoice with this data.
+     */
+    create: XOR<InvoiceCreateInput, InvoiceUncheckedCreateInput>
+    /**
+     * In case the Invoice was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InvoiceUpdateInput, InvoiceUncheckedUpdateInput>
+  }
+
+  /**
+   * Invoice delete
+   */
+  export type InvoiceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+    /**
+     * Filter which Invoice to delete.
+     */
+    where: InvoiceWhereUniqueInput
+  }
+
+  /**
+   * Invoice deleteMany
+   */
+  export type InvoiceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invoices to delete
+     */
+    where?: InvoiceWhereInput
+    /**
+     * Limit how many Invoices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Invoice without action
+   */
+  export type InvoiceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invoice
+     */
+    select?: InvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invoice
+     */
+    omit?: InvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvoiceInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
   export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
   };
 
@@ -7316,6 +8622,21 @@ export namespace Prisma {
   export type FinancialHistoryEntryScalarFieldEnum = (typeof FinancialHistoryEntryScalarFieldEnum)[keyof typeof FinancialHistoryEntryScalarFieldEnum]
 
 
+  export const InvoiceScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    invoiceNumber: 'invoiceNumber',
+    dateIssued: 'dateIssued',
+    amount: 'amount',
+    status: 'status',
+    vendor: 'vendor',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -7330,6 +8651,14 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
   export const NullsOrder: {
@@ -7349,14 +8678,6 @@ export namespace Prisma {
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
-  };
-
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
   /**
    * Field references
    */
@@ -7370,9 +8691,23 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'String'
    */
   export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+    
+
+
+  /**
+   * Reference to a field of type 'String[]'
+   */
+  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
     
 
 
@@ -7384,9 +8719,23 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -7402,6 +8751,34 @@ export namespace Prisma {
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
+
+
+  /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal[]'
+   */
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'InvoiceStatus'
+   */
+  export type EnumInvoiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoiceStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'InvoiceStatus[]'
+   */
+  export type ListEnumInvoiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoiceStatus[]'>
+    
   /**
    * Deep Input Types
    */
@@ -7415,10 +8792,10 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     hashedPassword?: StringFilter<"User"> | string
-    auditLogs?: AuditLogListRelationFilter
+    financialChanges?: FinancialHistoryEntryListRelationFilter
     notes?: PMNoteListRelationFilter
     projects?: ProjectListRelationFilter
-    financialChanges?: FinancialHistoryEntryListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -7426,10 +8803,10 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     hashedPassword?: SortOrder
-    auditLogs?: AuditLogOrderByRelationAggregateInput
+    financialChanges?: FinancialHistoryEntryOrderByRelationAggregateInput
     notes?: PMNoteOrderByRelationAggregateInput
     projects?: ProjectOrderByRelationAggregateInput
-    financialChanges?: FinancialHistoryEntryOrderByRelationAggregateInput
+    auditLogs?: AuditLogOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -7440,10 +8817,10 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringFilter<"User"> | string
     hashedPassword?: StringFilter<"User"> | string
-    auditLogs?: AuditLogListRelationFilter
+    financialChanges?: FinancialHistoryEntryListRelationFilter
     notes?: PMNoteListRelationFilter
     projects?: ProjectListRelationFilter
-    financialChanges?: FinancialHistoryEntryListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -7486,8 +8863,9 @@ export namespace Prisma {
     lastUpdated?: DateTimeNullableFilter<"Project"> | Date | string | null
     status?: StringNullableFilter<"Project"> | string | null
     projectManagerId?: IntNullableFilter<"Project"> | number | null
-    pmNotesHistory?: PMNoteListRelationFilter
     financialHistory?: FinancialHistoryEntryListRelationFilter
+    Invoice?: InvoiceListRelationFilter
+    pmNotesHistory?: PMNoteListRelationFilter
     projectManager?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
@@ -7506,8 +8884,9 @@ export namespace Prisma {
     lastUpdated?: SortOrderInput | SortOrder
     status?: SortOrderInput | SortOrder
     projectManagerId?: SortOrderInput | SortOrder
-    pmNotesHistory?: PMNoteOrderByRelationAggregateInput
     financialHistory?: FinancialHistoryEntryOrderByRelationAggregateInput
+    Invoice?: InvoiceOrderByRelationAggregateInput
+    pmNotesHistory?: PMNoteOrderByRelationAggregateInput
     projectManager?: UserOrderByWithRelationInput
   }
 
@@ -7529,8 +8908,9 @@ export namespace Prisma {
     lastUpdated?: DateTimeNullableFilter<"Project"> | Date | string | null
     status?: StringNullableFilter<"Project"> | string | null
     projectManagerId?: IntNullableFilter<"Project"> | number | null
-    pmNotesHistory?: PMNoteListRelationFilter
     financialHistory?: FinancialHistoryEntryListRelationFilter
+    Invoice?: InvoiceListRelationFilter
+    pmNotesHistory?: PMNoteListRelationFilter
     projectManager?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "projectID">
 
@@ -7783,14 +9163,91 @@ export namespace Prisma {
     userId?: IntNullableWithAggregatesFilter<"FinancialHistoryEntry"> | number | null
   }
 
+  export type InvoiceWhereInput = {
+    AND?: InvoiceWhereInput | InvoiceWhereInput[]
+    OR?: InvoiceWhereInput[]
+    NOT?: InvoiceWhereInput | InvoiceWhereInput[]
+    id?: IntFilter<"Invoice"> | number
+    projectId?: StringFilter<"Invoice"> | string
+    invoiceNumber?: StringFilter<"Invoice"> | string
+    dateIssued?: DateTimeFilter<"Invoice"> | Date | string
+    amount?: DecimalFilter<"Invoice"> | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
+    vendor?: StringFilter<"Invoice"> | string
+    createdAt?: DateTimeFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeFilter<"Invoice"> | Date | string
+    Project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+  }
+
+  export type InvoiceOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    invoiceNumber?: SortOrder
+    dateIssued?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+    vendor?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    Project?: ProjectOrderByWithRelationInput
+  }
+
+  export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: InvoiceWhereInput | InvoiceWhereInput[]
+    OR?: InvoiceWhereInput[]
+    NOT?: InvoiceWhereInput | InvoiceWhereInput[]
+    projectId?: StringFilter<"Invoice"> | string
+    invoiceNumber?: StringFilter<"Invoice"> | string
+    dateIssued?: DateTimeFilter<"Invoice"> | Date | string
+    amount?: DecimalFilter<"Invoice"> | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
+    vendor?: StringFilter<"Invoice"> | string
+    createdAt?: DateTimeFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeFilter<"Invoice"> | Date | string
+    Project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+  }, "id">
+
+  export type InvoiceOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    invoiceNumber?: SortOrder
+    dateIssued?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+    vendor?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: InvoiceCountOrderByAggregateInput
+    _avg?: InvoiceAvgOrderByAggregateInput
+    _max?: InvoiceMaxOrderByAggregateInput
+    _min?: InvoiceMinOrderByAggregateInput
+    _sum?: InvoiceSumOrderByAggregateInput
+  }
+
+  export type InvoiceScalarWhereWithAggregatesInput = {
+    AND?: InvoiceScalarWhereWithAggregatesInput | InvoiceScalarWhereWithAggregatesInput[]
+    OR?: InvoiceScalarWhereWithAggregatesInput[]
+    NOT?: InvoiceScalarWhereWithAggregatesInput | InvoiceScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Invoice"> | number
+    projectId?: StringWithAggregatesFilter<"Invoice"> | string
+    invoiceNumber?: StringWithAggregatesFilter<"Invoice"> | string
+    dateIssued?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+    amount?: DecimalWithAggregatesFilter<"Invoice"> | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusWithAggregatesFilter<"Invoice"> | $Enums.InvoiceStatus
+    vendor?: StringWithAggregatesFilter<"Invoice"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+  }
+
   export type UserCreateInput = {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
     notes?: PMNoteCreateNestedManyWithoutAuthorInput
     projects?: ProjectCreateNestedManyWithoutProjectManagerInput
-    financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -7798,20 +9255,20 @@ export namespace Prisma {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
     notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
-    financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
-    financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -7819,10 +9276,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
-    financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -7859,8 +9316,9 @@ export namespace Prisma {
     dateCreated?: Date | string
     lastUpdated?: Date | string | null
     status?: string | null
-    pmNotesHistory?: PMNoteCreateNestedManyWithoutProjectInput
     financialHistory?: FinancialHistoryEntryCreateNestedManyWithoutProjectInput
+    Invoice?: InvoiceCreateNestedManyWithoutProjectInput
+    pmNotesHistory?: PMNoteCreateNestedManyWithoutProjectInput
     projectManager?: UserCreateNestedOneWithoutProjectsInput
   }
 
@@ -7879,8 +9337,9 @@ export namespace Prisma {
     lastUpdated?: Date | string | null
     status?: string | null
     projectManagerId?: number | null
-    pmNotesHistory?: PMNoteUncheckedCreateNestedManyWithoutProjectInput
     financialHistory?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutProjectInput
+    Invoice?: InvoiceUncheckedCreateNestedManyWithoutProjectInput
+    pmNotesHistory?: PMNoteUncheckedCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectUpdateInput = {
@@ -7897,8 +9356,9 @@ export namespace Prisma {
     dateCreated?: DateTimeFieldUpdateOperationsInput | Date | string
     lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
-    pmNotesHistory?: PMNoteUpdateManyWithoutProjectNestedInput
     financialHistory?: FinancialHistoryEntryUpdateManyWithoutProjectNestedInput
+    Invoice?: InvoiceUpdateManyWithoutProjectNestedInput
+    pmNotesHistory?: PMNoteUpdateManyWithoutProjectNestedInput
     projectManager?: UserUpdateOneWithoutProjectsNestedInput
   }
 
@@ -7917,8 +9377,9 @@ export namespace Prisma {
     lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
     projectManagerId?: NullableIntFieldUpdateOperationsInput | number | null
-    pmNotesHistory?: PMNoteUncheckedUpdateManyWithoutProjectNestedInput
     financialHistory?: FinancialHistoryEntryUncheckedUpdateManyWithoutProjectNestedInput
+    Invoice?: InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+    pmNotesHistory?: PMNoteUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectCreateManyInput = {
@@ -8167,10 +9628,90 @@ export namespace Prisma {
     userId?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
+  export type InvoiceCreateInput = {
+    invoiceNumber: string
+    dateIssued: Date | string
+    amount: Decimal | DecimalJsLike | number | string
+    status?: $Enums.InvoiceStatus
+    vendor: string
+    createdAt?: Date | string
+    updatedAt: Date | string
+    Project: ProjectCreateNestedOneWithoutInvoiceInput
+  }
+
+  export type InvoiceUncheckedCreateInput = {
+    id?: number
+    projectId: string
+    invoiceNumber: string
+    dateIssued: Date | string
+    amount: Decimal | DecimalJsLike | number | string
+    status?: $Enums.InvoiceStatus
+    vendor: string
+    createdAt?: Date | string
+    updatedAt: Date | string
+  }
+
+  export type InvoiceUpdateInput = {
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    dateIssued?: DateTimeFieldUpdateOperationsInput | Date | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    vendor?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    Project?: ProjectUpdateOneRequiredWithoutInvoiceNestedInput
+  }
+
+  export type InvoiceUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    dateIssued?: DateTimeFieldUpdateOperationsInput | Date | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    vendor?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceCreateManyInput = {
+    id?: number
+    projectId: string
+    invoiceNumber: string
+    dateIssued: Date | string
+    amount: Decimal | DecimalJsLike | number | string
+    status?: $Enums.InvoiceStatus
+    vendor: string
+    createdAt?: Date | string
+    updatedAt: Date | string
+  }
+
+  export type InvoiceUpdateManyMutationInput = {
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    dateIssued?: DateTimeFieldUpdateOperationsInput | Date | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    vendor?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    projectId?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    dateIssued?: DateTimeFieldUpdateOperationsInput | Date | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    vendor?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8180,8 +9721,8 @@ export namespace Prisma {
 
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8189,13 +9730,14 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type AuditLogListRelationFilter = {
-    every?: AuditLogWhereInput
-    some?: AuditLogWhereInput
-    none?: AuditLogWhereInput
+  export type FinancialHistoryEntryListRelationFilter = {
+    every?: FinancialHistoryEntryWhereInput
+    some?: FinancialHistoryEntryWhereInput
+    none?: FinancialHistoryEntryWhereInput
   }
 
   export type PMNoteListRelationFilter = {
@@ -8210,13 +9752,13 @@ export namespace Prisma {
     none?: ProjectWhereInput
   }
 
-  export type FinancialHistoryEntryListRelationFilter = {
-    every?: FinancialHistoryEntryWhereInput
-    some?: FinancialHistoryEntryWhereInput
-    none?: FinancialHistoryEntryWhereInput
+  export type AuditLogListRelationFilter = {
+    every?: AuditLogWhereInput
+    some?: AuditLogWhereInput
+    none?: AuditLogWhereInput
   }
 
-  export type AuditLogOrderByRelationAggregateInput = {
+  export type FinancialHistoryEntryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -8228,7 +9770,7 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type FinancialHistoryEntryOrderByRelationAggregateInput = {
+  export type AuditLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -8263,8 +9805,8 @@ export namespace Prisma {
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8279,8 +9821,8 @@ export namespace Prisma {
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8288,6 +9830,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -8296,8 +9839,8 @@ export namespace Prisma {
 
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -8307,8 +9850,8 @@ export namespace Prisma {
 
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8318,8 +9861,8 @@ export namespace Prisma {
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8329,8 +9872,8 @@ export namespace Prisma {
 
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8338,18 +9881,25 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type InvoiceListRelationFilter = {
+    every?: InvoiceWhereInput
+    some?: InvoiceWhereInput
+    none?: InvoiceWhereInput
   }
 
   export type UserNullableScalarRelationFilter = {
@@ -8360,6 +9910,10 @@ export namespace Prisma {
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type InvoiceOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type ProjectCountOrderByAggregateInput = {
@@ -8429,8 +9983,8 @@ export namespace Prisma {
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -8445,8 +9999,8 @@ export namespace Prisma {
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8459,8 +10013,8 @@ export namespace Prisma {
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8473,8 +10027,8 @@ export namespace Prisma {
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8482,6 +10036,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
@@ -8490,8 +10045,8 @@ export namespace Prisma {
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8512,13 +10067,18 @@ export namespace Prisma {
 
   export type JsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
@@ -8571,13 +10131,18 @@ export namespace Prisma {
 
   export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
@@ -8670,11 +10235,101 @@ export namespace Prisma {
     userId?: SortOrder
   }
 
-  export type AuditLogCreateNestedManyWithoutUserInput = {
-    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
-    createMany?: AuditLogCreateManyUserInputEnvelope
-    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type EnumInvoiceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoiceStatus | EnumInvoiceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
+  }
+
+  export type InvoiceCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    invoiceNumber?: SortOrder
+    dateIssued?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+    vendor?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvoiceAvgOrderByAggregateInput = {
+    id?: SortOrder
+    amount?: SortOrder
+  }
+
+  export type InvoiceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    invoiceNumber?: SortOrder
+    dateIssued?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+    vendor?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvoiceMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    invoiceNumber?: SortOrder
+    dateIssued?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+    vendor?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvoiceSumOrderByAggregateInput = {
+    id?: SortOrder
+    amount?: SortOrder
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type EnumInvoiceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoiceStatus | EnumInvoiceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoiceStatusWithAggregatesFilter<$PrismaModel> | $Enums.InvoiceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+    _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+  }
+
+  export type FinancialHistoryEntryCreateNestedManyWithoutChangedByInput = {
+    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
+    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
+    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
   }
 
   export type PMNoteCreateNestedManyWithoutAuthorInput = {
@@ -8691,18 +10346,18 @@ export namespace Prisma {
     connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
   }
 
-  export type FinancialHistoryEntryCreateNestedManyWithoutChangedByInput = {
-    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
-    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
-    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
-    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-  }
-
-  export type AuditLogUncheckedCreateNestedManyWithoutUserInput = {
+  export type AuditLogCreateNestedManyWithoutUserInput = {
     create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
     createMany?: AuditLogCreateManyUserInputEnvelope
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
+  export type FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput = {
+    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
+    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
+    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
   }
 
   export type PMNoteUncheckedCreateNestedManyWithoutAuthorInput = {
@@ -8719,29 +10374,29 @@ export namespace Prisma {
     connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
   }
 
-  export type FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput = {
-    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
-    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
-    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
-    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+  export type AuditLogUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
+    createMany?: AuditLogCreateManyUserInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
 
-  export type AuditLogUpdateManyWithoutUserNestedInput = {
-    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
-    upsert?: AuditLogUpsertWithWhereUniqueWithoutUserInput | AuditLogUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: AuditLogCreateManyUserInputEnvelope
-    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
-    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
-    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
-    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
-    update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  export type FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput = {
+    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
+    upsert?: FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput[]
+    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
+    set?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    disconnect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    delete?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    update?: FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput[]
+    updateMany?: FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput | FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput[]
+    deleteMany?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
   }
 
   export type PMNoteUpdateManyWithoutAuthorNestedInput = {
@@ -8772,29 +10427,7 @@ export namespace Prisma {
     deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
   }
 
-  export type FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput = {
-    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
-    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
-    upsert?: FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput[]
-    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
-    set?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    disconnect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    delete?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    update?: FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput[]
-    updateMany?: FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput | FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput[]
-    deleteMany?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
-  export type AuditLogUncheckedUpdateManyWithoutUserNestedInput = {
+  export type AuditLogUpdateManyWithoutUserNestedInput = {
     create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
     upsert?: AuditLogUpsertWithWhereUniqueWithoutUserInput | AuditLogUpsertWithWhereUniqueWithoutUserInput[]
@@ -8806,6 +10439,28 @@ export namespace Prisma {
     update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput = {
+    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
+    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
+    upsert?: FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput[]
+    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
+    set?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    disconnect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    delete?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+    update?: FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput[]
+    updateMany?: FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput | FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput[]
+    deleteMany?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
   }
 
   export type PMNoteUncheckedUpdateManyWithoutAuthorNestedInput = {
@@ -8836,25 +10491,18 @@ export namespace Prisma {
     deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
   }
 
-  export type FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput = {
-    create?: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput> | FinancialHistoryEntryCreateWithoutChangedByInput[] | FinancialHistoryEntryUncheckedCreateWithoutChangedByInput[]
-    connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutChangedByInput | FinancialHistoryEntryCreateOrConnectWithoutChangedByInput[]
-    upsert?: FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput[]
-    createMany?: FinancialHistoryEntryCreateManyChangedByInputEnvelope
-    set?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    disconnect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    delete?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
-    update?: FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput | FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput[]
-    updateMany?: FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput | FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput[]
-    deleteMany?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
-  }
-
-  export type PMNoteCreateNestedManyWithoutProjectInput = {
-    create?: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput> | PMNoteCreateWithoutProjectInput[] | PMNoteUncheckedCreateWithoutProjectInput[]
-    connectOrCreate?: PMNoteCreateOrConnectWithoutProjectInput | PMNoteCreateOrConnectWithoutProjectInput[]
-    createMany?: PMNoteCreateManyProjectInputEnvelope
-    connect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+  export type AuditLogUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput> | AuditLogCreateWithoutUserInput[] | AuditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutUserInput | AuditLogCreateOrConnectWithoutUserInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutUserInput | AuditLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AuditLogCreateManyUserInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutUserInput | AuditLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutUserInput | AuditLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
   export type FinancialHistoryEntryCreateNestedManyWithoutProjectInput = {
@@ -8864,17 +10512,24 @@ export namespace Prisma {
     connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
   }
 
-  export type UserCreateNestedOneWithoutProjectsInput = {
-    create?: XOR<UserCreateWithoutProjectsInput, UserUncheckedCreateWithoutProjectsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutProjectsInput
-    connect?: UserWhereUniqueInput
+  export type InvoiceCreateNestedManyWithoutProjectInput = {
+    create?: XOR<InvoiceCreateWithoutProjectInput, InvoiceUncheckedCreateWithoutProjectInput> | InvoiceCreateWithoutProjectInput[] | InvoiceUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutProjectInput | InvoiceCreateOrConnectWithoutProjectInput[]
+    createMany?: InvoiceCreateManyProjectInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
   }
 
-  export type PMNoteUncheckedCreateNestedManyWithoutProjectInput = {
+  export type PMNoteCreateNestedManyWithoutProjectInput = {
     create?: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput> | PMNoteCreateWithoutProjectInput[] | PMNoteUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: PMNoteCreateOrConnectWithoutProjectInput | PMNoteCreateOrConnectWithoutProjectInput[]
     createMany?: PMNoteCreateManyProjectInputEnvelope
     connect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+  }
+
+  export type UserCreateNestedOneWithoutProjectsInput = {
+    create?: XOR<UserCreateWithoutProjectsInput, UserUncheckedCreateWithoutProjectsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutProjectsInput
+    connect?: UserWhereUniqueInput
   }
 
   export type FinancialHistoryEntryUncheckedCreateNestedManyWithoutProjectInput = {
@@ -8882,6 +10537,20 @@ export namespace Prisma {
     connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutProjectInput | FinancialHistoryEntryCreateOrConnectWithoutProjectInput[]
     createMany?: FinancialHistoryEntryCreateManyProjectInputEnvelope
     connect?: FinancialHistoryEntryWhereUniqueInput | FinancialHistoryEntryWhereUniqueInput[]
+  }
+
+  export type InvoiceUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<InvoiceCreateWithoutProjectInput, InvoiceUncheckedCreateWithoutProjectInput> | InvoiceCreateWithoutProjectInput[] | InvoiceUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutProjectInput | InvoiceCreateOrConnectWithoutProjectInput[]
+    createMany?: InvoiceCreateManyProjectInputEnvelope
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+  }
+
+  export type PMNoteUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput> | PMNoteCreateWithoutProjectInput[] | PMNoteUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: PMNoteCreateOrConnectWithoutProjectInput | PMNoteCreateOrConnectWithoutProjectInput[]
+    createMany?: PMNoteCreateManyProjectInputEnvelope
+    connect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -8904,20 +10573,6 @@ export namespace Prisma {
     set?: string | null
   }
 
-  export type PMNoteUpdateManyWithoutProjectNestedInput = {
-    create?: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput> | PMNoteCreateWithoutProjectInput[] | PMNoteUncheckedCreateWithoutProjectInput[]
-    connectOrCreate?: PMNoteCreateOrConnectWithoutProjectInput | PMNoteCreateOrConnectWithoutProjectInput[]
-    upsert?: PMNoteUpsertWithWhereUniqueWithoutProjectInput | PMNoteUpsertWithWhereUniqueWithoutProjectInput[]
-    createMany?: PMNoteCreateManyProjectInputEnvelope
-    set?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    disconnect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    delete?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    connect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    update?: PMNoteUpdateWithWhereUniqueWithoutProjectInput | PMNoteUpdateWithWhereUniqueWithoutProjectInput[]
-    updateMany?: PMNoteUpdateManyWithWhereWithoutProjectInput | PMNoteUpdateManyWithWhereWithoutProjectInput[]
-    deleteMany?: PMNoteScalarWhereInput | PMNoteScalarWhereInput[]
-  }
-
   export type FinancialHistoryEntryUpdateManyWithoutProjectNestedInput = {
     create?: XOR<FinancialHistoryEntryCreateWithoutProjectInput, FinancialHistoryEntryUncheckedCreateWithoutProjectInput> | FinancialHistoryEntryCreateWithoutProjectInput[] | FinancialHistoryEntryUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutProjectInput | FinancialHistoryEntryCreateOrConnectWithoutProjectInput[]
@@ -8930,6 +10585,34 @@ export namespace Prisma {
     update?: FinancialHistoryEntryUpdateWithWhereUniqueWithoutProjectInput | FinancialHistoryEntryUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: FinancialHistoryEntryUpdateManyWithWhereWithoutProjectInput | FinancialHistoryEntryUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
+  }
+
+  export type InvoiceUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<InvoiceCreateWithoutProjectInput, InvoiceUncheckedCreateWithoutProjectInput> | InvoiceCreateWithoutProjectInput[] | InvoiceUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutProjectInput | InvoiceCreateOrConnectWithoutProjectInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutProjectInput | InvoiceUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: InvoiceCreateManyProjectInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutProjectInput | InvoiceUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutProjectInput | InvoiceUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type PMNoteUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput> | PMNoteCreateWithoutProjectInput[] | PMNoteUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: PMNoteCreateOrConnectWithoutProjectInput | PMNoteCreateOrConnectWithoutProjectInput[]
+    upsert?: PMNoteUpsertWithWhereUniqueWithoutProjectInput | PMNoteUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: PMNoteCreateManyProjectInputEnvelope
+    set?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    disconnect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    delete?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    connect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    update?: PMNoteUpdateWithWhereUniqueWithoutProjectInput | PMNoteUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: PMNoteUpdateManyWithWhereWithoutProjectInput | PMNoteUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: PMNoteScalarWhereInput | PMNoteScalarWhereInput[]
   }
 
   export type UserUpdateOneWithoutProjectsNestedInput = {
@@ -8950,20 +10633,6 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type PMNoteUncheckedUpdateManyWithoutProjectNestedInput = {
-    create?: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput> | PMNoteCreateWithoutProjectInput[] | PMNoteUncheckedCreateWithoutProjectInput[]
-    connectOrCreate?: PMNoteCreateOrConnectWithoutProjectInput | PMNoteCreateOrConnectWithoutProjectInput[]
-    upsert?: PMNoteUpsertWithWhereUniqueWithoutProjectInput | PMNoteUpsertWithWhereUniqueWithoutProjectInput[]
-    createMany?: PMNoteCreateManyProjectInputEnvelope
-    set?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    disconnect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    delete?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    connect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
-    update?: PMNoteUpdateWithWhereUniqueWithoutProjectInput | PMNoteUpdateWithWhereUniqueWithoutProjectInput[]
-    updateMany?: PMNoteUpdateManyWithWhereWithoutProjectInput | PMNoteUpdateManyWithWhereWithoutProjectInput[]
-    deleteMany?: PMNoteScalarWhereInput | PMNoteScalarWhereInput[]
-  }
-
   export type FinancialHistoryEntryUncheckedUpdateManyWithoutProjectNestedInput = {
     create?: XOR<FinancialHistoryEntryCreateWithoutProjectInput, FinancialHistoryEntryUncheckedCreateWithoutProjectInput> | FinancialHistoryEntryCreateWithoutProjectInput[] | FinancialHistoryEntryUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: FinancialHistoryEntryCreateOrConnectWithoutProjectInput | FinancialHistoryEntryCreateOrConnectWithoutProjectInput[]
@@ -8976,6 +10645,34 @@ export namespace Prisma {
     update?: FinancialHistoryEntryUpdateWithWhereUniqueWithoutProjectInput | FinancialHistoryEntryUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: FinancialHistoryEntryUpdateManyWithWhereWithoutProjectInput | FinancialHistoryEntryUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<InvoiceCreateWithoutProjectInput, InvoiceUncheckedCreateWithoutProjectInput> | InvoiceCreateWithoutProjectInput[] | InvoiceUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: InvoiceCreateOrConnectWithoutProjectInput | InvoiceCreateOrConnectWithoutProjectInput[]
+    upsert?: InvoiceUpsertWithWhereUniqueWithoutProjectInput | InvoiceUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: InvoiceCreateManyProjectInputEnvelope
+    set?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    disconnect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    delete?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    connect?: InvoiceWhereUniqueInput | InvoiceWhereUniqueInput[]
+    update?: InvoiceUpdateWithWhereUniqueWithoutProjectInput | InvoiceUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: InvoiceUpdateManyWithWhereWithoutProjectInput | InvoiceUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+  }
+
+  export type PMNoteUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput> | PMNoteCreateWithoutProjectInput[] | PMNoteUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: PMNoteCreateOrConnectWithoutProjectInput | PMNoteCreateOrConnectWithoutProjectInput[]
+    upsert?: PMNoteUpsertWithWhereUniqueWithoutProjectInput | PMNoteUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: PMNoteCreateManyProjectInputEnvelope
+    set?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    disconnect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    delete?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    connect?: PMNoteWhereUniqueInput | PMNoteWhereUniqueInput[]
+    update?: PMNoteUpdateWithWhereUniqueWithoutProjectInput | PMNoteUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: PMNoteUpdateManyWithWhereWithoutProjectInput | PMNoteUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: PMNoteScalarWhereInput | PMNoteScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAuditLogsInput = {
@@ -9054,10 +10751,36 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFinancialChangesInput, UserUpdateWithoutFinancialChangesInput>, UserUncheckedUpdateWithoutFinancialChangesInput>
   }
 
+  export type ProjectCreateNestedOneWithoutInvoiceInput = {
+    create?: XOR<ProjectCreateWithoutInvoiceInput, ProjectUncheckedCreateWithoutInvoiceInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutInvoiceInput
+    connect?: ProjectWhereUniqueInput
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type EnumInvoiceStatusFieldUpdateOperationsInput = {
+    set?: $Enums.InvoiceStatus
+  }
+
+  export type ProjectUpdateOneRequiredWithoutInvoiceNestedInput = {
+    create?: XOR<ProjectCreateWithoutInvoiceInput, ProjectUncheckedCreateWithoutInvoiceInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutInvoiceInput
+    upsert?: ProjectUpsertWithoutInvoiceInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutInvoiceInput, ProjectUpdateWithoutInvoiceInput>, ProjectUncheckedUpdateWithoutInvoiceInput>
+  }
+
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9067,8 +10790,8 @@ export namespace Prisma {
 
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -9081,8 +10804,8 @@ export namespace Prisma {
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9097,8 +10820,8 @@ export namespace Prisma {
 
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -9108,8 +10831,8 @@ export namespace Prisma {
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -9125,8 +10848,8 @@ export namespace Prisma {
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9136,8 +10859,8 @@ export namespace Prisma {
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9147,8 +10870,8 @@ export namespace Prisma {
 
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -9161,8 +10884,8 @@ export namespace Prisma {
 
   export type NestedIntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9172,8 +10895,8 @@ export namespace Prisma {
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -9188,8 +10911,8 @@ export namespace Prisma {
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9202,8 +10925,8 @@ export namespace Prisma {
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9216,8 +10939,8 @@ export namespace Prisma {
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -9233,8 +10956,8 @@ export namespace Prisma {
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9249,8 +10972,8 @@ export namespace Prisma {
 
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -9266,109 +10989,63 @@ export namespace Prisma {
 
   export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type AuditLogCreateWithoutUserInput = {
-    action: string
-    tableName: string
-    recordId: number
-    beforeData?: NullableJsonNullValueInput | InputJsonValue
-    afterData?: NullableJsonNullValueInput | InputJsonValue
-    timestamp?: Date | string
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
-  export type AuditLogUncheckedCreateWithoutUserInput = {
-    id?: number
-    action: string
-    tableName: string
-    recordId: number
-    beforeData?: NullableJsonNullValueInput | InputJsonValue
-    afterData?: NullableJsonNullValueInput | InputJsonValue
-    timestamp?: Date | string
+  export type NestedEnumInvoiceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoiceStatus | EnumInvoiceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
   }
 
-  export type AuditLogCreateOrConnectWithoutUserInput = {
-    where: AuditLogWhereUniqueInput
-    create: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput>
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
   }
 
-  export type AuditLogCreateManyUserInputEnvelope = {
-    data: AuditLogCreateManyUserInput | AuditLogCreateManyUserInput[]
-  }
-
-  export type PMNoteCreateWithoutAuthorInput = {
-    note: string
-    createdAt?: Date | string
-    project: ProjectCreateNestedOneWithoutPmNotesHistoryInput
-  }
-
-  export type PMNoteUncheckedCreateWithoutAuthorInput = {
-    id?: number
-    note: string
-    createdAt?: Date | string
-    projectId: string
-  }
-
-  export type PMNoteCreateOrConnectWithoutAuthorInput = {
-    where: PMNoteWhereUniqueInput
-    create: XOR<PMNoteCreateWithoutAuthorInput, PMNoteUncheckedCreateWithoutAuthorInput>
-  }
-
-  export type PMNoteCreateManyAuthorInputEnvelope = {
-    data: PMNoteCreateManyAuthorInput | PMNoteCreateManyAuthorInput[]
-  }
-
-  export type ProjectCreateWithoutProjectManagerInput = {
-    id?: string
-    projectID: string
-    title: string
-    phase?: string
-    description: string
-    forecast: number
-    actuals: number
-    budget: number
-    plannedStartDate: Date | string
-    plannedEndDate: Date | string
-    dateCreated?: Date | string
-    lastUpdated?: Date | string | null
-    status?: string | null
-    pmNotesHistory?: PMNoteCreateNestedManyWithoutProjectInput
-    financialHistory?: FinancialHistoryEntryCreateNestedManyWithoutProjectInput
-  }
-
-  export type ProjectUncheckedCreateWithoutProjectManagerInput = {
-    id?: string
-    projectID: string
-    title: string
-    phase?: string
-    description: string
-    forecast: number
-    actuals: number
-    budget: number
-    plannedStartDate: Date | string
-    plannedEndDate: Date | string
-    dateCreated?: Date | string
-    lastUpdated?: Date | string | null
-    status?: string | null
-    pmNotesHistory?: PMNoteUncheckedCreateNestedManyWithoutProjectInput
-    financialHistory?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutProjectInput
-  }
-
-  export type ProjectCreateOrConnectWithoutProjectManagerInput = {
-    where: ProjectWhereUniqueInput
-    create: XOR<ProjectCreateWithoutProjectManagerInput, ProjectUncheckedCreateWithoutProjectManagerInput>
-  }
-
-  export type ProjectCreateManyProjectManagerInputEnvelope = {
-    data: ProjectCreateManyProjectManagerInput | ProjectCreateManyProjectManagerInput[]
+  export type NestedEnumInvoiceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InvoiceStatus | EnumInvoiceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InvoiceStatus[] | ListEnumInvoiceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInvoiceStatusWithAggregatesFilter<$PrismaModel> | $Enums.InvoiceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+    _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
   }
 
   export type FinancialHistoryEntryCreateWithoutChangedByInput = {
@@ -9397,36 +11074,137 @@ export namespace Prisma {
 
   export type FinancialHistoryEntryCreateManyChangedByInputEnvelope = {
     data: FinancialHistoryEntryCreateManyChangedByInput | FinancialHistoryEntryCreateManyChangedByInput[]
+    skipDuplicates?: boolean
   }
 
-  export type AuditLogUpsertWithWhereUniqueWithoutUserInput = {
+  export type PMNoteCreateWithoutAuthorInput = {
+    note: string
+    createdAt?: Date | string
+    project: ProjectCreateNestedOneWithoutPmNotesHistoryInput
+  }
+
+  export type PMNoteUncheckedCreateWithoutAuthorInput = {
+    id?: number
+    note: string
+    createdAt?: Date | string
+    projectId: string
+  }
+
+  export type PMNoteCreateOrConnectWithoutAuthorInput = {
+    where: PMNoteWhereUniqueInput
+    create: XOR<PMNoteCreateWithoutAuthorInput, PMNoteUncheckedCreateWithoutAuthorInput>
+  }
+
+  export type PMNoteCreateManyAuthorInputEnvelope = {
+    data: PMNoteCreateManyAuthorInput | PMNoteCreateManyAuthorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProjectCreateWithoutProjectManagerInput = {
+    id?: string
+    projectID: string
+    title: string
+    phase?: string
+    description: string
+    forecast: number
+    actuals: number
+    budget: number
+    plannedStartDate: Date | string
+    plannedEndDate: Date | string
+    dateCreated?: Date | string
+    lastUpdated?: Date | string | null
+    status?: string | null
+    financialHistory?: FinancialHistoryEntryCreateNestedManyWithoutProjectInput
+    Invoice?: InvoiceCreateNestedManyWithoutProjectInput
+    pmNotesHistory?: PMNoteCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutProjectManagerInput = {
+    id?: string
+    projectID: string
+    title: string
+    phase?: string
+    description: string
+    forecast: number
+    actuals: number
+    budget: number
+    plannedStartDate: Date | string
+    plannedEndDate: Date | string
+    dateCreated?: Date | string
+    lastUpdated?: Date | string | null
+    status?: string | null
+    financialHistory?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutProjectInput
+    Invoice?: InvoiceUncheckedCreateNestedManyWithoutProjectInput
+    pmNotesHistory?: PMNoteUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutProjectManagerInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutProjectManagerInput, ProjectUncheckedCreateWithoutProjectManagerInput>
+  }
+
+  export type ProjectCreateManyProjectManagerInputEnvelope = {
+    data: ProjectCreateManyProjectManagerInput | ProjectCreateManyProjectManagerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AuditLogCreateWithoutUserInput = {
+    action: string
+    tableName: string
+    recordId: number
+    beforeData?: NullableJsonNullValueInput | InputJsonValue
+    afterData?: NullableJsonNullValueInput | InputJsonValue
+    timestamp?: Date | string
+  }
+
+  export type AuditLogUncheckedCreateWithoutUserInput = {
+    id?: number
+    action: string
+    tableName: string
+    recordId: number
+    beforeData?: NullableJsonNullValueInput | InputJsonValue
+    afterData?: NullableJsonNullValueInput | InputJsonValue
+    timestamp?: Date | string
+  }
+
+  export type AuditLogCreateOrConnectWithoutUserInput = {
     where: AuditLogWhereUniqueInput
-    update: XOR<AuditLogUpdateWithoutUserInput, AuditLogUncheckedUpdateWithoutUserInput>
     create: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput>
   }
 
-  export type AuditLogUpdateWithWhereUniqueWithoutUserInput = {
-    where: AuditLogWhereUniqueInput
-    data: XOR<AuditLogUpdateWithoutUserInput, AuditLogUncheckedUpdateWithoutUserInput>
+  export type AuditLogCreateManyUserInputEnvelope = {
+    data: AuditLogCreateManyUserInput | AuditLogCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
-  export type AuditLogUpdateManyWithWhereWithoutUserInput = {
-    where: AuditLogScalarWhereInput
-    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutUserInput>
+  export type FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput = {
+    where: FinancialHistoryEntryWhereUniqueInput
+    update: XOR<FinancialHistoryEntryUpdateWithoutChangedByInput, FinancialHistoryEntryUncheckedUpdateWithoutChangedByInput>
+    create: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput>
   }
 
-  export type AuditLogScalarWhereInput = {
-    AND?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
-    OR?: AuditLogScalarWhereInput[]
-    NOT?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
-    id?: IntFilter<"AuditLog"> | number
-    userId?: IntNullableFilter<"AuditLog"> | number | null
-    action?: StringFilter<"AuditLog"> | string
-    tableName?: StringFilter<"AuditLog"> | string
-    recordId?: IntFilter<"AuditLog"> | number
-    beforeData?: JsonNullableFilter<"AuditLog">
-    afterData?: JsonNullableFilter<"AuditLog">
-    timestamp?: DateTimeFilter<"AuditLog"> | Date | string
+  export type FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput = {
+    where: FinancialHistoryEntryWhereUniqueInput
+    data: XOR<FinancialHistoryEntryUpdateWithoutChangedByInput, FinancialHistoryEntryUncheckedUpdateWithoutChangedByInput>
+  }
+
+  export type FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput = {
+    where: FinancialHistoryEntryScalarWhereInput
+    data: XOR<FinancialHistoryEntryUpdateManyMutationInput, FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByInput>
+  }
+
+  export type FinancialHistoryEntryScalarWhereInput = {
+    AND?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
+    OR?: FinancialHistoryEntryScalarWhereInput[]
+    NOT?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
+    id?: IntFilter<"FinancialHistoryEntry"> | number
+    projectId?: StringFilter<"FinancialHistoryEntry"> | string
+    field?: StringFilter<"FinancialHistoryEntry"> | string
+    oldValue?: FloatFilter<"FinancialHistoryEntry"> | number
+    newValue?: FloatFilter<"FinancialHistoryEntry"> | number
+    reason?: StringNullableFilter<"FinancialHistoryEntry"> | string | null
+    changedAt?: DateTimeFilter<"FinancialHistoryEntry"> | Date | string
+    userId?: IntNullableFilter<"FinancialHistoryEntry"> | number | null
   }
 
   export type PMNoteUpsertWithWhereUniqueWithoutAuthorInput = {
@@ -9492,56 +11270,34 @@ export namespace Prisma {
     projectManagerId?: IntNullableFilter<"Project"> | number | null
   }
 
-  export type FinancialHistoryEntryUpsertWithWhereUniqueWithoutChangedByInput = {
-    where: FinancialHistoryEntryWhereUniqueInput
-    update: XOR<FinancialHistoryEntryUpdateWithoutChangedByInput, FinancialHistoryEntryUncheckedUpdateWithoutChangedByInput>
-    create: XOR<FinancialHistoryEntryCreateWithoutChangedByInput, FinancialHistoryEntryUncheckedCreateWithoutChangedByInput>
+  export type AuditLogUpsertWithWhereUniqueWithoutUserInput = {
+    where: AuditLogWhereUniqueInput
+    update: XOR<AuditLogUpdateWithoutUserInput, AuditLogUncheckedUpdateWithoutUserInput>
+    create: XOR<AuditLogCreateWithoutUserInput, AuditLogUncheckedCreateWithoutUserInput>
   }
 
-  export type FinancialHistoryEntryUpdateWithWhereUniqueWithoutChangedByInput = {
-    where: FinancialHistoryEntryWhereUniqueInput
-    data: XOR<FinancialHistoryEntryUpdateWithoutChangedByInput, FinancialHistoryEntryUncheckedUpdateWithoutChangedByInput>
+  export type AuditLogUpdateWithWhereUniqueWithoutUserInput = {
+    where: AuditLogWhereUniqueInput
+    data: XOR<AuditLogUpdateWithoutUserInput, AuditLogUncheckedUpdateWithoutUserInput>
   }
 
-  export type FinancialHistoryEntryUpdateManyWithWhereWithoutChangedByInput = {
-    where: FinancialHistoryEntryScalarWhereInput
-    data: XOR<FinancialHistoryEntryUpdateManyMutationInput, FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByInput>
+  export type AuditLogUpdateManyWithWhereWithoutUserInput = {
+    where: AuditLogScalarWhereInput
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutUserInput>
   }
 
-  export type FinancialHistoryEntryScalarWhereInput = {
-    AND?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
-    OR?: FinancialHistoryEntryScalarWhereInput[]
-    NOT?: FinancialHistoryEntryScalarWhereInput | FinancialHistoryEntryScalarWhereInput[]
-    id?: IntFilter<"FinancialHistoryEntry"> | number
-    projectId?: StringFilter<"FinancialHistoryEntry"> | string
-    field?: StringFilter<"FinancialHistoryEntry"> | string
-    oldValue?: FloatFilter<"FinancialHistoryEntry"> | number
-    newValue?: FloatFilter<"FinancialHistoryEntry"> | number
-    reason?: StringNullableFilter<"FinancialHistoryEntry"> | string | null
-    changedAt?: DateTimeFilter<"FinancialHistoryEntry"> | Date | string
-    userId?: IntNullableFilter<"FinancialHistoryEntry"> | number | null
-  }
-
-  export type PMNoteCreateWithoutProjectInput = {
-    note: string
-    createdAt?: Date | string
-    author?: UserCreateNestedOneWithoutNotesInput
-  }
-
-  export type PMNoteUncheckedCreateWithoutProjectInput = {
-    id?: number
-    note: string
-    createdAt?: Date | string
-    userId?: number | null
-  }
-
-  export type PMNoteCreateOrConnectWithoutProjectInput = {
-    where: PMNoteWhereUniqueInput
-    create: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput>
-  }
-
-  export type PMNoteCreateManyProjectInputEnvelope = {
-    data: PMNoteCreateManyProjectInput | PMNoteCreateManyProjectInput[]
+  export type AuditLogScalarWhereInput = {
+    AND?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    OR?: AuditLogScalarWhereInput[]
+    NOT?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    id?: IntFilter<"AuditLog"> | number
+    userId?: IntNullableFilter<"AuditLog"> | number | null
+    action?: StringFilter<"AuditLog"> | string
+    tableName?: StringFilter<"AuditLog"> | string
+    recordId?: IntFilter<"AuditLog"> | number
+    beforeData?: JsonNullableFilter<"AuditLog">
+    afterData?: JsonNullableFilter<"AuditLog">
+    timestamp?: DateTimeFilter<"AuditLog"> | Date | string
   }
 
   export type FinancialHistoryEntryCreateWithoutProjectInput = {
@@ -9570,15 +11326,70 @@ export namespace Prisma {
 
   export type FinancialHistoryEntryCreateManyProjectInputEnvelope = {
     data: FinancialHistoryEntryCreateManyProjectInput | FinancialHistoryEntryCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InvoiceCreateWithoutProjectInput = {
+    invoiceNumber: string
+    dateIssued: Date | string
+    amount: Decimal | DecimalJsLike | number | string
+    status?: $Enums.InvoiceStatus
+    vendor: string
+    createdAt?: Date | string
+    updatedAt: Date | string
+  }
+
+  export type InvoiceUncheckedCreateWithoutProjectInput = {
+    id?: number
+    invoiceNumber: string
+    dateIssued: Date | string
+    amount: Decimal | DecimalJsLike | number | string
+    status?: $Enums.InvoiceStatus
+    vendor: string
+    createdAt?: Date | string
+    updatedAt: Date | string
+  }
+
+  export type InvoiceCreateOrConnectWithoutProjectInput = {
+    where: InvoiceWhereUniqueInput
+    create: XOR<InvoiceCreateWithoutProjectInput, InvoiceUncheckedCreateWithoutProjectInput>
+  }
+
+  export type InvoiceCreateManyProjectInputEnvelope = {
+    data: InvoiceCreateManyProjectInput | InvoiceCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PMNoteCreateWithoutProjectInput = {
+    note: string
+    createdAt?: Date | string
+    author?: UserCreateNestedOneWithoutNotesInput
+  }
+
+  export type PMNoteUncheckedCreateWithoutProjectInput = {
+    id?: number
+    note: string
+    createdAt?: Date | string
+    userId?: number | null
+  }
+
+  export type PMNoteCreateOrConnectWithoutProjectInput = {
+    where: PMNoteWhereUniqueInput
+    create: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput>
+  }
+
+  export type PMNoteCreateManyProjectInputEnvelope = {
+    data: PMNoteCreateManyProjectInput | PMNoteCreateManyProjectInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserCreateWithoutProjectsInput = {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    notes?: PMNoteCreateNestedManyWithoutAuthorInput
     financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
+    notes?: PMNoteCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProjectsInput = {
@@ -9586,30 +11397,14 @@ export namespace Prisma {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
+    notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProjectsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutProjectsInput, UserUncheckedCreateWithoutProjectsInput>
-  }
-
-  export type PMNoteUpsertWithWhereUniqueWithoutProjectInput = {
-    where: PMNoteWhereUniqueInput
-    update: XOR<PMNoteUpdateWithoutProjectInput, PMNoteUncheckedUpdateWithoutProjectInput>
-    create: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput>
-  }
-
-  export type PMNoteUpdateWithWhereUniqueWithoutProjectInput = {
-    where: PMNoteWhereUniqueInput
-    data: XOR<PMNoteUpdateWithoutProjectInput, PMNoteUncheckedUpdateWithoutProjectInput>
-  }
-
-  export type PMNoteUpdateManyWithWhereWithoutProjectInput = {
-    where: PMNoteScalarWhereInput
-    data: XOR<PMNoteUpdateManyMutationInput, PMNoteUncheckedUpdateManyWithoutProjectInput>
   }
 
   export type FinancialHistoryEntryUpsertWithWhereUniqueWithoutProjectInput = {
@@ -9628,6 +11423,53 @@ export namespace Prisma {
     data: XOR<FinancialHistoryEntryUpdateManyMutationInput, FinancialHistoryEntryUncheckedUpdateManyWithoutProjectInput>
   }
 
+  export type InvoiceUpsertWithWhereUniqueWithoutProjectInput = {
+    where: InvoiceWhereUniqueInput
+    update: XOR<InvoiceUpdateWithoutProjectInput, InvoiceUncheckedUpdateWithoutProjectInput>
+    create: XOR<InvoiceCreateWithoutProjectInput, InvoiceUncheckedCreateWithoutProjectInput>
+  }
+
+  export type InvoiceUpdateWithWhereUniqueWithoutProjectInput = {
+    where: InvoiceWhereUniqueInput
+    data: XOR<InvoiceUpdateWithoutProjectInput, InvoiceUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type InvoiceUpdateManyWithWhereWithoutProjectInput = {
+    where: InvoiceScalarWhereInput
+    data: XOR<InvoiceUpdateManyMutationInput, InvoiceUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type InvoiceScalarWhereInput = {
+    AND?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+    OR?: InvoiceScalarWhereInput[]
+    NOT?: InvoiceScalarWhereInput | InvoiceScalarWhereInput[]
+    id?: IntFilter<"Invoice"> | number
+    projectId?: StringFilter<"Invoice"> | string
+    invoiceNumber?: StringFilter<"Invoice"> | string
+    dateIssued?: DateTimeFilter<"Invoice"> | Date | string
+    amount?: DecimalFilter<"Invoice"> | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
+    vendor?: StringFilter<"Invoice"> | string
+    createdAt?: DateTimeFilter<"Invoice"> | Date | string
+    updatedAt?: DateTimeFilter<"Invoice"> | Date | string
+  }
+
+  export type PMNoteUpsertWithWhereUniqueWithoutProjectInput = {
+    where: PMNoteWhereUniqueInput
+    update: XOR<PMNoteUpdateWithoutProjectInput, PMNoteUncheckedUpdateWithoutProjectInput>
+    create: XOR<PMNoteCreateWithoutProjectInput, PMNoteUncheckedCreateWithoutProjectInput>
+  }
+
+  export type PMNoteUpdateWithWhereUniqueWithoutProjectInput = {
+    where: PMNoteWhereUniqueInput
+    data: XOR<PMNoteUpdateWithoutProjectInput, PMNoteUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type PMNoteUpdateManyWithWhereWithoutProjectInput = {
+    where: PMNoteScalarWhereInput
+    data: XOR<PMNoteUpdateManyMutationInput, PMNoteUncheckedUpdateManyWithoutProjectInput>
+  }
+
   export type UserUpsertWithoutProjectsInput = {
     update: XOR<UserUpdateWithoutProjectsInput, UserUncheckedUpdateWithoutProjectsInput>
     create: XOR<UserCreateWithoutProjectsInput, UserUncheckedCreateWithoutProjectsInput>
@@ -9643,9 +11485,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
+    notes?: PMNoteUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -9653,18 +11495,18 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
+    notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
     name: string
     email: string
     hashedPassword: string
+    financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
     notes?: PMNoteCreateNestedManyWithoutAuthorInput
     projects?: ProjectCreateNestedManyWithoutProjectManagerInput
-    financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -9672,9 +11514,9 @@ export namespace Prisma {
     name: string
     email: string
     hashedPassword: string
+    financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
     notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
-    financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -9697,9 +11539,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
+    financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
-    financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -9707,9 +11549,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
+    financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
     notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
-    financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
   }
 
   export type ProjectCreateWithoutPmNotesHistoryInput = {
@@ -9727,6 +11569,7 @@ export namespace Prisma {
     lastUpdated?: Date | string | null
     status?: string | null
     financialHistory?: FinancialHistoryEntryCreateNestedManyWithoutProjectInput
+    Invoice?: InvoiceCreateNestedManyWithoutProjectInput
     projectManager?: UserCreateNestedOneWithoutProjectsInput
   }
 
@@ -9746,6 +11589,7 @@ export namespace Prisma {
     status?: string | null
     projectManagerId?: number | null
     financialHistory?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutProjectInput
+    Invoice?: InvoiceUncheckedCreateNestedManyWithoutProjectInput
   }
 
   export type ProjectCreateOrConnectWithoutPmNotesHistoryInput = {
@@ -9757,9 +11601,9 @@ export namespace Prisma {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    projects?: ProjectCreateNestedManyWithoutProjectManagerInput
     financialChanges?: FinancialHistoryEntryCreateNestedManyWithoutChangedByInput
+    projects?: ProjectCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotesInput = {
@@ -9767,9 +11611,9 @@ export namespace Prisma {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
     financialChanges?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutChangedByInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotesInput = {
@@ -9803,6 +11647,7 @@ export namespace Prisma {
     lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
     financialHistory?: FinancialHistoryEntryUpdateManyWithoutProjectNestedInput
+    Invoice?: InvoiceUpdateManyWithoutProjectNestedInput
     projectManager?: UserUpdateOneWithoutProjectsNestedInput
   }
 
@@ -9822,6 +11667,7 @@ export namespace Prisma {
     status?: NullableStringFieldUpdateOperationsInput | string | null
     projectManagerId?: NullableIntFieldUpdateOperationsInput | number | null
     financialHistory?: FinancialHistoryEntryUncheckedUpdateManyWithoutProjectNestedInput
+    Invoice?: InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type UserUpsertWithoutNotesInput = {
@@ -9839,9 +11685,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
     financialChanges?: FinancialHistoryEntryUpdateManyWithoutChangedByNestedInput
+    projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotesInput = {
@@ -9849,9 +11695,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
     financialChanges?: FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProjectCreateWithoutFinancialHistoryInput = {
@@ -9868,6 +11714,7 @@ export namespace Prisma {
     dateCreated?: Date | string
     lastUpdated?: Date | string | null
     status?: string | null
+    Invoice?: InvoiceCreateNestedManyWithoutProjectInput
     pmNotesHistory?: PMNoteCreateNestedManyWithoutProjectInput
     projectManager?: UserCreateNestedOneWithoutProjectsInput
   }
@@ -9887,6 +11734,7 @@ export namespace Prisma {
     lastUpdated?: Date | string | null
     status?: string | null
     projectManagerId?: number | null
+    Invoice?: InvoiceUncheckedCreateNestedManyWithoutProjectInput
     pmNotesHistory?: PMNoteUncheckedCreateNestedManyWithoutProjectInput
   }
 
@@ -9899,9 +11747,9 @@ export namespace Prisma {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     notes?: PMNoteCreateNestedManyWithoutAuthorInput
     projects?: ProjectCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFinancialChangesInput = {
@@ -9909,9 +11757,9 @@ export namespace Prisma {
     name: string
     email: string
     hashedPassword: string
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     notes?: PMNoteUncheckedCreateNestedManyWithoutAuthorInput
     projects?: ProjectUncheckedCreateNestedManyWithoutProjectManagerInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFinancialChangesInput = {
@@ -9944,6 +11792,7 @@ export namespace Prisma {
     dateCreated?: DateTimeFieldUpdateOperationsInput | Date | string
     lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
+    Invoice?: InvoiceUpdateManyWithoutProjectNestedInput
     pmNotesHistory?: PMNoteUpdateManyWithoutProjectNestedInput
     projectManager?: UserUpdateOneWithoutProjectsNestedInput
   }
@@ -9963,6 +11812,7 @@ export namespace Prisma {
     lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
     projectManagerId?: NullableIntFieldUpdateOperationsInput | number | null
+    Invoice?: InvoiceUncheckedUpdateManyWithoutProjectNestedInput
     pmNotesHistory?: PMNoteUncheckedUpdateManyWithoutProjectNestedInput
   }
 
@@ -9981,9 +11831,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     notes?: PMNoteUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFinancialChangesInput = {
@@ -9991,19 +11841,111 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     hashedPassword?: StringFieldUpdateOperationsInput | string
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     notes?: PMNoteUncheckedUpdateManyWithoutAuthorNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutProjectManagerNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type AuditLogCreateManyUserInput = {
+  export type ProjectCreateWithoutInvoiceInput = {
+    id?: string
+    projectID: string
+    title: string
+    phase?: string
+    description: string
+    forecast: number
+    actuals: number
+    budget: number
+    plannedStartDate: Date | string
+    plannedEndDate: Date | string
+    dateCreated?: Date | string
+    lastUpdated?: Date | string | null
+    status?: string | null
+    financialHistory?: FinancialHistoryEntryCreateNestedManyWithoutProjectInput
+    pmNotesHistory?: PMNoteCreateNestedManyWithoutProjectInput
+    projectManager?: UserCreateNestedOneWithoutProjectsInput
+  }
+
+  export type ProjectUncheckedCreateWithoutInvoiceInput = {
+    id?: string
+    projectID: string
+    title: string
+    phase?: string
+    description: string
+    forecast: number
+    actuals: number
+    budget: number
+    plannedStartDate: Date | string
+    plannedEndDate: Date | string
+    dateCreated?: Date | string
+    lastUpdated?: Date | string | null
+    status?: string | null
+    projectManagerId?: number | null
+    financialHistory?: FinancialHistoryEntryUncheckedCreateNestedManyWithoutProjectInput
+    pmNotesHistory?: PMNoteUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutInvoiceInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutInvoiceInput, ProjectUncheckedCreateWithoutInvoiceInput>
+  }
+
+  export type ProjectUpsertWithoutInvoiceInput = {
+    update: XOR<ProjectUpdateWithoutInvoiceInput, ProjectUncheckedUpdateWithoutInvoiceInput>
+    create: XOR<ProjectCreateWithoutInvoiceInput, ProjectUncheckedCreateWithoutInvoiceInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutInvoiceInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutInvoiceInput, ProjectUncheckedUpdateWithoutInvoiceInput>
+  }
+
+  export type ProjectUpdateWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectID?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    phase?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    forecast?: FloatFieldUpdateOperationsInput | number
+    actuals?: FloatFieldUpdateOperationsInput | number
+    budget?: FloatFieldUpdateOperationsInput | number
+    plannedStartDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    plannedEndDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dateCreated?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    financialHistory?: FinancialHistoryEntryUpdateManyWithoutProjectNestedInput
+    pmNotesHistory?: PMNoteUpdateManyWithoutProjectNestedInput
+    projectManager?: UserUpdateOneWithoutProjectsNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectID?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    phase?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    forecast?: FloatFieldUpdateOperationsInput | number
+    actuals?: FloatFieldUpdateOperationsInput | number
+    budget?: FloatFieldUpdateOperationsInput | number
+    plannedStartDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    plannedEndDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    dateCreated?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    projectManagerId?: NullableIntFieldUpdateOperationsInput | number | null
+    financialHistory?: FinancialHistoryEntryUncheckedUpdateManyWithoutProjectNestedInput
+    pmNotesHistory?: PMNoteUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type FinancialHistoryEntryCreateManyChangedByInput = {
     id?: number
-    action: string
-    tableName: string
-    recordId: number
-    beforeData?: NullableJsonNullValueInput | InputJsonValue
-    afterData?: NullableJsonNullValueInput | InputJsonValue
-    timestamp?: Date | string
+    projectId: string
+    field: string
+    oldValue: number
+    newValue: number
+    reason?: string | null
+    changedAt?: Date | string
   }
 
   export type PMNoteCreateManyAuthorInput = {
@@ -10029,43 +11971,43 @@ export namespace Prisma {
     status?: string | null
   }
 
-  export type FinancialHistoryEntryCreateManyChangedByInput = {
+  export type AuditLogCreateManyUserInput = {
     id?: number
-    projectId: string
-    field: string
-    oldValue: number
-    newValue: number
-    reason?: string | null
-    changedAt?: Date | string
-  }
-
-  export type AuditLogUpdateWithoutUserInput = {
-    action?: StringFieldUpdateOperationsInput | string
-    tableName?: StringFieldUpdateOperationsInput | string
-    recordId?: IntFieldUpdateOperationsInput | number
+    action: string
+    tableName: string
+    recordId: number
     beforeData?: NullableJsonNullValueInput | InputJsonValue
     afterData?: NullableJsonNullValueInput | InputJsonValue
-    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    timestamp?: Date | string
   }
 
-  export type AuditLogUncheckedUpdateWithoutUserInput = {
+  export type FinancialHistoryEntryUpdateWithoutChangedByInput = {
+    field?: StringFieldUpdateOperationsInput | string
+    oldValue?: FloatFieldUpdateOperationsInput | number
+    newValue?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutFinancialHistoryNestedInput
+  }
+
+  export type FinancialHistoryEntryUncheckedUpdateWithoutChangedByInput = {
     id?: IntFieldUpdateOperationsInput | number
-    action?: StringFieldUpdateOperationsInput | string
-    tableName?: StringFieldUpdateOperationsInput | string
-    recordId?: IntFieldUpdateOperationsInput | number
-    beforeData?: NullableJsonNullValueInput | InputJsonValue
-    afterData?: NullableJsonNullValueInput | InputJsonValue
-    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    field?: StringFieldUpdateOperationsInput | string
+    oldValue?: FloatFieldUpdateOperationsInput | number
+    newValue?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AuditLogUncheckedUpdateManyWithoutUserInput = {
+  export type FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByInput = {
     id?: IntFieldUpdateOperationsInput | number
-    action?: StringFieldUpdateOperationsInput | string
-    tableName?: StringFieldUpdateOperationsInput | string
-    recordId?: IntFieldUpdateOperationsInput | number
-    beforeData?: NullableJsonNullValueInput | InputJsonValue
-    afterData?: NullableJsonNullValueInput | InputJsonValue
-    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    field?: StringFieldUpdateOperationsInput | string
+    oldValue?: FloatFieldUpdateOperationsInput | number
+    newValue?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PMNoteUpdateWithoutAuthorInput = {
@@ -10102,8 +12044,9 @@ export namespace Prisma {
     dateCreated?: DateTimeFieldUpdateOperationsInput | Date | string
     lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
-    pmNotesHistory?: PMNoteUpdateManyWithoutProjectNestedInput
     financialHistory?: FinancialHistoryEntryUpdateManyWithoutProjectNestedInput
+    Invoice?: InvoiceUpdateManyWithoutProjectNestedInput
+    pmNotesHistory?: PMNoteUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateWithoutProjectManagerInput = {
@@ -10120,8 +12063,9 @@ export namespace Prisma {
     dateCreated?: DateTimeFieldUpdateOperationsInput | Date | string
     lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
-    pmNotesHistory?: PMNoteUncheckedUpdateManyWithoutProjectNestedInput
     financialHistory?: FinancialHistoryEntryUncheckedUpdateManyWithoutProjectNestedInput
+    Invoice?: InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+    pmNotesHistory?: PMNoteUncheckedUpdateManyWithoutProjectNestedInput
   }
 
   export type ProjectUncheckedUpdateManyWithoutProjectManagerInput = {
@@ -10140,40 +12084,33 @@ export namespace Prisma {
     status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type FinancialHistoryEntryUpdateWithoutChangedByInput = {
-    field?: StringFieldUpdateOperationsInput | string
-    oldValue?: FloatFieldUpdateOperationsInput | number
-    newValue?: FloatFieldUpdateOperationsInput | number
-    reason?: NullableStringFieldUpdateOperationsInput | string | null
-    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    project?: ProjectUpdateOneRequiredWithoutFinancialHistoryNestedInput
+  export type AuditLogUpdateWithoutUserInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    tableName?: StringFieldUpdateOperationsInput | string
+    recordId?: IntFieldUpdateOperationsInput | number
+    beforeData?: NullableJsonNullValueInput | InputJsonValue
+    afterData?: NullableJsonNullValueInput | InputJsonValue
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FinancialHistoryEntryUncheckedUpdateWithoutChangedByInput = {
+  export type AuditLogUncheckedUpdateWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
-    projectId?: StringFieldUpdateOperationsInput | string
-    field?: StringFieldUpdateOperationsInput | string
-    oldValue?: FloatFieldUpdateOperationsInput | number
-    newValue?: FloatFieldUpdateOperationsInput | number
-    reason?: NullableStringFieldUpdateOperationsInput | string | null
-    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    action?: StringFieldUpdateOperationsInput | string
+    tableName?: StringFieldUpdateOperationsInput | string
+    recordId?: IntFieldUpdateOperationsInput | number
+    beforeData?: NullableJsonNullValueInput | InputJsonValue
+    afterData?: NullableJsonNullValueInput | InputJsonValue
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FinancialHistoryEntryUncheckedUpdateManyWithoutChangedByInput = {
+  export type AuditLogUncheckedUpdateManyWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
-    projectId?: StringFieldUpdateOperationsInput | string
-    field?: StringFieldUpdateOperationsInput | string
-    oldValue?: FloatFieldUpdateOperationsInput | number
-    newValue?: FloatFieldUpdateOperationsInput | number
-    reason?: NullableStringFieldUpdateOperationsInput | string | null
-    changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type PMNoteCreateManyProjectInput = {
-    id?: number
-    note: string
-    createdAt?: Date | string
-    userId?: number | null
+    action?: StringFieldUpdateOperationsInput | string
+    tableName?: StringFieldUpdateOperationsInput | string
+    recordId?: IntFieldUpdateOperationsInput | number
+    beforeData?: NullableJsonNullValueInput | InputJsonValue
+    afterData?: NullableJsonNullValueInput | InputJsonValue
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FinancialHistoryEntryCreateManyProjectInput = {
@@ -10186,24 +12123,22 @@ export namespace Prisma {
     userId?: number | null
   }
 
-  export type PMNoteUpdateWithoutProjectInput = {
-    note?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    author?: UserUpdateOneWithoutNotesNestedInput
+  export type InvoiceCreateManyProjectInput = {
+    id?: number
+    invoiceNumber: string
+    dateIssued: Date | string
+    amount: Decimal | DecimalJsLike | number | string
+    status?: $Enums.InvoiceStatus
+    vendor: string
+    createdAt?: Date | string
+    updatedAt: Date | string
   }
 
-  export type PMNoteUncheckedUpdateWithoutProjectInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    note?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type PMNoteUncheckedUpdateManyWithoutProjectInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    note?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: NullableIntFieldUpdateOperationsInput | number | null
+  export type PMNoteCreateManyProjectInput = {
+    id?: number
+    note: string
+    createdAt?: Date | string
+    userId?: number | null
   }
 
   export type FinancialHistoryEntryUpdateWithoutProjectInput = {
@@ -10232,6 +12167,58 @@ export namespace Prisma {
     newValue?: FloatFieldUpdateOperationsInput | number
     reason?: NullableStringFieldUpdateOperationsInput | string | null
     changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type InvoiceUpdateWithoutProjectInput = {
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    dateIssued?: DateTimeFieldUpdateOperationsInput | Date | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    vendor?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUncheckedUpdateWithoutProjectInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    dateIssued?: DateTimeFieldUpdateOperationsInput | Date | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    vendor?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvoiceUncheckedUpdateManyWithoutProjectInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    dateIssued?: DateTimeFieldUpdateOperationsInput | Date | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    vendor?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PMNoteUpdateWithoutProjectInput = {
+    note?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    author?: UserUpdateOneWithoutNotesNestedInput
+  }
+
+  export type PMNoteUncheckedUpdateWithoutProjectInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    note?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type PMNoteUncheckedUpdateManyWithoutProjectInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    note?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
