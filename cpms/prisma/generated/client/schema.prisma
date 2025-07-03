@@ -17,8 +17,6 @@ model User {
   hashedPassword String
   // one user can have many projects
   projects       Project[]  @relation("ManagerProjects")
-
-  // to match or relate to financial history table
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
 }
 
