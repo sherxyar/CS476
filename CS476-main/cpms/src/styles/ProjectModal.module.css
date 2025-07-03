@@ -1,0 +1,703 @@
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  width: 1200px;
+  max-width: 95%;
+  position: relative;
+  max-height: 95vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 2px solid #e8e8e8;
+  position: relative;
+  background: #fafafa;
+}
+
+.header h2 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+
+.headerActions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 12px;
+  color: #666;
+}
+
+.reportBy, .reportDate, .reportTime {
+  font-size: 11px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #000;
+  background: #f0f0f0;
+}
+
+.tabHeader {
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e8e8e8;
+  padding: 0 24px;
+  gap: 4px;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  position: relative;
+  border-radius: 8px 8px 0 0;
+  margin-top: 4px;
+  transition: all 0.2s ease;
+}
+
+.tabButton:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.activeTab {
+  background: white !important;
+  color: #333 !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid white;
+  margin-bottom: -2px;
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+}
+
+.tabContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: white;
+}
+
+.generalContent, .financialsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.topSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.leftColumn, .rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldGroup {
+  position: relative;
+}
+
+.fieldGroup label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fieldValue {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  min-height: 20px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.2s ease;
+}
+
+.fieldValue:hover {
+  border-color: #d0d0d0;
+}
+
+.viewAllButton {
+  position: absolute;
+  top: 28px;
+  right: 12px;
+  background: #666;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.viewAllButton:hover {
+  background: #555;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e8e8e8, transparent);
+  margin: 8px 0;
+}
+
+.notesSection {
+  padding: 0;
+}
+
+.descriptionSection, .actualsSection, .historySection {
+  padding: 0;
+}
+
+.descriptionBox {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  min-height: 100px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.2s ease;
+}
+
+.descriptionBox:hover {
+  border-color: #d0d0d0;
+}
+
+.tabContentText {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  padding: 20px;
+  text-align: center;
+}
+
+.tableContainer {
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.actualsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.actualsTable th {
+  background: #e9ecef;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.actualsTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #dee2e6;
+  color: #333;
+}
+
+.actualsTable tbody tr:hover {
+  background: #f1f3f4;
+}
+
+.actualsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.statusPaid {
+  background: #d4edda;
+  color: #155724;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.statusNotPaid {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.statusInProgress {
+  background: #fff3cd;
+  color: #856404;
+  padding: 4px 8px;
+  border-radius: 12px;
+  Size: 11px;
+  font-weight: 500;
+}
+
+.statusClosed {
+  background: #d1ecf1;
+  color: #0c5460;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.statusSelect {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.actualsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.addInvoiceButton {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.addInvoiceButton:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.invoiceForm {
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.formRow:last-child {
+  margin-bottom: 0;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+}
+
+.formField label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formInput, .formSelect {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.formInput:focus, .formSelect:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.formActions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.saveInvoiceButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.saveInvoiceButton:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.historyTable th {
+  background: #e9ecef;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.historyTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #dee2e6;
+  color: #333;
+  font-size: 12px;
+}
+
+.historyTable tbody tr:hover {
+  background: #f1f3f4;
+}
+
+.historyTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.oldValue {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.newValue {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popup {
+  background: white;
+  border-radius: 12px;
+  width: 800px;
+  max-width: 95%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+.popupHeader {
+  padding: 20px 24px;
+  border-bottom: 2px solid #e8e8e8;
+  background: #fafafa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popupHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.popupCloseButton {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.popupCloseButton:hover {
+  color: #000;
+  background: #f0f0f0;
+}
+
+.popupContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.summaryCard {
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summaryLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summaryValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.viewDetailsButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.viewDetailsButton:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-top: 2px solid #e8e8e8;
+  background: #fafafa;
+}
+
+.backButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.editButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.editButton:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .topSection {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .tabHeader {
+    padding: 0 12px;
+    gap: 2px;
+  }
+  
+  .tabButton {
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+  
+  .tabContent {
+    padding: 16px;
+  }
+  
+  .footer {
+    padding: 16px;
+  }
+}
+
+
+.calculating {
+  font-weight: bold;
+  color: #f39c12;
+  animation: flash 10s linear;
+  margin-top: 8px;
+  display: inline-block;
+  font-size: 0.9rem;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+
+/* PM notes styles */
+
+.actionRow {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addNoteButton {
+  background: var(--clr-accent);
+  color: #010101;
+  border: 1px solid #000000;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.addNoteButton:hover { 
+  opacity: 0.7;
+ }
+
+
+.addNoteDialog {
+  margin-top: 0.75rem;
+  background: var(--clr-card);
+  border: 1px solid #000000;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.noteTextarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font: inherit;
+}
+
+.dialogButtons {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

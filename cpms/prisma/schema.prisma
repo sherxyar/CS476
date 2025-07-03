@@ -109,3 +109,22 @@ enum InvoiceStatus {
   PAID
   NOT_PAID
 }
+
+model TabAccessRequest {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+
+  tabName    String   // 예: "Financials", "Admin"
+  status     AccessStatus @default(PENDING)
+
+  requestedAt DateTime @default(now())
+  approvedBy  Int?
+  approver    User?    @relation("Approver", fields: [approvedBy], references: [id])
+}
+
+enum AccessStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

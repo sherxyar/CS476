@@ -1,0 +1,25 @@
+Please use this as a template for commit messages:
+
+Commit Message Template:
+C<Commit number> - <Month><Day> - <Your name> - <Short description of commit>
+
+Commit Number - to keep a track of your total number of commits in the project
+Example: C1 - 0525 - Ishan - Updated project tracker.ms
+
+Extended Description Template:
+<commit type>: <short summary>
+Description: <Describe your changes in detail>
+Issue #: <issue number> (if applicable)
+Dev: <Your name>
+Date: YYYY-MM-DD
+
+Commit Types:
+feat - new feature
+fix - bug fix
+docs - document change
+style - formatting without any change in logic
+refactor - refactoring/restructuring without any change in code behaviour
+test - when working with tests
+misc - any other miscellaneous changes such as reorganizing/renaming files and folders, etc.
+
+Example: See Ishan's first commit

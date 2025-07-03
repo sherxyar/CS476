@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planova - Sign Up</title>
+  <link rel="stylesheet" href="Signup.css" />
+</head>
+<body>
+  <div class="signup-wrapper">
+    <div class="signup-container">
+      <img src="PlanovaLogo1.png" alt="Planova Logo" class="signup-logo" />
+      <h2>Create Your Account</h2>
+      <form action="#" method="POST" class="signup-form">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="" disabled selected>Select your role</option>
+          <option value="project-manager">Project Manager</option>
+          <option value="administrator">Administrator</option>
+        </select>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" name="confirm-password" required />
+
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <p class="login-link">
+        Already a user? <a href="Login.html">Login</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
