@@ -9,7 +9,7 @@ export async function sendEmail(to: string, code: string) {
         },
     });
     await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
         to,
         subject: "Your Planova 2FA Login Code",
         text: `Your temporary login code is ${code}`,
