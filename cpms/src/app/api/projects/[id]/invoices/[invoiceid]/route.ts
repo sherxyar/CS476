@@ -8,7 +8,7 @@ import Decimal from "decimal.js";
 type Params = { invoiceId: string };
 
 
-// Patch Request to update an existing invoice - not used.
+// Patch Request to update an existing invoice - not used for now (might do after proejct).
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<Params> }
