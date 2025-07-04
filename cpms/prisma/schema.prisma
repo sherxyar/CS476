@@ -18,6 +18,8 @@ model User {
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
+  changeLogs       ChangeLog[]             @relation("UserChangeLogs") // ✅ 추가된 반대 필드
+  projectAccesses  ProjectAccess[]
 }
 
 model Project {
@@ -39,6 +41,8 @@ model Project {
   Invoice          Invoice[]
   pmNotesHistory   PMNote[]
   projectManager   User?                   @relation("ManagerProjects", fields: [projectManagerId], references: [id])
+  projectAccesses  ProjectAccess[]
+  changeLogs       ChangeLog[]             @relation("ProjectChangeLogs") // ✅ 추가된 반대 필드
 }
 
 model AuditLog {
@@ -87,7 +91,7 @@ model Invoice {
   status        InvoiceStatus @default(NOT_PAID)
   vendor        String
   createdAt     DateTime      @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime      @updatedAt
   Project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
@@ -100,10 +104,35 @@ model TabAccessRequest {
   id          Int       @id @default(autoincrement())
   userId      Int
   approvedBy  Int?
-  status      String    @default("Pending") // Pending, Approved, Rejected
+  status      String    @default("Pending")
   requestedAt DateTime  @default(now())
   approvedAt  DateTime?
 
   user     User  @relation("RequestUser", fields: [userId], references: [id])
   approver User? @relation("ApproveUser", fields: [approvedBy], references: [id])
+}
+
+model ProjectAccess {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  projectId String
+  role      String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
+}
+
+model ChangeLog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  projectId   String
+  createdById Int
+  createdAt   DateTime @default(now())
+
+  project   Project @relation("ProjectChangeLogs", fields: [projectId], references: [id])
+  createdBy User    @relation("UserChangeLogs", fields: [createdById], references: [id])
 }
