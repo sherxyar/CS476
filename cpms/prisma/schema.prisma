@@ -34,9 +34,7 @@ model Project {
   dateCreated      DateTime                @default(now())
   lastUpdated      DateTime?
   status           String?
-
-  
-  invoices         Invoice[]
+ 
   projectManagerId Int?
 
   schedule ProjectSchedule? @relation("ProjectScheduleRelation")
