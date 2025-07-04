@@ -1,20 +1,14 @@
-// this is needed since invoices might be bulk updated or deleted
-
+// src/lib/invoices.ts
 import useSWR from "swr";
-import { Invoice } from "@prisma/client";
+import type { Invoice } from "@prisma/client";
 
 export default function useInvoices(projectId: string) {
-  const fetcher = (url: string) => fetch(url).then((r) => r.json());
+  const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-  const { data, error, mutate } = useSWR<Invoice[]>(
-    projectId ? `/api/projects/${projectId}/invoices` : null,
-    fetcher
+  const { data, error, isLoading } = useSWR<Invoice[]>(
+    `/api/projects/${projectId}/invoices`,
+    fetcher,
   );
 
-  return {
-    invoices: data ?? [],
-    isLoading: !error && !data,
-    isError: error,
-    mutate,               
-  };
+  return { invoices: data, isLoading, error };
 }
