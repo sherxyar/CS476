@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import Decimal from 'decimal.js';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
@@ -55,8 +56,8 @@ export async function POST(
   }
 
   try {
-    // keep cent-level precision
-    const amount = new Prisma.Decimal(body.amount);
+
+    const amount = new Decimal(body.amount);
 
     const newInvoice = await prisma.$transaction(async (tx) => {
       const invoice = await tx.invoice.create({
@@ -64,7 +65,7 @@ export async function POST(
           projectId: id,
           invoiceNumber: body.invoiceNumber,
           dateIssued: new Date(body.dateIssued),
-          amount,
+          amount: amount.toNumber(),
           status: body.status ?? 'NOT_PAID',
           vendor: body.vendor,
         },
@@ -84,7 +85,7 @@ export async function POST(
     return NextResponse.json(newInvoice, { status: 201 });
   } catch (err: unknown) {
 
-    //  Prisma duplication error (code P2002)                               
+// how to handle duplicats
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === 'P2002'
