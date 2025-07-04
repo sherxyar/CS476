@@ -1,5 +1,6 @@
-import { Prisma, PrismaClient } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
+import { PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import { Decimal, PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
@@ -52,7 +53,7 @@ export async function POST(
   }
 
   try {
-    const amount = new Decimal(body.amount);         
+    const amount = new Decimal(body.amount);
 
     const newInvoice = await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
@@ -81,7 +82,7 @@ export async function POST(
     return NextResponse.json(newInvoice, { status: 201 });
   } catch (err: unknown) {
     if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err instanceof PrismaClientKnownRequestError &&
       err.code === 'P2002'
     ) {
       return NextResponse.json(
