@@ -19,6 +19,10 @@ model User {
 
   // to match or relate to financial history table
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
+  
+  // Add the missing relation fields for TabAccessRequest
+  tabAccessRequests TabAccessRequest[] // For the user field in TabAccessRequest
+  approvedRequests  TabAccessRequest[] @relation("Approver") // For the approver field in TabAccessRequest
 }
 
 model Project {

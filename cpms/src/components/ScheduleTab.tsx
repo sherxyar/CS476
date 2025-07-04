@@ -1,4 +1,3 @@
-// ✅ ScheduleTab.tsx (Frontend)
 "use client";
 import { useEffect, useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
@@ -13,14 +12,22 @@ type Milestone = {
   status: "Not Started" | "In Progress" | "Completed" | "Closed";
 };
 
+type Schedule = {
+  id: number;
+  projectId: string;
+  milestones: Milestone[];
+};
+
 type Props = {
   project: Project;
 };
 
 export default function ScheduleTab({ project }: Props) {
+  const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [showAddMilestone, setShowAddMilestone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [newMilestone, setNewMilestone] = useState<Omit<Milestone, "id">>({
     title: "",
     description: "",
@@ -29,42 +36,39 @@ export default function ScheduleTab({ project }: Props) {
     status: "Not Started"
   });
 
+  // Fetch schedule data when component mounts
   useEffect(() => {
     const fetchSchedule = async () => {
+      if (!project.id) return;
+      
       try {
         setLoading(true);
-        // Use project.id instead of project.projectID
-        const res = await fetch(`/api/projects/${project.id}/schedule`);
+        setError(null);
         
-        if (!res.ok) {
-          throw new Error(`Failed to fetch schedule: ${res.status}`);
+        const response = await fetch(`/api/projects/${project.id}/milestones`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch schedule: ${response.status}`);
         }
         
-        const data = await res.json();
-        setMilestones(
-          data?.milestones?.map((m: any) => ({
-            id: m.id,
-            title: m.title,
-            description: m.description,
-            startDate: new Date(m.startDate).toISOString().split('T')[0], // Format for date input
-            endDate: new Date(m.endDate).toISOString().split('T')[0],
-            status: m.status
-          })) || []
-        );
-      } catch (error) {
-        console.error("Failed to fetch milestones:", error);
+        const data = await response.json();
+        setSchedule({ id: data.id || 0, projectId: project.id, milestones: data.milestones || [] });
+        setMilestones(data.milestones || []);
+      } catch (err) {
+        console.error("Failed to fetch schedule:", err);
+        setError("Failed to load schedule data");
       } finally {
         setLoading(false);
       }
     };
 
-    if (project.id) {
-      fetchSchedule();
-    }
+    fetchSchedule();
   }, [project.id]);
 
+  // Add new milestone
   const handleAddMilestone = async () => {
     const { title, description, startDate, endDate, status } = newMilestone;
+    
     if (!title || !description || !startDate || !endDate) {
       alert("Please fill in all required fields");
       return;
@@ -72,29 +76,34 @@ export default function ScheduleTab({ project }: Props) {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/projects/${project.id}/schedule/milestones`, {
+      setError(null);
+      
+      const response = await fetch(`/api/projects/${project.id}/milestones`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, startDate, endDate, status })
+        headers: { 
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ 
+          title, 
+          description, 
+          startDate, 
+          endDate, 
+          status 
+        })
       });
 
-      if (!res.ok) {
-        throw new Error(`Failed to create milestone: ${res.status}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Milestone creation failed:", errorData);
+        throw new Error(`Failed to create milestone: ${response.status} - ${errorData.error}`);
       }
 
-      const saved = await res.json();
-      setMilestones([
-        ...milestones,
-        {
-          id: saved.id,
-          title: saved.title,
-          description: saved.description,
-          startDate: new Date(saved.startDate).toISOString().split('T')[0],
-          endDate: new Date(saved.endDate).toISOString().split('T')[0],
-          status: saved.status
-        }
-      ]);
+      const savedMilestone = await response.json();
+      
+      // Add the new milestone to the list
+      setMilestones(prev => [...prev, savedMilestone]);
 
+      // Reset form
       setNewMilestone({
         title: "",
         description: "",
@@ -103,36 +112,49 @@ export default function ScheduleTab({ project }: Props) {
         status: "Not Started"
       });
       setShowAddMilestone(false);
-    } catch (error) {
-      console.error("Failed to add milestone:", error);
-      alert("Failed to add milestone. Please try again.");
+    } catch (err) {
+      console.error("Failed to add milestone:", err);
+      setError("Failed to add milestone. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusChange = async (index: number, newStatus: Milestone["status"]) => {
-    const milestone = milestones[index];
+  // Update milestone status
+  const handleStatusChange = async (milestoneId: number, newStatus: Milestone["status"]) => {
     try {
-      const res = await fetch(`/api/milestones/${milestone.id}`, {
+      setError(null);
+      
+      const response = await fetch(`/api/projects/${project.id}/milestones`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus })
+        headers: { 
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ 
+          milestoneId, 
+          status: newStatus 
+        })
       });
       
-      if (!res.ok) {
-        throw new Error(`Status update failed: ${res.status}`);
+      if (!response.ok) {
+        throw new Error(`Status update failed: ${response.status}`);
       }
 
-      const updated = [...milestones];
-      updated[index].status = newStatus;
-      setMilestones(updated);
-    } catch (error) {
-      console.error("Failed to update milestone status:", error);
-      alert("Failed to update milestone status. Please try again.");
+      // Update the milestone in the list
+      setMilestones(prev => 
+        prev.map(milestone => 
+          milestone.id === milestoneId 
+            ? { ...milestone, status: newStatus }
+            : milestone
+        )
+      );
+    } catch (err) {
+      console.error("Failed to update milestone status:", err);
+      setError("Failed to update milestone status. Please try again.");
     }
   };
 
+  // Get CSS class for status
   const getStatusClass = (status: string) => {
     switch (status) {
       case "Completed":
@@ -148,6 +170,7 @@ export default function ScheduleTab({ project }: Props) {
     }
   };
 
+  // Format date for display
   const formatDateForDisplay = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString();
@@ -156,20 +179,61 @@ export default function ScheduleTab({ project }: Props) {
     }
   };
 
+  // Get actual start date from milestones
+  const getActualStartDate = () => {
+    if (milestones.length === 0) return "Not started";
+    const sortedMilestones = [...milestones].sort((a, b) => 
+      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    );
+    return formatDateForDisplay(sortedMilestones[0].startDate);
+  };
+
+  // Get actual end date from milestones
+  const getActualEndDate = () => {
+    const completedMilestones = milestones.filter(m => m.status === "Completed");
+    if (completedMilestones.length === 0) return "In Progress";
+    
+    const latestCompleted = completedMilestones.reduce((latest, current) => 
+      new Date(current.endDate) > new Date(latest.endDate) ? current : latest
+    );
+    return formatDateForDisplay(latestCompleted.endDate);
+  };
+
   return (
     <div className={styles.generalContent}>
+      {/* Error Display */}
+      {error && (
+        <div style={{ 
+          background: "#fee", 
+          color: "#c33", 
+          padding: "10px", 
+          marginBottom: "20px",
+          borderRadius: "4px",
+          border: "1px solid #fcc"
+        }}>
+          {error}
+        </div>
+      )}
+
+      {/* Project Schedule Overview */}
       <div className={styles.topSection}>
         <div className={styles.leftColumn}>
           <div className={styles.fieldGroup}>
             <label>Planned Start Date</label>
             <div className={styles.fieldValue}>
-              {project.plannedStartDate ? formatDateForDisplay(project.plannedStartDate.toString()) : "Not set"}
+              {project.plannedStartDate ? 
+                formatDateForDisplay(project.plannedStartDate.toString()) : 
+                "Not set"
+              }
             </div>
           </div>
           <div className={styles.fieldGroup}>
             <label>Planned End Date</label>
             <div className={styles.fieldValue}>
-              {project.plannedEndDate ? formatDateForDisplay(project.plannedEndDate.toString()) : "Not set"}
+              {project.plannedEndDate ? 
+                formatDateForDisplay(project.plannedEndDate.toString()) : 
+                "Not set"
+              }
             </div>
           </div>
         </div>
@@ -178,14 +242,14 @@ export default function ScheduleTab({ project }: Props) {
           <div className={styles.fieldGroup}>
             <label>Actual Start Date</label>
             <div className={styles.fieldValue}>
-              {milestones.length > 0 ? formatDateForDisplay(milestones[0].startDate) : "Not started"}
+              {getActualStartDate()}
             </div>
           </div>
 
           <div className={styles.fieldGroup}>
             <label>Actual End Date</label>
             <div className={styles.fieldValue}>
-              {milestones.some(m => m.status === "Completed") ? "Completed" : "In Progress"}
+              {getActualEndDate()}
             </div>
           </div>
         </div>
@@ -193,6 +257,7 @@ export default function ScheduleTab({ project }: Props) {
 
       <div className={styles.divider}></div>
 
+      {/* Milestones Section */}
       <div className={styles.actualsSection}>
         <div className={styles.fieldGroup}>
           <div className={styles.actualsHeader}>
@@ -206,6 +271,7 @@ export default function ScheduleTab({ project }: Props) {
             </button>
           </div>
 
+          {/* Add Milestone Form */}
           {showAddMilestone && (
             <div className={styles.invoiceForm}>
               <div className={styles.formRow}>
@@ -294,6 +360,7 @@ export default function ScheduleTab({ project }: Props) {
             </div>
           )}
 
+          {/* Milestones Table */}
           <div className={styles.tableContainer}>
             <table className={styles.actualsTable}>
               <thead>
@@ -319,7 +386,7 @@ export default function ScheduleTab({ project }: Props) {
                     </td>
                   </tr>
                 ) : (
-                  milestones.map((milestone, index) => (
+                  milestones.map((milestone) => (
                     <tr key={milestone.id}>
                       <td style={{ fontWeight: "600" }}>{milestone.title}</td>
                       <td>{milestone.description}</td>
@@ -329,7 +396,7 @@ export default function ScheduleTab({ project }: Props) {
                         <select
                           value={milestone.status}
                           onChange={(e) =>
-                            handleStatusChange(index, e.target.value as Milestone["status"])
+                            handleStatusChange(milestone.id, e.target.value as Milestone["status"])
                           }
                           className={`${styles.statusSelect} ${getStatusClass(milestone.status)}`}
                         >

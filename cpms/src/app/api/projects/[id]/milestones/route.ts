@@ -1,6 +1,53 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+// GET all milestones for a project
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: projectId } = await params;
+
+  try {
+    // Find the project
+    const project = await prisma.project.findFirst({
+      where: { 
+        OR: [
+          { id: projectId },
+          { projectID: projectId }
+        ]
+      }
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // Find the schedule for this project
+    const schedule = await prisma.projectSchedule.findUnique({
+      where: { projectId: project.id },
+      include: {
+        milestones: {
+          orderBy: { startDate: "asc" }
+        }
+      }
+    });
+
+    if (!schedule) {
+      return NextResponse.json({ milestones: [] });
+    }
+
+    return NextResponse.json({ milestones: schedule.milestones });
+  } catch (error) {
+    console.error("Failed to fetch milestones:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch milestones" }, 
+      { status: 500 }
+    );
+  }
+}
+
+// POST - Create a new milestone
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -10,7 +57,15 @@ export async function POST(
   try {
     const { title, description, startDate, endDate, status } = await req.json();
 
-    // First, find the project (by id or projectID)
+    // Validate required fields
+    if (!title || !description || !startDate || !endDate) {
+      return NextResponse.json(
+        { error: "Missing required fields" }, 
+        { status: 400 }
+      );
+    }
+
+    // Find the project
     const project = await prisma.project.findFirst({
       where: { 
         OR: [
@@ -35,19 +90,14 @@ export async function POST(
       });
     }
 
-    // Make sure schedule was created successfully
-    if (!schedule || typeof schedule.id === 'undefined') {
-      throw new Error('Failed to create or retrieve schedule');
-    }
-
     // Create the milestone
     const milestone = await prisma.milestone.create({
       data: {
-        task: title, 
-        description: description,
+        title,
+        description,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        status: status,
+        status: status || "Not Started",
         scheduleId: schedule.id
       }
     });
@@ -57,6 +107,39 @@ export async function POST(
     console.error("Failed to create milestone:", error);
     return NextResponse.json(
       { error: "Failed to create milestone" }, 
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Update milestone status
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: projectId } = await params;
+  
+  try {
+    const { milestoneId, status } = await req.json();
+
+    if (!milestoneId || !status) {
+      return NextResponse.json(
+        { error: "Missing milestoneId or status" }, 
+        { status: 400 }
+      );
+    }
+
+    // Update the milestone
+    const updatedMilestone = await prisma.milestone.update({
+      where: { id: milestoneId },
+      data: { status }
+    });
+
+    return NextResponse.json(updatedMilestone);
+  } catch (error) {
+    console.error("Failed to update milestone:", error);
+    return NextResponse.json(
+      { error: "Failed to update milestone" }, 
       { status: 500 }
     );
   }

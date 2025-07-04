@@ -1,20 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import type { Prisma } from '@prisma/client'; 
 
+// GET - Fetch complete schedule with milestones
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const { id: projectId } = await params;
 
   try {
-    // First, check if project exists
+    // Find the project
     const project = await prisma.project.findFirst({
       where: { 
         OR: [
-          { id: id },
-          { projectID: id }
+          { id: projectId },
+          { projectID: projectId }
         ]
       }
     });
@@ -23,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Try to find existing schedule
+    // Find or create the schedule for this project
     let schedule = await prisma.projectSchedule.findUnique({
       where: { projectId: project.id },
       include: {
@@ -47,9 +47,16 @@ export async function GET(
       });
     }
     
-    return NextResponse.json(schedule);
-  } catch (err) {
-    console.error(`GET /api/projects/${id}/schedule -`, err);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json({
+      id: schedule.id,
+      projectId: schedule.projectId,
+      milestones: schedule.milestones
+    });
+  } catch (error) {
+    console.error(`GET /api/projects/${projectId}/schedule -`, error);
+    return NextResponse.json(
+      { error: "Internal Server Error" }, 
+      { status: 500 }
+    );
   }
 }
