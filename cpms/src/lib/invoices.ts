@@ -1,3 +1,4 @@
+// src/lib/invoices.ts
 import useSWR from "swr";
 import type { Invoice } from "@prisma/client";
 
@@ -10,9 +11,9 @@ export default function useInvoices(projectId: string) {
   );
 
   return {
-    invoices: data,
+    invoices: data ?? [], 
     isLoading,
     error,
-    mutate,            
+    mutate,
   };
 }
