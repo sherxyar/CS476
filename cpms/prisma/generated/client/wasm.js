@@ -114,6 +114,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -171,6 +174,27 @@ exports.Prisma.FinancialHistoryEntryScalarFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  invoiceNumber: 'invoiceNumber',
+  dateIssued: 'dateIssued',
+  amount: 'amount',
+  status: 'status',
+  vendor: 'vendor',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TabAccessRequestScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  approvedBy: 'approvedBy',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  approvedAt: 'approvedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -179,6 +203,11 @@ exports.Prisma.SortOrder = {
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 };
 
 exports.Prisma.NullsOrder = {
@@ -191,19 +220,19 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
+  PAID: 'PAID',
+  NOT_PAID: 'NOT_PAID'
 };
-
 
 exports.Prisma.ModelName = {
   User: 'User',
   Project: 'Project',
   AuditLog: 'AuditLog',
   PMNote: 'PMNote',
-  FinancialHistoryEntry: 'FinancialHistoryEntry'
+  FinancialHistoryEntry: 'FinancialHistoryEntry',
+  Invoice: 'Invoice',
+  TabAccessRequest: 'TabAccessRequest'
 };
 
 /**
