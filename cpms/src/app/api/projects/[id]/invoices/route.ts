@@ -62,6 +62,7 @@ export async function POST(
             projectId: id,
             invoiceNumber: body.invoiceNumber,
             dateIssued: new Date(body.dateIssued),
+            updatedAt: new Date(),              // required by schema
             amount,
             status: body.status ?? 'NOT_PAID',
             vendor: body.vendor,
