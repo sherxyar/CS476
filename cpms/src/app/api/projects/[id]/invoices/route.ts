@@ -1,4 +1,6 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import { Decimal, PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
@@ -41,52 +43,47 @@ export async function POST(
   const { id } = await params;
   const body = (await req.json()) as CreateInvoicePayload;
 
-  // Payload validation
   if (
     !body.invoiceNumber ||
     !body.dateIssued ||
     body.amount === undefined ||
     !body.vendor
   ) {
-    return NextResponse.json(
-      { error: 'Missing required fields' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
   try {
-    // keep cent-level precision
-    const amount = new Prisma.Decimal(body.amount);
+    const amount = new Decimal(body.amount);
 
-    const newInvoice = await prisma.$transaction(async (tx) => {
-      const invoice = await tx.invoice.create({
-        data: {
-          projectId: id,
-          invoiceNumber: body.invoiceNumber,
-          dateIssued: new Date(body.dateIssued),
-          amount,
-          status: body.status ?? 'NOT_PAID',
-          vendor: body.vendor,
-        },
-      });
-
-      // If invoice is paid, update project.actuals
-      if (invoice.status === 'PAID') {
-        await tx.project.update({
-          where: { id },
-          data: { actuals: { increment: amount.toNumber() } },
+    const newInvoice = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        const invoice = await tx.invoice.create({
+          data: {
+            projectId: id,
+            invoiceNumber: body.invoiceNumber,
+            dateIssued: new Date(body.dateIssued),
+            updatedAt: new Date(),              // required by schema
+            amount,
+            status: body.status ?? 'NOT_PAID',
+            vendor: body.vendor,
+          },
         });
-      }
 
-      return invoice;
-    });
+        if (invoice.status === 'PAID') {
+          await tx.project.update({
+            where: { id },
+            data: { actuals: { increment: amount.toNumber() } },
+          });
+        }
+
+        return invoice;
+      },
+    );
 
     return NextResponse.json(newInvoice, { status: 201 });
   } catch (err: unknown) {
-
-    //  Prisma duplication error (code P2002)                               
     if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err instanceof PrismaClientKnownRequestError &&
       err.code === 'P2002'
     ) {
       return NextResponse.json(

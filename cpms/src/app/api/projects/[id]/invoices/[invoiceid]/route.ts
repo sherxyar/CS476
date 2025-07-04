@@ -1,12 +1,14 @@
 // 
 import { prisma } from "@/lib/prisma";
+import { Prisma, PrismaClient } from '@prisma/client';
+
 import { NextResponse } from "next/server";
 import Decimal from "decimal.js";
 
 type Params = { invoiceId: string };
 
 
-// Patch Request to update an existing invoice - not used.
+// Patch Request to update an existing invoice - not used for now (might do after proejct).
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<Params> }
@@ -28,7 +30,7 @@ export async function PATCH(
     if (existing.status === "PAID" && newStatus === "NOT_PAID")
       delta = amount.neg();
 
-    const updated = await prisma.$transaction(async (tx) => {
+const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const inv = await tx.invoice.update({
         where: { id },
         data: {
@@ -72,8 +74,8 @@ export async function DELETE(
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
 
   try {
-    await prisma.$transaction(async (tx) => {
-      // if it was already paid, subtract from actuals first
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // If the invoice is paid, subtract from the project's actuals
       if (existing.status === "PAID") {
         await tx.project.update({
           where: { id: existing.projectId },
