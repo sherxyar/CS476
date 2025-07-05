@@ -114,11 +114,6 @@ export default function AdministrationTab({ project: _project }: Props) {
             <div className={styles.fieldValue}>Jane Smith</div>
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label>Organization</label>
-            <div className={styles.fieldValue}>Infrastructure Development Corp</div>
-          </div>
-
         </div>
 
         <div className={styles.rightColumn}>
@@ -220,7 +215,7 @@ export default function AdministrationTab({ project: _project }: Props) {
                     onChange={(e) => setNewMember({ ...newMember, accessLevel: e.target.value as TeamMember["accessLevel"] })}
                   >
                     <option value="Contributor">Contributor</option>
-                    <option value="Project Manager">Manager</option>
+                    <option value="Project Manager">Project Manager</option>
                     <option value="Admin">Admin</option>
                   </select>
                 </div>
