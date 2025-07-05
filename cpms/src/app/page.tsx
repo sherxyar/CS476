@@ -121,8 +121,8 @@ const fetchProjects = async () => {
         <div className={styles.logoText}>InfraPro</div>
         <input type="text" className={styles.searchBox} placeholder="Search" />
         <div className={styles.topbarActions}>
-          <a href="/signup" className={styles.topbarButton}>Sign Up</a>
-          <a href="/login" className={styles.topbarButton}>Login</a>
+          <a href="/auth/signup" className={styles.topbarButton}>Sign Up</a>
+          <a href="/auth/login" className={styles.topbarButton}>Login</a>
         </div>
       </div>
 

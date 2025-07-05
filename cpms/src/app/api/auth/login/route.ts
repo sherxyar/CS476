@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const code = Math.floor(Math.random() * 1000000).toString();
     // code will be valid until 1000(ms/sec) * 60(sec/min) * 2 = 2 minutes
     const validUntil = new Date(Date.now() + 1000 * 60 * 2);
-    await prisma.Mfacode.create({ data: { userId: user.id, code, validUntil } });
+    await prisma.mfacode.create({ data: { userId: user.id, code, validUntil } });
     await sendEmail(email, code);
     return NextResponse.json({message: `2FA code sent to ${email}. It is valid for the next 2 minutes.`});
 }
