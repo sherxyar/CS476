@@ -1,411 +1,785 @@
-
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
-
-
-type Props = {
- project: Project;
+// Define the type for a single lesson learned item
+type LessonLearnedItem = {
+  id: number;
+  topic: string;
+  experience: string;
+  impactRecurrence: string;
+  lessonLearned: string;
+  bestPractice: string;
+  assignedTo: string;
 };
 
-
-
-
-type RiskEntry = {
-  id: string;
-  date: string;
+// Define the type for a single risk item
+type RiskItem = {
+  id: number;
+  riskId: string;
   riskDescription: string;
-  category: "Technical" | "Financial" | "Schedule" | "Resource" | "External" | "Safety" | "Environmental" | "Regulatory" | "Quality" | "Procurement";
-  probability: "Very Low" | "Low" | "Medium" | "High" | "Very High";
-  impact: "Very Low" | "Low" | "Medium" | "High" | "Very High";
-  riskLevel: "Low" | "Medium" | "High" | "Critical";
-  mitigation: string;
-  contingency: string;
+  category: string;
+  impact: string;
+  likelihood: string;
+  riskScore: number;
+  mitigationPlan: string;
+  contingencyPlan: string;
   owner: string;
-  status: "Identified" | "Assessed" | "Planned" | "Monitoring" | "Closed" | "Escalated";
-  dueDate: string;
-  responseStrategy: "Avoid" | "Mitigate" | "Transfer" | "Accept";
+  status: "Open" | "Closed" | "Mitigated"; // Example statuses, adjust as needed
+  dateIdentified: string;
+  dateClosed: string | null;
 };
 
-type LessonEntry = {
-  id: string;
-  date: string;
-  category: "Process" | "Technical" | "Communication" | "Planning" | "Resource Management";
-  title: string;
-  description: string;
-  impact: "Positive" | "Negative";
-  recommendation: string;
-  applicablePhases: string[];
-  priority: "Low" | "Medium" | "High";
-  documentedBy: string;
+// Props for the DeliveryTab component
+type Props = {
+  project: Project;
 };
 
+export default function DeliveryTab({ project }: Props) {
+  // State to manage the active sub-tab, defaulting to 'lessonsLearned'
+  const [activeTab, setActiveTab] = useState<"lessonsLearned" | "riskRegister">(
+    "lessonsLearned"
+  );
 
-export default function DeliveryTab({ project: _project }: Props) {
-  const [activeSubTab, setActiveSubTab] = useState("Risk");
-  const [showAddRisk, setShowAddRisk] = useState(false);
-  const [showAddLesson, setShowAddLesson] = useState(false);
+  // State for Lessons Learned
+  const [lessonsLearned, setLessonsLearned] = useState<LessonLearnedItem[]>([]);
+  const [showAddLessonForm, setShowAddLessonForm] = useState(false);
+  const [loadingLessons, setLoadingLessons] = useState(false);
+  const [errorLessons, setErrorLessons] = useState<string | null>(null);
+  const [newLessonLearned, setNewLessonLearned] = useState<Omit<LessonLearnedItem, "id">>({
+    topic: "",
+    experience: "",
+    impactRecurrence: "",
+    lessonLearned: "",
+    bestPractice: "",
+    assignedTo: "",
+  });
+  // State to track which lesson is being edited
+  const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
+  const [currentEditingLesson, setCurrentEditingLesson] = useState<LessonLearnedItem | null>(null);
 
-  const [risks, setRisks] = useState<RiskEntry[]>([
-    {
-      id: "RSK-001",
-      date: "Jan 10, 2025",
-      riskDescription: "Weather delays during asphalt laying operations",
-      category: "External",
-      probability: "High",
-      impact: "Medium",
-      riskLevel: "High",
-      mitigation: "Monitor weather forecasts daily, maintain flexible scheduling",
-      contingency: "Secure indoor storage for materials, have backup dates scheduled",
-      owner: "John Doe",
-      status: "Monitoring",
-      dueDate: "Feb 15, 2025",
-      responseStrategy: "Mitigate"
-    },
-    {
-      id: "RSK-002",
-      date: "Jan 8, 2025",
-      riskDescription: "Asphalt material cost escalation beyond approved budget",
-      category: "Financial",
-      probability: "Medium",
-      impact: "High",
-      riskLevel: "High",
-      mitigation: "Lock in material prices with suppliers early",
-      contingency: "Maintain 8% contingency buffer for material cost variations",
-      owner: "Jane Smith",
-      status: "Identified",
-      dueDate: "Jan 30, 2025",
-      responseStrategy: "Transfer"
-    },
-    {
-      id: "RSK-003",
-      date: "Jan 12, 2025",
-      riskDescription: "Equipment failure during critical paving operations",
-      category: "Technical",
-      probability: "Low",
-      impact: "High",
-      riskLevel: "Medium",
-      mitigation: "Conduct preventive maintenance, have backup equipment on standby",
-      contingency: "Maintain service contracts with equipment rental companies",
-      owner: "Mike Johnson",
-      status: "Planned",
-      dueDate: "Jan 25, 2025",
-      responseStrategy: "Mitigate"
-    },
-    {
-      id: "RSK-004",
-      date: "Jan 14, 2025",
-      riskDescription: "Underground utility conflicts not identified in survey",
-      category: "Technical",
-      probability: "Medium",
-      impact: "Very High",
-      riskLevel: "Critical",
-      mitigation: "Conduct comprehensive utility location survey before excavation",
-      contingency: "Have emergency repair crews and materials on standby",
-      owner: "Sarah Wilson",
-      status: "Assessed",
-      dueDate: "Jan 20, 2025",
-      responseStrategy: "Avoid"
-    },
-    {
-      id: "RSK-005",
-      date: "Jan 16, 2025",
-      riskDescription: "School safety protocols during construction activities",
-      category: "Safety",
-      probability: "Medium",
-      impact: "Very High",
-      riskLevel: "Critical",
-      mitigation: "Coordinate with school administration, implement safety barriers",
-      contingency: "Have safety officer on-site during school hours",
-      owner: "Tom Brown",
-      status: "Monitoring",
-      dueDate: "Feb 20, 2025",
-      responseStrategy: "Mitigate"
-    }
-  ]);
-
-  const [lessons, setLessons] = useState<LessonEntry[]>([
-    {
-      id: "LL-001",
-      date: "Jan 15, 2025",
-      category: "Planning",
-      title: "Early stakeholder engagement improves approval times",
-      description: "Engaging with city planning office 2 weeks earlier than scheduled resulted in faster permit approvals and reduced project delays",
-      impact: "Positive",
-      recommendation: "Always initiate stakeholder engagement at least 3 weeks before planned start date",
-      applicablePhases: ["Planning", "Initiation"],
-      priority: "High",
-      documentedBy: "Jane Smith"
-    },
-    {
-      id: "LL-002",
-      date: "Jan 12, 2025",
-      category: "Communication",
-      title: "Regular progress updates reduce client concerns",
-      description: "Weekly progress reports with photos significantly reduced client inquiries and improved satisfaction",
-      impact: "Positive",
-      recommendation: "Implement weekly visual progress reports for all projects",
-      applicablePhases: ["Execution", "Monitoring"],
-      priority: "Medium",
-      documentedBy: "John Doe"
-    },
-    {
-      id: "LL-003",
-      date: "Jan 10, 2025",
-      category: "Technical",
-      title: "Soil testing should be more comprehensive",
-      description: "Limited soil testing led to unexpected foundation work requirements, causing delays and cost overruns",
-      impact: "Negative",
-      recommendation: "Conduct comprehensive soil testing across entire project area, not just sample points",
-      applicablePhases: ["Planning", "Design"],
-      priority: "High",
-      documentedBy: "Mike Johnson"
-    }
-  ]);
-
-  const [newRisk, setNewRisk] = useState<Partial<RiskEntry>>({
+  // State for Risk Register
+  const [riskItems, setRiskItems] = useState<RiskItem[]>([]);
+  const [showAddRiskForm, setShowAddRiskForm] = useState(false);
+  const [loadingRisks, setLoadingRisks] = useState(false);
+  const [errorRisks, setErrorRisks] = useState<string | null>(null);
+  const [newRiskItem, setNewRiskItem] = useState<Omit<RiskItem, "id" | "riskScore">>({
+    riskId: "",
     riskDescription: "",
-    category: "Technical",
-    probability: "Low",
-    impact: "Low",
-    riskLevel: "Low",
-    mitigation: "",
-    contingency: "",
+    category: "",
+    impact: "",
+    likelihood: "",
+    mitigationPlan: "",
+    contingencyPlan: "",
     owner: "",
-    status: "Identified",
-    dueDate: "",
-    responseStrategy: "Mitigate"
+    status: "Open", // Default status
+    dateIdentified: "",
+    dateClosed: null,
   });
+  // State to track which risk is being edited
+  const [editingRiskId, setEditingRiskId] = useState<number | null>(null);
+  const [currentEditingRisk, setCurrentEditingRisk] = useState<RiskItem | null>(null);
 
-  const [newLesson, setNewLesson] = useState<Partial<LessonEntry>>({
-    category: "Process",
-    title: "",
-    description: "",
-    impact: "Positive",
-    recommendation: "",
-    applicablePhases: [],
-    priority: "Low",
-    documentedBy: ""
-  });
 
-  const calculateRiskLevel = (probability: string, impact: string): RiskEntry["riskLevel"] => {
-    const riskMatrix: { [key: string]: { [key: string]: RiskEntry["riskLevel"] } } = {
-      "Very Low": { "Very Low": "Low", "Low": "Low", "Medium": "Low", "High": "Medium", "Very High": "Medium" },
-      "Low": { "Very Low": "Low", "Low": "Low", "Medium": "Low", "High": "Medium", "Very High": "High" },
-      "Medium": { "Very Low": "Low", "Low": "Low", "Medium": "Medium", "High": "High", "Very High": "High" },
-      "High": { "Very Low": "Medium", "Low": "Medium", "Medium": "High", "High": "High", "Very High": "Critical" },
-      "Very High": { "Very Low": "Medium", "Low": "High", "Medium": "High", "High": "Critical", "Very High": "Critical" }
+  // Utility to format date for display
+  const formatDateForDisplay = (dateString: string | null) => {
+    if (!dateString) return "N/A";
+    try {
+      const [datePart] = dateString.split("T");
+      // Create a date object in the local timezone to avoid off-by-one day issues
+      const [year, month, day] = datePart.split("-").map(Number);
+      const displayDate = new Date(year, month - 1, day);
+      return displayDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return dateString; // Return original if parsing fails
+    }
+  };
+
+  // Utility to format date for input type="date" (YYYY-MM-DD)
+  const formatDateForInput = (dateString: string | null) => {
+    if (!dateString) return "";
+    try {
+      return dateString.split("T")[0];
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Utility to create date string with UTC noon to avoid timezone shift
+  const createDateString = (dateInput: string) => {
+    if (dateInput && !dateInput.includes("T")) {
+      return `${dateInput}T12:00:00Z`;
+    }
+    return dateInput;
+  };
+
+  // Effect to fetch Lessons Learned data
+  useEffect(() => {
+    const fetchLessonsLearned = async () => {
+      if (!project.id) return;
+      try {
+        setLoadingLessons(true);
+        setErrorLessons(null);
+        const response = await fetch(`/api/projects/${project.id}/lessons-learned`);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        const data = await response.json();
+        setLessonsLearned(data.lessonsLearned || []);
+      } catch (err) {
+        console.error("Fetch lessons learned error:", err);
+        setErrorLessons("Failed to load lessons learned data");
+      } finally {
+        setLoadingLessons(false);
+      }
     };
-    return riskMatrix[probability]?.[impact] || "Low";
-  };
+    if (activeTab === "lessonsLearned") {
+      fetchLessonsLearned();
+    }
+  }, [project.id, activeTab]);
 
-  const handleAddRisk = () => {
-    if (newRisk.riskDescription && newRisk.mitigation && newRisk.contingency && newRisk.owner && newRisk.dueDate) {
-      const riskLevel = calculateRiskLevel(newRisk.probability!, newRisk.impact!);
-      const risk: RiskEntry = {
-        ...newRisk as RiskEntry,
-        id: `RSK-${String(risks.length + 1).padStart(3, '0')}`,
-        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-        riskLevel
-      };
-      setRisks([...risks, risk]);
-      setNewRisk({
-        riskDescription: "",
-        category: "Technical",
-        probability: "Low",
-        impact: "Low",
-        riskLevel: "Low",
-        mitigation: "",
-        contingency: "",
-        owner: "",
-        status: "Identified",
-        dueDate: "",
-        responseStrategy: "Mitigate"
+  // Effect to fetch Risk Register data
+  useEffect(() => {
+    const fetchRiskItems = async () => {
+      if (!project.id) return;
+      try {
+        setLoadingRisks(true);
+        setErrorRisks(null);
+        const response = await fetch(`/api/projects/${project.id}/risk-register`);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        const data = await response.json();
+        setRiskItems(data.riskItems || []);
+      } catch (err) {
+        console.error("Fetch risk items error:", err);
+        setErrorRisks("Failed to load risk register data");
+      } finally {
+        setLoadingRisks(false);
+      }
+    };
+    if (activeTab === "riskRegister") {
+      fetchRiskItems();
+    }
+  }, [project.id, activeTab]);
+
+  // --- Lessons Learned Handlers ---
+
+  const handleAddLessonLearned = async () => {
+    const { topic, experience, impactRecurrence, lessonLearned, bestPractice, assignedTo } = newLessonLearned;
+
+    if (!topic || !experience || !impactRecurrence || !lessonLearned || !bestPractice || !assignedTo) {
+      alert("Please fill in all required fields for Lessons Learned");
+      return;
+    }
+
+    try {
+      setLoadingLessons(true);
+      setErrorLessons(null);
+      const response = await fetch(`/api/projects/${project.id}/lessons-learned`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newLessonLearned),
       });
-      setShowAddRisk(false);
-    }
-  };
 
-  const handleAddLesson = () => {
-    if (newLesson.title && newLesson.description && newLesson.recommendation && newLesson.documentedBy) {
-      const lesson: LessonEntry = {
-        ...newLesson as LessonEntry,
-        id: `LL-${String(lessons.length + 1).padStart(3, '0')}`,
-        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-        applicablePhases: newLesson.applicablePhases || []
-      };
-      setLessons([...lessons, lesson]);
-      setNewLesson({
-        category: "Process",
-        title: "",
-        description: "",
-        impact: "Positive",
-        recommendation: "",
-        applicablePhases: [],
-        priority: "Low",
-        documentedBy: ""
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      const savedItem = await response.json();
+      setLessonsLearned((prev) => [...prev, savedItem]);
+      setNewLessonLearned({
+        topic: "", experience: "", impactRecurrence: "",
+        lessonLearned: "", bestPractice: "", assignedTo: "",
       });
-      setShowAddLesson(false);
+      setShowAddLessonForm(false);
+    } catch (err) {
+      console.error("Add lesson learned error:", err);
+      setErrorLessons("Failed to add lesson learned. Please try again.");
+    } finally {
+      setLoadingLessons(false);
     }
   };
 
-  const getRiskLevelColor = (level: string) => {
-    switch (level) {
-      case "Low": return styles.statusPaid;
-      case "Medium": return styles.statusInProgress;
-      case "High": return styles.statusClosed;
-      case "Critical": return styles.statusNotPaid;
-      default: return "";
+  const handleEditLesson = (lesson: LessonLearnedItem) => {
+    setEditingLessonId(lesson.id);
+    setCurrentEditingLesson({ ...lesson }); // Create a mutable copy for editing
+  };
+
+  const handleCancelEditLesson = () => {
+    setEditingLessonId(null);
+    setCurrentEditingLesson(null);
+  };
+
+  const handleChangeEditingLesson = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof LessonLearnedItem) => {
+    if (currentEditingLesson) {
+      setCurrentEditingLesson({
+        ...currentEditingLesson,
+        [field]: e.target.value,
+      });
     }
   };
 
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case "Positive": return styles.statusPaid;
-      case "Negative": return styles.statusNotPaid;
-      default: return "";
+  const handleUpdateLessonLearned = async (lessonId: number) => {
+    if (!currentEditingLesson) return;
+
+    const { topic, experience, impactRecurrence, lessonLearned, bestPractice, assignedTo } = currentEditingLesson;
+    if (!topic || !experience || !impactRecurrence || !lessonLearned || !bestPractice || !assignedTo) {
+      alert("Please fill in all required fields for Lessons Learned");
+      return;
+    }
+
+    try {
+      setLoadingLessons(true);
+      setErrorLessons(null);
+      const response = await fetch(`/api/projects/${project.id}/lessons-learned/${lessonId}`, { // Assuming /api/projects/:projectId/lessons-learned/:id for PATCH
+        method: "PATCH", // Use PATCH for partial updates
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentEditingLesson),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      const updatedItem = await response.json();
+      setLessonsLearned((prev) =>
+        prev.map((item) => (item.id === lessonId ? updatedItem : item))
+      );
+      setEditingLessonId(null);
+      setCurrentEditingLesson(null);
+    } catch (err) {
+      console.error("Update lesson learned error:", err);
+      setErrorLessons("Failed to update lesson learned. Please try again.");
+    } finally {
+      setLoadingLessons(false);
     }
   };
 
-  const subTabs = ["Risk", "Lessons Learned"];
+  const handleDeleteLesson = async (lessonId: number) => {
+    if (!confirm("Are you sure you want to delete this lesson learned item?")) {
+      return;
+    }
+
+    try {
+      setLoadingLessons(true);
+      setErrorLessons(null);
+      const response = await fetch(`/api/projects/${project.id}/lessons-learned/${lessonId}`, { // Assuming /api/projects/:projectId/lessons-learned/:id for DELETE
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      setLessonsLearned((prev) => prev.filter((item) => item.id !== lessonId));
+    } catch (err) {
+      console.error("Delete lesson learned error:", err);
+      setErrorLessons("Failed to delete lesson learned. Please try again.");
+    } finally {
+      setLoadingLessons(false);
+    }
+  };
+
+  // --- Risk Register Handlers ---
+
+  const handleAddRiskItem = async () => {
+    const {
+      riskId, riskDescription, category, impact, likelihood,
+      mitigationPlan, contingencyPlan, owner, status, dateIdentified, dateClosed,
+    } = newRiskItem;
+
+    if (!riskId || !riskDescription || !category || !impact || !likelihood || !mitigationPlan || !owner || !dateIdentified) {
+      alert("Please fill in all required fields for Risk Register");
+      return;
+    }
+
+    const calculatedRiskScore = 0; // Placeholder: Implement actual calculation based on your risk matrix
+
+    try {
+      setLoadingRisks(true);
+      setErrorRisks(null);
+      const response = await fetch(`/api/projects/${project.id}/risk-register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newRiskItem,
+          riskScore: calculatedRiskScore,
+          dateIdentified: createDateString(dateIdentified),
+          dateClosed: dateClosed ? createDateString(dateClosed) : null,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      const savedItem = await response.json();
+      setRiskItems((prev) => [...prev, savedItem]);
+      setNewRiskItem({
+        riskId: "", riskDescription: "", category: "", impact: "", likelihood: "",
+        mitigationPlan: "", contingencyPlan: "", owner: "", status: "Open",
+        dateIdentified: "", dateClosed: null,
+      });
+      setShowAddRiskForm(false);
+    } catch (err) {
+      console.error("Add risk item error:", err);
+      setErrorRisks("Failed to add risk item. Please try again.");
+    } finally {
+      setLoadingRisks(false);
+    }
+  };
+
+  const handleEditRisk = (risk: RiskItem) => {
+    setEditingRiskId(risk.id);
+    setCurrentEditingRisk({ ...risk }); // Create a mutable copy for editing
+  };
+
+  const handleCancelEditRisk = () => {
+    setEditingRiskId(null);
+    setCurrentEditingRisk(null);
+  };
+
+  const handleChangeEditingRisk = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, field: keyof RiskItem) => {
+    if (currentEditingRisk) {
+      setCurrentEditingRisk({
+        ...currentEditingRisk,
+        [field]: e.target.value,
+      });
+    }
+  };
+
+  const handleUpdateRiskItem = async (riskId: number) => {
+    if (!currentEditingRisk) return;
+
+    const {
+      riskId: rId, riskDescription, category, impact, likelihood,
+      mitigationPlan, owner, dateIdentified,
+    } = currentEditingRisk;
+
+    if (!rId || !riskDescription || !category || !impact || !likelihood || !mitigationPlan || !owner || !dateIdentified) {
+      alert("Please fill in all required fields for Risk Register");
+      return;
+    }
+
+    // Recalculate risk score if impact/likelihood changed (example)
+    const updatedRiskScore = currentEditingRisk.riskScore; // Or recalculate based on updated impact/likelihood
+
+    try {
+      setLoadingRisks(true);
+      setErrorRisks(null);
+      const response = await fetch(`/api/projects/${project.id}/risk-register/${riskId}`, { // Assuming /api/projects/:projectId/risk-register/:id for PATCH
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...currentEditingRisk,
+          riskScore: updatedRiskScore,
+          dateIdentified: createDateString(currentEditingRisk.dateIdentified),
+          dateClosed: currentEditingRisk.dateClosed ? createDateString(currentEditingRisk.dateClosed) : null,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      const updatedItem = await response.json();
+      setRiskItems((prev) =>
+        prev.map((item) => (item.id === riskId ? updatedItem : item))
+      );
+      setEditingRiskId(null);
+      setCurrentEditingRisk(null);
+    } catch (err) {
+      console.error("Update risk item error:", err);
+      setErrorRisks("Failed to update risk item. Please try again.");
+    } finally {
+      setLoadingRisks(false);
+    }
+  };
+
+  const handleDeleteRisk = async (riskId: number) => {
+    if (!confirm("Are you sure you want to delete this risk item?")) {
+      return;
+    }
+
+    try {
+      setLoadingRisks(true);
+      setErrorRisks(null);
+      const response = await fetch(`/api/projects/${project.id}/risk-register/${riskId}`, { // Assuming /api/projects/:projectId/risk-register/:id for DELETE
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      setRiskItems((prev) => prev.filter((item) => item.id !== riskId));
+    } catch (err) {
+      console.error("Delete risk item error:", err);
+      setErrorRisks("Failed to delete risk item. Please try again.");
+    } finally {
+      setLoadingRisks(false);
+    }
+  };
+
+  // Function to get status class for styling (for Risk Register)
+  const getRiskStatusClass = (status: string) => {
+    switch (status) {
+      case "Open":
+        return styles.statusNotPaid;
+      case "Mitigated":
+        return styles.statusInProgress;
+      case "Closed":
+        return styles.statusPaid;
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className={styles.generalContent}>
-      {/* Sub-tab Navigation */}
-      <div className={styles.tabHeader} style={{ marginBottom: '24px' }}>
-        {subTabs.map((subTab) => (
-          <button
-            key={subTab}
-            onClick={() => setActiveSubTab(subTab)}
-            className={`${styles.tabButton} ${activeSubTab === subTab ? styles.activeTab : ""}`}
-          >
-            {subTab}
-          </button>
-        ))}
+      {/* Sub-tab navigation */}
+      <div className={styles.tabNavigation}>
+        <button
+          className={`${styles.subTabButton} ${
+            activeTab === "lessonsLearned" ? styles.activeSubTab : ""
+          }`}
+          onClick={() => {
+            setActiveTab("lessonsLearned");
+            setShowAddLessonForm(false); // Hide add form when switching tabs
+            setEditingLessonId(null); // Exit edit mode
+            setCurrentEditingLesson(null);
+          }}
+        >
+          Lessons Learned
+        </button>
+        <button
+          className={`${styles.subTabButton} ${
+            activeTab === "riskRegister" ? styles.activeSubTab : ""
+          }`}
+          onClick={() => {
+            setActiveTab("riskRegister");
+            setShowAddRiskForm(false); // Hide add form when switching tabs
+            setEditingRiskId(null); // Exit edit mode
+            setCurrentEditingRisk(null);
+          }}
+        >
+          Risk Register
+        </button>
       </div>
 
-      {/* Risk Matrix Tab */}
-      {activeSubTab === "Risk" && (
+      <div className={styles.divider}></div>
+
+      {/* Conditional rendering for Lessons Learned Tab */}
+      {activeTab === "lessonsLearned" && (
         <div className={styles.actualsSection}>
+          {errorLessons && (
+            <div
+              style={{
+                background: "#fee", color: "#c33", padding: "10px",
+                marginBottom: "20px", borderRadius: "4px", border: "1px solid #fcc",
+              }}
+            >
+              {errorLessons}
+            </div>
+          )}
+
           <div className={styles.fieldGroup}>
             <div className={styles.actualsHeader}>
-              <label>Risk Matrix</label>
-              <button 
-                className={styles.addInvoiceButton} 
-                onClick={() => setShowAddRisk(!showAddRisk)}
+              <label>Lessons Learned</label>
+              <button
+                className={styles.addInvoiceButton}
+                onClick={() => setShowAddLessonForm(!showAddLessonForm)}
+                disabled={loadingLessons}
               >
-                Add Risk
+                {loadingLessons ? "Loading..." : showAddLessonForm ? "Cancel" : "Add Lesson Learned"}
               </button>
             </div>
 
-            {/* Risk Summary */}
-            <div className={styles.summaryCard}>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Total Risks</span>
-                <span className={styles.summaryValue}>{risks.length}</span>
-              </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Critical Risks</span>
-                <span className={styles.summaryValue}>{risks.filter(r => r.riskLevel === "Critical").length}</span>
-              </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Identified Risks</span>
-                <span className={styles.summaryValue}>{risks.filter(r => r.status === "Identified").length}</span>
-              </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Overdue Risks</span>
-                <span className={styles.summaryValue}>{risks.filter(r => new Date(r.dueDate) < new Date() && r.status !== "Closed").length}</span>
-              </div>
-            </div>
-
-            {showAddRisk && (
+            {showAddLessonForm && (
               <div className={styles.invoiceForm}>
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
-                    <label>Risk Description</label>
+                    <label>Topic *</label>
                     <input
                       type="text"
                       className={styles.formInput}
-                      value={newRisk.riskDescription}
-                      onChange={(e) => setNewRisk({ ...newRisk, riskDescription: e.target.value })}
-                      placeholder="Describe the risk"
+                      value={newLessonLearned.topic}
+                      onChange={(e) => setNewLessonLearned({ ...newLessonLearned, topic: e.target.value })}
+                      placeholder="Enter topic"
+                      required
                     />
                   </div>
                   <div className={styles.formField}>
-                    <label>Category</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newRisk.category}
-                      onChange={(e) => setNewRisk({ ...newRisk, category: e.target.value as RiskEntry["category"] })}
-                    >
-                      <option value="Technical">Technical</option>
-                      <option value="Financial">Financial</option>
-                      <option value="Schedule">Schedule</option>
-                      <option value="Resource">Resource</option>
-                      <option value="External">External</option>
-                      <option value="Safety">Safety</option>
-                      <option value="Environmental">Environmental</option>
-                      <option value="Regulatory">Regulatory</option>
-                      <option value="Quality">Quality</option>
-                      <option value="Procurement">Procurement</option>
-                    </select>
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Probability</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newRisk.probability}
-                      onChange={(e) => {
-                        const probability = e.target.value as RiskEntry["probability"];
-                        setNewRisk({ 
-                          ...newRisk, 
-                          probability,
-                          riskLevel: calculateRiskLevel(probability, newRisk.impact!)
-                        });
-                      }}
-                    >
-                      <option value="Very Low">Very Low (0.1)</option>
-                      <option value="Low">Low (0.3)</option>
-                      <option value="Medium">Medium (0.5)</option>
-                      <option value="High">High (0.7)</option>
-                      <option value="Very High">Very High (0.9)</option>
-                    </select>
-                  </div>
-                  <div className={styles.formField}>
-                    <label>Impact</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newRisk.impact}
-                      onChange={(e) => {
-                        const impact = e.target.value as RiskEntry["impact"];
-                        setNewRisk({ 
-                          ...newRisk, 
-                          impact,
-                          riskLevel: calculateRiskLevel(newRisk.probability!, impact)
-                        });
-                      }}
-                    >
-                      <option value="Very Low">Very Low</option>
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="High">High</option>
-                      <option value="Very High">Very High</option>
-                    </select>
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Mitigation Strategy</label>
+                    <label>Experience *</label>
                     <input
                       type="text"
                       className={styles.formInput}
-                      value={newRisk.mitigation}
-                      onChange={(e) => setNewRisk({ ...newRisk, mitigation: e.target.value })}
-                      placeholder="Primary mitigation approach"
+                      value={newLessonLearned.experience}
+                      onChange={(e) => setNewLessonLearned({ ...newLessonLearned, experience: e.target.value })}
+                      placeholder="Enter experience"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Impact & Recurrence *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newLessonLearned.impactRecurrence}
+                      onChange={(e) => setNewLessonLearned({ ...newLessonLearned, impactRecurrence: e.target.value })}
+                      placeholder="Enter impact and recurrence"
+                      required
+                    />
+                  </div>
+                  <div className={styles.formField}>
+                    <label>Lessons Learned *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newLessonLearned.lessonLearned}
+                      onChange={(e) => setNewLessonLearned({ ...newLessonLearned, lessonLearned: e.target.value })}
+                      placeholder="Enter lessons learned"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Best Practice *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newLessonLearned.bestPractice}
+                      onChange={(e) => setNewLessonLearned({ ...newLessonLearned, bestPractice: e.target.value })}
+                      placeholder="Enter best practice"
+                      required
+                    />
+                  </div>
+                  <div className={styles.formField}>
+                    <label>Assigned To *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newLessonLearned.assignedTo}
+                      onChange={(e) => setNewLessonLearned({ ...newLessonLearned, assignedTo: e.target.value })}
+                      placeholder="Enter assigned person"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formActions}>
+                  <button
+                    className={styles.saveInvoiceButton}
+                    onClick={handleAddLessonLearned}
+                    disabled={loadingLessons}
+                  >
+                    {loadingLessons ? "Saving..." : "Save Lesson Learned"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddLessonForm(false)}
+                    style={{ marginLeft: "10px", background: "#ccc" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className={styles.tableContainer}>
+              <table className={styles.actualsTable}>
+                <thead>
+                  <tr>
+                    <th>Topic</th>
+                    <th>Experience</th>
+                    <th>Impact & Recurrence</th>
+                    <th>Lessons Learned</th>
+                    <th>Best Practice</th>
+                    <th>Assigned To</th>
+                    <th style={{ width: "120px" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadingLessons ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: "center", padding: "20px" }}>
+                        Loading lessons learned...
+                      </td>
+                    </tr>
+                  ) : lessonsLearned.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: "center", padding: "20px" }}>
+                        No lessons learned found. Add your first lesson!
+                      </td>
+                    </tr>
+                  ) : (
+                    lessonsLearned.map((item) => (
+                      <tr key={item.id}>
+                        {editingLessonId === item.id && currentEditingLesson ? (
+                          // Edit Mode
+                          <>
+                            <td><input type="text" value={currentEditingLesson.topic} onChange={(e) => handleChangeEditingLesson(e, "topic")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingLesson.experience} onChange={(e) => handleChangeEditingLesson(e, "experience")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingLesson.impactRecurrence} onChange={(e) => handleChangeEditingLesson(e, "impactRecurrence")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingLesson.lessonLearned} onChange={(e) => handleChangeEditingLesson(e, "lessonLearned")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingLesson.bestPractice} onChange={(e) => handleChangeEditingLesson(e, "bestPractice")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingLesson.assignedTo} onChange={(e) => handleChangeEditingLesson(e, "assignedTo")} className={styles.formInput} /></td>
+                            <td className={styles.actionsCell}>
+                              <button onClick={() => handleUpdateLessonLearned(item.id)} className={styles.actionButton} disabled={loadingLessons}>Save</button>
+                              <button onClick={handleCancelEditLesson} className={styles.actionButton} disabled={loadingLessons}>Cancel</button>
+                            </td>
+                          </>
+                        ) : (
+                          // View Mode
+                          <>
+                            <td style={{ fontWeight: "600" }}>{item.topic}</td>
+                            <td>{item.experience}</td>
+                            <td>{item.impactRecurrence}</td>
+                            <td>{item.lessonLearned}</td>
+                            <td>{item.bestPractice}</td>
+                            <td>{item.assignedTo}</td>
+                            <td className={styles.actionsCell}>
+                              <button onClick={() => handleEditLesson(item)} className={styles.actionButton}>Edit</button>
+                              <button onClick={() => handleDeleteLesson(item.id)} className={styles.actionButton} style={{ background: "#dc3545" }}>Delete</button>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Conditional rendering for Risk Register Tab */}
+      {activeTab === "riskRegister" && (
+        <div className={styles.actualsSection}>
+          {errorRisks && (
+            <div
+              style={{
+                background: "#fee", color: "#c33", padding: "10px",
+                marginBottom: "20px", borderRadius: "4px", border: "1px solid #fcc",
+              }}
+            >
+              {errorRisks}
+            </div>
+          )}
+
+          <div className={styles.fieldGroup}>
+            <div className={styles.actualsHeader}>
+              <label>Risk Register</label>
+              <button
+                className={styles.addInvoiceButton}
+                onClick={() => setShowAddRiskForm(!showAddRiskForm)}
+                disabled={loadingRisks}
+              >
+                {loadingRisks ? "Loading..." : showAddRiskForm ? "Cancel" : "Add Risk"}
+              </button>
+            </div>
+
+            {showAddRiskForm && (
+              <div className={styles.invoiceForm}>
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Risk ID *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newRiskItem.riskId}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, riskId: e.target.value })}
+                      placeholder="Enter Risk ID"
+                      required
+                    />
+                  </div>
+                  <div className={styles.formField}>
+                    <label>Risk Description *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newRiskItem.riskDescription}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, riskDescription: e.target.value })}
+                      placeholder="Enter description"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Category *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newRiskItem.category}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, category: e.target.value })}
+                      placeholder="Enter category"
+                      required
+                    />
+                  </div>
+                  <div className={styles.formField}>
+                    <label>Impact *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newRiskItem.impact}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, impact: e.target.value })}
+                      placeholder="Enter impact"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Likelihood *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newRiskItem.likelihood}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, likelihood: e.target.value })}
+                      placeholder="Enter likelihood"
+                      required
+                    />
+                  </div>
+                  <div className={styles.formField}>
+                    <label>Owner *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newRiskItem.owner}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, owner: e.target.value })}
+                      placeholder="Enter owner"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formField}>
+                    <label>Mitigation Plan *</label>
+                    <input
+                      type="text"
+                      className={styles.formInput}
+                      value={newRiskItem.mitigationPlan}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, mitigationPlan: e.target.value })}
+                      placeholder="Enter mitigation plan"
+                      required
                     />
                   </div>
                   <div className={styles.formField}>
@@ -413,72 +787,65 @@ export default function DeliveryTab({ project: _project }: Props) {
                     <input
                       type="text"
                       className={styles.formInput}
-                      value={newRisk.contingency}
-                      onChange={(e) => setNewRisk({ ...newRisk, contingency: e.target.value })}
-                      placeholder="Backup plan if mitigation fails"
+                      value={newRiskItem.contingencyPlan || ""}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, contingencyPlan: e.target.value })}
+                      placeholder="Enter contingency plan (optional)"
                     />
                   </div>
                 </div>
+
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
-                    <label>Risk Owner</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newRisk.owner}
-                      onChange={(e) => setNewRisk({ ...newRisk, owner: e.target.value })}
-                      placeholder="Who owns this risk?"
-                    />
-                  </div>
-                  <div className={styles.formField}>
-                    <label>Response Strategy</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newRisk.responseStrategy}
-                      onChange={(e) => setNewRisk({ ...newRisk, responseStrategy: e.target.value as RiskEntry["responseStrategy"] })}
-                    >
-                      <option value="Avoid">Avoid</option>
-                      <option value="Mitigate">Mitigate</option>
-                      <option value="Transfer">Transfer</option>
-                      <option value="Accept">Accept</option>
-                    </select>
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Due Date</label>
+                    <label>Date Identified *</label>
                     <input
                       type="date"
                       className={styles.formInput}
-                      value={newRisk.dueDate}
-                      onChange={(e) => setNewRisk({ ...newRisk, dueDate: e.target.value })}
+                      value={newRiskItem.dateIdentified}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, dateIdentified: e.target.value })}
+                      required
                     />
                   </div>
+                  <div className={styles.formField}>
+                    <label>Date Closed</label>
+                    <input
+                      type="date"
+                      className={styles.formInput}
+                      value={newRiskItem.dateClosed ? formatDateForInput(newRiskItem.dateClosed) : ""}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, dateClosed: e.target.value || null })}
+                      min={newRiskItem.dateIdentified}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
                   <div className={styles.formField}>
                     <label>Status</label>
                     <select
                       className={styles.formSelect}
-                      value={newRisk.status}
-                      onChange={(e) => setNewRisk({ ...newRisk, status: e.target.value as RiskEntry["status"] })}
+                      value={newRiskItem.status}
+                      onChange={(e) => setNewRiskItem({ ...newRiskItem, status: e.target.value as RiskItem["status"] })}
                     >
-                      <option value="Identified">Identified</option>
-                      <option value="Assessed">Assessed</option>
-                      <option value="Planned">Planned</option>
-                      <option value="Monitoring">Monitoring</option>
+                      <option value="Open">Open</option>
+                      <option value="Mitigated">Mitigated</option>
                       <option value="Closed">Closed</option>
-                      <option value="Escalated">Escalated</option>
                     </select>
                   </div>
-                  <div className={styles.formField}>
-                    <label>Calculated Risk Level</label>
-                    <div className={`${styles.fieldValue} ${getRiskLevelColor(newRisk.riskLevel!)}`}>
-                      {calculateRiskLevel(newRisk.probability!, newRisk.impact!)}
-                    </div>
-                  </div>
                 </div>
+
                 <div className={styles.formActions}>
-                  <button className={styles.saveInvoiceButton} onClick={handleAddRisk}>
-                    Save Risk
+                  <button
+                    className={styles.saveInvoiceButton}
+                    onClick={handleAddRiskItem}
+                    disabled={loadingRisks}
+                  >
+                    {loadingRisks ? "Saving..." : "Save Risk"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddRiskForm(false)}
+                    style={{ marginLeft: "10px", background: "#ccc" }}
+                  >
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -489,273 +856,94 @@ export default function DeliveryTab({ project: _project }: Props) {
                 <thead>
                   <tr>
                     <th>Risk ID</th>
-                    <th>Risk Description</th>
-                    <th>Category</th>
-                    <th>Probability</th>
-                    <th>Impact</th>
-                    <th>Risk Score</th>
-                    <th>Risk Level</th>
-                    <th>Mitigation Strategy</th>
-                    <th>Contingency Plan</th>
-                    <th>Response Strategy</th>
-                    <th>Risk Owner</th>
-                    <th>Status</th>
-                    <th>Target Date</th>
-                    <th>Last Updated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {risks.map((risk) => (
-                    <tr key={risk.id}>
-                      <td style={{ fontWeight: '600', color: '#007bff' }}>{risk.id}</td>
-                      <td style={{ maxWidth: '200px', fontSize: '12px' }}>{risk.riskDescription}</td>
-                      <td>
-                        <span style={{ 
-                          backgroundColor: '#e9ecef', 
-                          padding: '2px 6px', 
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {risk.category}
-                        </span>
-                      </td>
-                      <td>
-                        <span style={{ 
-                          backgroundColor: risk.probability === 'Very High' || risk.probability === 'High' ? '#fff3cd' : '#d1ecf1',
-                          color: risk.probability === 'Very High' || risk.probability === 'High' ? '#856404' : '#0c5460',
-                          padding: '2px 6px', 
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {risk.probability}
-                        </span>
-                      </td>
-                      <td>
-                        <span style={{ 
-                          backgroundColor: risk.impact === 'Very High' || risk.impact === 'High' ? '#f8d7da' : '#d4edda',
-                          color: risk.impact === 'Very High' || risk.impact === 'High' ? '#721c24' : '#155724',
-                          padding: '2px 6px', 
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {risk.impact}
-                        </span>
-                      </td>
-                      <td style={{ fontWeight: '600', textAlign: 'center' }}>
-                        {(() => {
-                          const probValue = { "Very Low": 1, "Low": 2, "Medium": 3, "High": 4, "Very High": 5 }[risk.probability] || 1;
-                          const impactValue = { "Very Low": 1, "Low": 2, "Medium": 3, "High": 4, "Very High": 5 }[risk.impact] || 1;
-                          return probValue * impactValue;
-                        })()}
-                      </td>
-                      <td>
-                        <span className={getRiskLevelColor(risk.riskLevel)}>
-                          {risk.riskLevel}
-                        </span>
-                      </td>
-                      <td style={{ maxWidth: '150px', fontSize: '12px' }}>{risk.mitigation}</td>
-                      <td style={{ maxWidth: '150px', fontSize: '12px' }}>{risk.contingency}</td>
-                      <td>
-                        <span style={{ 
-                          backgroundColor: '#f8f9fa',
-                          border: '1px solid #dee2e6',
-                          padding: '2px 6px', 
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {risk.responseStrategy}
-                        </span>
-                      </td>
-                      <td style={{ fontWeight: '500' }}>{risk.owner}</td>
-                      <td>
-                        <span style={{ 
-                          backgroundColor: risk.status === 'Closed' ? '#d4edda' : risk.status === 'Escalated' ? '#f8d7da' : '#fff3cd',
-                          color: risk.status === 'Closed' ? '#155724' : risk.status === 'Escalated' ? '#721c24' : '#856404',
-                          padding: '2px 6px', 
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {risk.status}
-                        </span>
-                      </td>
-                      <td style={{ fontSize: '12px' }}>{risk.dueDate}</td>
-                      <td style={{ fontSize: '12px' }}>{risk.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Lessons Learned Tab */}
-      {activeSubTab === "Lessons Learned" && (
-        <div className={styles.actualsSection}>
-          <div className={styles.fieldGroup}>
-            <div className={styles.actualsHeader}>
-              <label>Lessons Learned Log</label>
-              <button 
-                className={styles.addInvoiceButton} 
-                onClick={() => setShowAddLesson(!showAddLesson)}
-              >
-                Add Lesson
-              </button>
-            </div>
-
-            {/* Lessons Summary */}
-            <div className={styles.summaryCard}>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Total Lessons</span>
-                <span className={styles.summaryValue}>{lessons.length}</span>
-              </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Positive Lessons</span>
-                <span className={styles.summaryValue}>{lessons.filter(l => l.impact === "Positive").length}</span>
-              </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>Negative Lessons</span>
-                <span className={styles.summaryValue}>{lessons.filter(l => l.impact === "Negative").length}</span>
-              </div>
-              <div className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>High Priority</span>
-                <span className={styles.summaryValue}>{lessons.filter(l => l.priority === "High").length}</span>
-              </div>
-            </div>
-
-            {showAddLesson && (
-              <div className={styles.invoiceForm}>
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Title</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newLesson.title}
-                      onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
-                      placeholder="Brief title of the lesson"
-                    />
-                  </div>
-                  <div className={styles.formField}>
-                    <label>Category</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newLesson.category}
-                      onChange={(e) => setNewLesson({ ...newLesson, category: e.target.value as LessonEntry["category"] })}
-                    >
-                      <option value="Process">Process</option>
-                      <option value="Technical">Technical</option>
-                      <option value="Communication">Communication</option>
-                      <option value="Planning">Planning</option>
-                      <option value="Resource Management">Resource Management</option>
-                    </select>
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Description</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newLesson.description}
-                      onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
-                      placeholder="Detailed description of what happened"
-                    />
-                  </div>
-                  <div className={styles.formField}>
-                    <label>Impact</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newLesson.impact}
-                      onChange={(e) => setNewLesson({ ...newLesson, impact: e.target.value as LessonEntry["impact"] })}
-                    >
-                      <option value="Positive">Positive</option>
-                      <option value="Negative">Negative</option>
-                    </select>
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Recommendation</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newLesson.recommendation}
-                      onChange={(e) => setNewLesson({ ...newLesson, recommendation: e.target.value })}
-                      placeholder="What should be done differently next time?"
-                    />
-                  </div>
-                  <div className={styles.formField}>
-                    <label>Documented By</label>
-                    <input
-                      type="text"
-                      className={styles.formInput}
-                      value={newLesson.documentedBy}
-                      onChange={(e) => setNewLesson({ ...newLesson, documentedBy: e.target.value })}
-                      placeholder="Who documented this lesson?"
-                    />
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formField}>
-                    <label>Priority</label>
-                    <select
-                      className={styles.formSelect}
-                      value={newLesson.priority}
-                      onChange={(e) => setNewLesson({ ...newLesson, priority: e.target.value as LessonEntry["priority"] })}
-                    >
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="High">High</option>
-                    </select>
-                  </div>
-                </div>
-                <div className={styles.formActions}>
-                  <button className={styles.saveInvoiceButton} onClick={handleAddLesson}>
-                    Save Lesson
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className={styles.tableContainer}>
-              <table className={styles.actualsTable}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Category</th>
                     <th>Description</th>
+                    <th>Category</th>
                     <th>Impact</th>
-                    <th>Recommendation</th>
-                    <th>Priority</th>
-                    <th>Documented By</th>
-                    <th>Date</th>
+                    <th>Likelihood</th>
+                    <th>Score</th>
+                    <th>Mitigation Plan</th>
+                    <th>Contingency Plan</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Date Identified</th>
+                    <th>Date Closed</th>
+                    <th style={{ width: "120px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {lessons.map((lesson) => (
-                    <tr key={lesson.id}>
-                      <td style={{ fontWeight: '600' }}>{lesson.id}</td>
-                      <td>{lesson.title}</td>
-                      <td>{lesson.category}</td>
-                      <td>{lesson.description}</td>
-                      <td>
-                        <span className={getImpactColor(lesson.impact)}>
-                          {lesson.impact}
-                        </span>
+                  {loadingRisks ? (
+                    <tr>
+                      <td colSpan={13} style={{ textAlign: "center", padding: "20px" }}>
+                        Loading risk register...
                       </td>
-                      <td>{lesson.recommendation}</td>
-                      <td>{lesson.priority}</td>
-                      <td>{lesson.documentedBy}</td>
-                      <td>{lesson.date}</td>
                     </tr>
-                  ))}
+                  ) : riskItems.length === 0 ? (
+                    <tr>
+                      <td colSpan={13} style={{ textAlign: "center", padding: "20px" }}>
+                        No risks found. Add your first risk!
+                      </td>
+                    </tr>
+                  ) : (
+                    riskItems.map((item) => (
+                      <tr key={item.id}>
+                        {editingRiskId === item.id && currentEditingRisk ? (
+                          // Edit Mode for Risk Register
+                          <>
+                            <td><input type="text" value={currentEditingRisk.riskId} onChange={(e) => handleChangeEditingRisk(e, "riskId")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingRisk.riskDescription} onChange={(e) => handleChangeEditingRisk(e, "riskDescription")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingRisk.category} onChange={(e) => handleChangeEditingRisk(e, "category")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingRisk.impact} onChange={(e) => handleChangeEditingRisk(e, "impact")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingRisk.likelihood} onChange={(e) => handleChangeEditingRisk(e, "likelihood")} className={styles.formInput} /></td>
+                            <td>{currentEditingRisk.riskScore}</td> {/* Risk score is calculated, not directly editable here */}
+                            <td><input type="text" value={currentEditingRisk.mitigationPlan} onChange={(e) => handleChangeEditingRisk(e, "mitigationPlan")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingRisk.contingencyPlan || ""} onChange={(e) => handleChangeEditingRisk(e, "contingencyPlan")} className={styles.formInput} /></td>
+                            <td><input type="text" value={currentEditingRisk.owner} onChange={(e) => handleChangeEditingRisk(e, "owner")} className={styles.formInput} /></td>
+                            <td>
+                              <select
+                                value={currentEditingRisk.status}
+                                onChange={(e) => handleChangeEditingRisk(e, "status")}
+                                className={styles.formSelect}
+                              >
+                                <option value="Open">Open</option>
+                                <option value="Mitigated">Mitigated</option>
+                                <option value="Closed">Closed</option>
+                              </select>
+                            </td>
+                            <td><input type="date" value={formatDateForInput(currentEditingRisk.dateIdentified)} onChange={(e) => handleChangeEditingRisk(e, "dateIdentified")} className={styles.formInput} /></td>
+                            <td><input type="date" value={formatDateForInput(currentEditingRisk.dateClosed)} onChange={(e) => handleChangeEditingRisk(e, "dateClosed")} className={styles.formInput} /></td>
+                            <td className={styles.actionsCell}>
+                              <button onClick={() => handleUpdateRiskItem(item.id)} className={styles.actionButton} disabled={loadingRisks}>Save</button>
+                              <button onClick={handleCancelEditRisk} className={styles.actionButton} disabled={loadingRisks}>Cancel</button>
+                            </td>
+                          </>
+                        ) : (
+                          // View Mode for Risk Register
+                          <>
+                            <td style={{ fontWeight: "600" }}>{item.riskId}</td>
+                            <td>{item.riskDescription}</td>
+                            <td>{item.category}</td>
+                            <td>{item.impact}</td>
+                            <td>{item.likelihood}</td>
+                            <td>{item.riskScore}</td>
+                            <td>{item.mitigationPlan}</td>
+                            <td>{item.contingencyPlan}</td>
+                            <td>{item.owner}</td>
+                            <td>
+                              <span className={`${styles.statusDisplay} ${getRiskStatusClass(item.status)}`}>
+                                {item.status}
+                              </span>
+                            </td>
+                            <td>{formatDateForDisplay(item.dateIdentified)}</td>
+                            <td>{formatDateForDisplay(item.dateClosed)}</td>
+                            <td className={styles.actionsCell}>
+                              <button onClick={() => handleEditRisk(item)} className={styles.actionButton}>Edit</button>
+                              <button onClick={() => handleDeleteRisk(item.id)} className={styles.actionButton} style={{ background: "#dc3545" }}>Delete</button>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
