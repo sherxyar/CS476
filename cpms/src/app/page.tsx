@@ -8,7 +8,7 @@ import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
 import { Building2 } from 'lucide-react';
-import { Search } from 'lucide-react';
+import { Search, House } from 'lucide-react';
 
 
 
@@ -124,7 +124,10 @@ const Home: NextPage = () => {
             <span className={styles.logoText}>InfraPro</span>
           </div>
           <ul>
-            <li className={styles.active}><span className={styles.logoIcon}>🏠</span>HOME</li>
+            <li className={styles.active}>
+              <span className={styles.homeIcon}><House /></span>
+              <span style={{ fontSize: "0.9em" }}>HOME</span>
+            </li>
           </ul>
         </nav>
       </div>

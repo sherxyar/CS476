@@ -79,9 +79,8 @@ export default function AdministrationTab({ project: _project }: Props) {
   const getAccessLevelColor = (level: string) => {
     switch (level) {
       case "Admin": return styles.statusNotPaid;
-      case "Manager": return styles.statusInProgress;
+      case "Project Manager": return styles.statusInProgress;
       case "Contributor": return styles.statusClosed;
-      case "Viewer": return styles.statusPaid;
       default: return "";
     }
   };

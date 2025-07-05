@@ -300,3 +300,10 @@
   font-weight: 700;
   font-size: 1.5rem;
 }
+
+.homeIcon {
+  width: 2.0rem;
+  height: 1.5rem;
+  stroke-width: 2;
+  color: rgba(255, 255, 255, 0.709);
+}
