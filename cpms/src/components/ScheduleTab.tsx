@@ -8,6 +8,7 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
+  X,
 } from 'lucide-react';
 
 type Milestone = {
@@ -282,7 +283,7 @@ export default function ScheduleTab({ project }: Props) {
               onClick={() => setShowAddMilestone(!showAddMilestone)}
               disabled={loading}
             >
-              {loading ? "Loading..." : showAddMilestone ? "Cancel" : "Add Milestone"}
+              {loading ? "Loading..." : showAddMilestone ? "Add Milestone" : "Add Milestone"}
             </button>
           </div>
 
@@ -367,6 +368,7 @@ export default function ScheduleTab({ project }: Props) {
               </div>
 
               <div className={styles.formActions}>
+                {/* Save button */}
                 <button
                   className={styles.saveInvoiceButton}
                   onClick={handleAddMilestone}
@@ -374,13 +376,18 @@ export default function ScheduleTab({ project }: Props) {
                 >
                   {loading ? "Saving..." : "Save Milestone"}
                 </button>
+
+                {/* Cancel button */}
                 <button
                   type="button"
                   onClick={() => setShowAddMilestone(false)}
-                  style={{ marginLeft: "10px", background: "#ccc" }}
+                  className={styles.cancelInvoiceButton}
                 >
+               
                   Cancel
                 </button>
+
+
               </div>
             </div>
           )}
