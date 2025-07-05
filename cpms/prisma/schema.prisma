@@ -13,7 +13,7 @@ model User {
   email            String                  @unique
   hashedPassword   String
   role             Role
-  mfaCodes         MFAcode[]
+  mfaCodes         Mfacode[]
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
   notes            PMNote[]
   projects         Project[]               @relation("ManagerProjects")
@@ -22,7 +22,7 @@ model User {
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
 }
 
-model MFAcode {
+model Mfacode {
   id          Int @id @default(autoincrement())
   userId      Int
   code        String
