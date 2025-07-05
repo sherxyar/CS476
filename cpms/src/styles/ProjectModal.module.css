@@ -721,3 +721,39 @@
   font-weight: 700;
   font-size: 1.5rem;
 }
+
+/* new milestones icons */
+.statusCell {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem; 
+}
+
+
+/* Actuals progress bar styles */
+
+.progressWrap {
+  margin-top: 0.75rem;         
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background: #e5e7eb;          
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: #16a34a;         
+  transition: width 0.3s ease;
+}
+
+.progressLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+}

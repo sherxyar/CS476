@@ -75,7 +75,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
       setProject(updated);
       onProjectUpdate(updated);
       alert("Project saved.");
-      changeHandlersRef.current = []; // reset staged callbacks
+      changeHandlersRef.current = []; 
     } catch (err) {
       console.error(err);
       alert("Failed to save project.");
