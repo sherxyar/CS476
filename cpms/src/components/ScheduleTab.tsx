@@ -323,23 +323,9 @@ export default function ScheduleTab({ project }: Props) {
                 </div>
               </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formField}>
-                  <label>Description *</label>
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    value={newMilestone.description}
-                    onChange={(e) =>
-                      setNewMilestone({ ...newMilestone, description: e.target.value })
-                    }
-                    placeholder="Enter description"
-                    required
-                  />
-                </div>
-              </div>
 
               <div className={styles.formRow}>
+                {/*  Start - End  */}
                 <div className={styles.formField}>
                   <label>Start Date *</label>
                   <input
@@ -352,6 +338,7 @@ export default function ScheduleTab({ project }: Props) {
                     required
                   />
                 </div>
+
                 <div className={styles.formField}>
                   <label>End Date *</label>
                   <input
@@ -365,6 +352,21 @@ export default function ScheduleTab({ project }: Props) {
                     required
                   />
                 </div>
+
+                <div className={`${styles.formField} ${styles.fullWidthField}`}>
+                  <label>Description *</label>
+                  <textarea                 /* ← changed element */
+                    className={styles.formTextarea}   /* new class */
+                    rows={3}                          /* default height */
+                    value={newMilestone.description}
+                    onChange={(e) =>
+                      setNewMilestone({ ...newMilestone, description: e.target.value })
+                    }
+                    placeholder="Enter description"
+                    required
+                  />
+                </div>
+
               </div>
 
               <div className={styles.formActions}>
@@ -383,7 +385,7 @@ export default function ScheduleTab({ project }: Props) {
                   onClick={() => setShowAddMilestone(false)}
                   className={styles.cancelInvoiceButton}
                 >
-               
+
                   Cancel
                 </button>
 

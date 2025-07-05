@@ -696,19 +696,55 @@
   gap: 0.5rem;
 }
 
-.addNoteButton {
-  background: var(--clr-accent);
-  color: #010101;
-  border: 1px solid #000000;
-  padding: 0.35rem 0.75rem;
-  border-radius: 4px;
+.noteActionButton {
+  display: inline-flex;
+  /* icon + text sit on one line */
+  align-items: center;
+  gap: 4px;
+  /* spacing between icon & text */
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.addNoteButton:hover {
-  opacity: 0.7;
+.addNoteButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
+.cancelNoteButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  background: #6c757d;
+  color: #fff;
+}
+
+
+
+.cancelNoteButton:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
 
 .addNoteDialog {
   margin-top: 0.75rem;
@@ -789,4 +825,30 @@
 .progressLabel {
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.fullWidthField {
+  flex: 1 1 100%;
+  grid-column: 1 / span 2;
+}
+
+
+/* for description and notes textareas */
+.formTextarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+  transition: all 0.2s ease;
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.4;
+}
+
+.formTextarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
