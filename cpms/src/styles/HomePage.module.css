@@ -11,7 +11,7 @@
 .sidebar {
   width: 180px;
   height: 100vh;
-  background-color: #0b2c68;
+  background-color: #000000ec;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,7 +46,7 @@
 
 .sidebar nav ul li:hover,
 .sidebar nav ul li.active {
-  background-color: #1e3d6e;
+  background-color: #0a1221d6;
   color: white;
 }
 
@@ -64,7 +64,7 @@
   top: 0;
   right: 0;
   height: 70px;
-  background-color: #0b2c68;
+    background-color: #070606;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -136,9 +136,9 @@
   gap: 0.75rem;
 }
 
-.topbarButton {
+.topbarButton {       
   background-color: white;
-  color: #0b2c68;
+  color: #010202;
   padding: 6px 12px;
   font-size: 14px;
   border-radius: 6px;

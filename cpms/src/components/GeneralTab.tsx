@@ -173,7 +173,7 @@ export default function GeneralTab({
               placeholder="Type your note here…"
             />
             <div className={styles.dialogButtons}>
-              <button onClick={handleSaveNote} className={styles.saveNoteButton}>Save note</button>
+              <button onClick={handleSaveNote} className={styles.addNoteButton}>Save note</button>
               <button onClick={() => setShowAdd(false)} className={styles.cancelNoteButton}>Cancel</button>
             </div>
           </div>
