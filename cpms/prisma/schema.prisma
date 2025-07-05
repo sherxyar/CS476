@@ -12,12 +12,22 @@ model User {
   name             String
   email            String                  @unique
   hashedPassword   String
+  role             Role
+  mfaCodes         MFAcode[]
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
   notes            PMNote[]
   projects         Project[]               @relation("ManagerProjects")
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
+}
+
+model MFAcode {
+  id          Int @id @default(autoincrement())
+  userId      Int
+  code        String
+  validUntil  DateTime
+  user        User  @relation(fields: [userId], references: [id])
 }
 
 model Project {
@@ -106,4 +116,10 @@ model TabAccessRequest {
 
   user     User  @relation("RequestUser", fields: [userId], references: [id])
   approver User? @relation("ApproveUser", fields: [approvedBy], references: [id])
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  COLLABORATOR
 }
