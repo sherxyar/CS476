@@ -9,6 +9,7 @@ import ScheduleTab from "./ScheduleTab";
 import ChangeLogTab from "./ChangeLogTab";
 import AdministrationTab from "./AdministrationTab";
 import type { Project } from "@/types/Project";
+import { SquareX } from "lucide-react"; 
 
 /* Types */
 
@@ -138,9 +139,17 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
         {/* Header */}
         <div className={styles.header}>
           <h2>{project.title}</h2>
-          <button className={styles.closeButton} onClick={onClose}>\
-          {  /* TODO: We need to add a close icon here */}
-            X
+          <button
+            className={styles.closeButton}
+            onClick={onClose}
+            title="Close"
+            aria-label="Close"
+          >
+          <SquareX
+            aria-hidden="true"
+            className={styles.logoIcon}
+            strokeWidth={2}    
+          />
           </button>
         </div>
 

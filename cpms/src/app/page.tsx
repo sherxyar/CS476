@@ -7,6 +7,9 @@ import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
+import { Building2 } from 'lucide-react';
+import { Search } from 'lucide-react';
+
 
 
 const Home: NextPage = () => {
@@ -19,19 +22,19 @@ const Home: NextPage = () => {
     fetchProjects();
   }, []);
 
-const fetchProjects = async () => {
-  try {
-    const res = await fetch("/api/projects");
-    if (!res.ok) {
-      const text = await res.text();  
-      throw new Error(`status ${res.status} , ${text}`);
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch("/api/projects");
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`status ${res.status} , ${text}`);
+      }
+      const data = await res.json();
+      setProjects(data);
+    } catch (err) {
+      console.error("Project fetch failed:", err);
     }
-    const data = await res.json();
-    setProjects(data);
-  } catch (err) {
-    console.error("Project fetch failed:", err);
-  }
-};
+  };
 
   const openProject = async (p: Project) => {
     try {
@@ -103,23 +106,41 @@ const fetchProjects = async () => {
   return (
     <>
       <Head>
-        <title>InfraPro - Home</title>
+        <title>InfraPro - Home </title>
         <meta name="description" content="InfraPro Project Management Dashboard" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <div className={styles.sidebar}>
-        <img src="/InfraProLogo.png" alt="Logo" className={styles.sidebarLogo} />
+        {/* <img src="/icons/InfraPro_Icon.png" alt="Logo" className={styles.sidebarLogo} /> */}
         <nav>
+          <div className={styles.logoWrap}>
+            { }
+            <Building2
+              aria-hidden="true"
+              className={styles.logoIcon}
+              strokeWidth={2}
+            />
+            <span className={styles.logoText}>InfraPro</span>
+          </div>
           <ul>
-            <li className={styles.active}><span className={styles.icon}>🏠</span>HOME</li>
+            <li className={styles.active}><span className={styles.logoIcon}>🏠</span>HOME</li>
           </ul>
         </nav>
       </div>
 
       <div className={styles.topbar}>
-        <div className={styles.logoText}>InfraPro</div>
-        <input type="text" className={styles.searchBox} placeholder="Search" />
+
+        <div className={styles.outer}>          
+          <div className={styles.inner}>       
+            <Search aria-hidden className={styles.icon} size={16} />
+            <input
+              type="text"
+              placeholder="Search…"
+              className={styles.searchBox}
+            />
+          </div>
+        </div>
         <div className={styles.topbarActions}>
           <a href="/signup" className={styles.topbarButton}>Sign Up</a>
           <a href="/login" className={styles.topbarButton}>Login</a>
@@ -152,11 +173,10 @@ const fetchProjects = async () => {
                     <td>{p.title}</td>
                     <td>
                       <span
-                        className={`${styles.status} ${
-                          p.phase.toLowerCase() === "planning"
-                            ? styles.planning
-                            : styles.construction
-                        }`}
+                        className={`${styles.status} ${p.phase.toLowerCase() === "planning"
+                          ? styles.planning
+                          : styles.construction
+                          }`}
                       />
                       {p.phase}
                     </td>
