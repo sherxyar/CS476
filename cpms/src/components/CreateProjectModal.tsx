@@ -40,7 +40,7 @@ const INITIAL_FORM: ProjectForm = {
   projectManagerId: "1", // default to user #1 while testing
   description: "",
   forecast: "",
-  actuals: "",
+  actuals: "0.00",
   budget: "",
   startDate: "",
   endDate: "",
@@ -108,7 +108,7 @@ export default function CreateProjectModal({
             <input
               ref={firstInputRef}
               name="title"
-              placeholder="Regina General Hospital Renovation"
+              placeholder="Sask General Hospital Renovation"
               value={form.title}
               onChange={handleChange}
               required
@@ -154,20 +154,6 @@ export default function CreateProjectModal({
                 step="0.01"
                 placeholder="0.00"
                 value={form.forecast}
-                onChange={handleChange}
-                required
-                inputMode="decimal"
-              />
-            </label>
-
-            <label className="field">
-              <span>Actuals </span>
-              <input
-                name="actuals"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={form.actuals}
                 onChange={handleChange}
                 required
                 inputMode="decimal"

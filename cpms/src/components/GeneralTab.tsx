@@ -6,7 +6,7 @@ import NotesModal from "./NotesModal";
 
 type Props = {
   project: Project;
-  onProjectUpdate: (project: Project) => void;              // parent refresh
+  onProjectUpdate: (project: Project) => void;              
   registerChangeHandler: (getChanges: () => Partial<Project>) => void;
 };
 
@@ -173,8 +173,8 @@ export default function GeneralTab({
               placeholder="Type your note here…"
             />
             <div className={styles.dialogButtons}>
-              <button onClick={handleSaveNote}>Save note</button>
-              <button onClick={() => setShowAdd(false)}>Cancel</button>
+              <button onClick={handleSaveNote} className={styles.addNoteButton}>Save note</button>
+              <button onClick={() => setShowAdd(false)} className={styles.cancelNoteButton}>Cancel</button>
             </div>
           </div>
         )}

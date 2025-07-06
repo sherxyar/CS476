@@ -9,7 +9,7 @@ type TeamMember = {
   name: string;
   role: string;
   email: string;
-  accessLevel: "Admin" | "Manager" | "Contributor" | "Viewer";
+  accessLevel: "Admin" | "Project Manager" | "Contributor";
   department: string;
   lastActivity: string;
 };
@@ -38,7 +38,7 @@ export default function AdministrationTab({ project: _project }: Props) {
       name: "Mike Johnson",
       role: "Lead Engineer",
       email: "mike.johnson@company.com",
-      accessLevel: "Manager",
+      accessLevel: "Project Manager",
       department: "Engineering",
       lastActivity: "1 day ago"
     },
@@ -56,7 +56,7 @@ export default function AdministrationTab({ project: _project }: Props) {
       name: "David Brown",
       role: "Stakeholder",
       email: "david.brown@client.com",
-      accessLevel: "Viewer",
+      accessLevel: "Contributor",
       department: "Client",
       lastActivity: "1 week ago"
     }
@@ -66,7 +66,7 @@ export default function AdministrationTab({ project: _project }: Props) {
     name: "",
     role: "",
     email: "",
-    accessLevel: "Viewer" as TeamMember["accessLevel"],
+    accessLevel: "Contributor" as TeamMember["accessLevel"],
     department: ""
   });
 
@@ -79,9 +79,8 @@ export default function AdministrationTab({ project: _project }: Props) {
   const getAccessLevelColor = (level: string) => {
     switch (level) {
       case "Admin": return styles.statusNotPaid;
-      case "Manager": return styles.statusInProgress;
+      case "Project Manager": return styles.statusInProgress;
       case "Contributor": return styles.statusClosed;
-      case "Viewer": return styles.statusPaid;
       default: return "";
     }
   };
@@ -98,7 +97,7 @@ export default function AdministrationTab({ project: _project }: Props) {
         name: "",
         role: "",
         email: "",
-        accessLevel: "Viewer",
+        accessLevel: "Contributor",
         department: ""
       });
       setShowAddMember(false);
@@ -114,33 +113,12 @@ export default function AdministrationTab({ project: _project }: Props) {
             <div className={styles.fieldValue}>Jane Smith</div>
           </div>
 
-          <div className={styles.fieldGroup}>
-            <label>Organization</label>
-            <div className={styles.fieldValue}>Infrastructure Development Corp</div>
-          </div>
-
-          <div className={styles.fieldGroup}>
-            <label>Project Category</label>
-            <div className={styles.fieldValue}>Infrastructure</div>
-          </div>
         </div>
 
         <div className={styles.rightColumn}>
           <div className={styles.fieldGroup}>
             <label>Total Team Members</label>
             <div className={styles.fieldValue}>{teamMembers.length}</div>
-          </div>
-
-          <div className={styles.fieldGroup}>
-            <label>Active Members</label>
-            <div className={styles.fieldValue}>
-              {teamMembers.filter(m => !m.lastActivity.includes("week")).length}
-            </div>
-          </div>
-
-          <div className={styles.fieldGroup}>
-            <label>Project Security Level</label>
-            <div className={styles.fieldValue}>Standard</div>
           </div>
         </div>
       </div>
@@ -235,9 +213,8 @@ export default function AdministrationTab({ project: _project }: Props) {
                     value={newMember.accessLevel}
                     onChange={(e) => setNewMember({ ...newMember, accessLevel: e.target.value as TeamMember["accessLevel"] })}
                   >
-                    <option value="Viewer">Viewer</option>
                     <option value="Contributor">Contributor</option>
-                    <option value="Manager">Manager</option>
+                    <option value="Project Manager">Project Manager</option>
                     <option value="Admin">Admin</option>
                   </select>
                 </div>
@@ -289,30 +266,6 @@ export default function AdministrationTab({ project: _project }: Props) {
       {/* Additional Administration Features */}
       <div className={styles.actualsSection}>
         <div className={styles.fieldGroup}>
-          <label>Project Administration</label>
-          <div className={styles.summaryCard}>
-            <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Backup Status</span>
-              <span className={styles.summaryValue}>Last backup: 2 hours ago</span>
-            </div>
-            <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Project Template</span>
-              <span className={styles.summaryValue}>Infrastructure Standard v2.1</span>
-            </div>
-            <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Notifications</span>
-              <span className={styles.summaryValue}>Email & In-App Enabled</span>
-            </div>
-            <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Integration Status</span>
-              <span className={styles.summaryValue}>Active (5 connected systems)</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.actualsSection}>
-        <div className={styles.fieldGroup}>
           <label>Quick Actions</label>
           <div className={styles.buttonGroup}>
             <button className={styles.viewDetailsButton}>
@@ -320,14 +273,7 @@ export default function AdministrationTab({ project: _project }: Props) {
             </button>
             <button className={styles.viewDetailsButton}>
               Audit Log
-            </button>
-            <button className={styles.viewDetailsButton}>
-              Risk Assessment
-            </button>
-            <button className={styles.viewDetailsButton}>
-              Resource Planning
-            </button>
-          </div>
+            </button>        </div>
         </div>
       </div>
 
@@ -353,9 +299,9 @@ export default function AdministrationTab({ project: _project }: Props) {
                   </span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Manager Access</span>
+                  <span className={styles.summaryLabel}>Project Manager Access</span>
                   <span className={styles.summaryValue}>
-                    {teamMembers.filter(m => m.accessLevel === "Manager").length} members
+                    {teamMembers.filter(m => m.accessLevel === "Project Manager").length} members
                   </span>
                 </div>
                 <div className={styles.summaryItem}>
@@ -364,12 +310,7 @@ export default function AdministrationTab({ project: _project }: Props) {
                     {teamMembers.filter(m => m.accessLevel === "Contributor").length} members
                   </span>
                 </div>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Viewer Access</span>
-                  <span className={styles.summaryValue}>
-                    {teamMembers.filter(m => m.accessLevel === "Viewer").length} members
-                  </span>
-                </div>
+               
               </div>
               
               <h4 style={{ marginTop: '24px', marginBottom: '16px' }}>Access Permissions</h4>
@@ -379,47 +320,41 @@ export default function AdministrationTab({ project: _project }: Props) {
                     <tr>
                       <th>Permission</th>
                       <th>Admin</th>
-                      <th>Manager</th>
+                      <th>Project Manager</th>
                       <th>Contributor</th>
-                      <th>Viewer</th>
                     </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>View Project</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                    </tr>
-                    <tr>
-                      <td>Edit Project Details</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                    </tr>
-                    <tr>
-                      <td>Manage Financials</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                      <td>✗</td>
-                    </tr>
-                    <tr>
-                      <td>Approve Changes</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                      <td>✗</td>
-                    </tr>
-                    <tr>
-                      <td>Manage Team Access</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                      <td>✗</td>
-                      <td>✗</td>
-                    </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>View Project</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                      </tr>
+                      <tr>
+                        <td>Edit Project Details</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✗</td>
+                      </tr>
+                      <tr>
+                        <td>Manage Financials</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✗</td>
+                      </tr>
+                      <tr>
+                        <td>Approve Changes</td>
+                        <td>✓</td>
+                        <td>✓</td>
+                        <td>✗</td>
+                      </tr>
+                      <tr>
+                        <td>Manage Team Access</td>
+                        <td>✓</td>
+                        <td>✗</td>
+                        <td>✗</td>
+                      </tr>
                   </tbody>
                 </table>
               </div>
