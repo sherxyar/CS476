@@ -89,6 +89,17 @@ export default function DeliveryTab({ project }: Props) {
     currentLikelihood: 1,
   });
 
+  const [showLessonModal, setShowLessonModal] = useState(false);
+  const [savingLesson, setSavingLesson] = useState(false);
+  const [newLesson, setNewLesson] = useState({
+    topic: "",
+    experience: "",
+    impactRecurrence: "",
+    lessonsLearned: "",
+    bestPractice: "",
+    assignedTo: "",
+  });
+
   /* fetch data */
   useEffect(() => {
     if (!project?.id) return;
@@ -132,6 +143,13 @@ export default function DeliveryTab({ project }: Props) {
     setNewRisk((r) => ({ ...r, [e.target.name]: e.target.value }));
   };
 
+  const handleLessonField = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setNewLesson((l) => ({ ...l, [e.target.name]: e.target.value }));
+  };
+
+  // for score
   const handleNumberField =
     (field: "currentImpact" | "currentLikelihood") =>
       (e: ChangeEvent<HTMLInputElement>) => {
@@ -174,7 +192,41 @@ export default function DeliveryTab({ project }: Props) {
     }
   };
 
+  //  Save lesson
+  const saveLesson = async () => {
+    const { topic, lessonsLearned } = newLesson;
+    if (!topic && !lessonsLearned) {
+      alert("Please fill at least Topic or Lesson.");
+      return;
+    }
+    try {
+      setSavingLesson(true);
+      const res = await fetch(`/api/projects/${project.id}/lessons`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newLesson),
+      });
+      if (!res.ok) throw new Error();
+      const saved: LessonsLearned = await res.json();
+      setLessons((prev) => [...prev, saved]);
+      // reset entry
+      setNewLesson({
+        topic: "",
+        experience: "",
+        impactRecurrence: "",
+        lessonsLearned: "",
+        bestPractice: "",
+        assignedTo: "",
+      });
+      setShowLessonModal(false);
+    } catch {
+      alert("Could not add lesson. Please try again.");
+    } finally {
+      setSavingLesson(false);
+    }
+  };
 
+  // render Risk table
   const renderRiskTable = () => {
     if (loadingRisks) return <p className={styles.message}>Loading Risks…</p>;
     if (errorRisks) return <p className={`${styles.message} ${styles.error}`}>{errorRisks}</p>;
@@ -281,7 +333,19 @@ export default function DeliveryTab({ project }: Props) {
           Add Risk
         </button>
       )}
+      {activeTab === "lessons" && (
+        <button
+          className={styles.addRiskButton}   
+          onClick={() => setShowLessonModal(true)}
+          disabled={loadingLessons}
+        >
+          Add Lesson
+        </button>
+      )}
 
+
+
+      {/* Modal for adding a risk */}
       <Modal open={showRiskModal} title="Add New Risk" onClose={() => setShowRiskModal(false)}>
         <div className={styles.riskForm}>
           <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
@@ -374,6 +438,95 @@ export default function DeliveryTab({ project }: Props) {
             <button
               className={styles.addRiskButton}
               onClick={() => setShowRiskModal(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        open={showLessonModal}
+        title="Add New Lesson"
+        onClose={() => setShowLessonModal(false)}
+      >
+        <div className={styles.riskForm}>  {/* reuse grid styles */}
+          <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
+            <label>Topic</label>
+            <input
+              className={styles.formInput}
+              name="topic"
+              value={newLesson.topic}
+              onChange={handleLessonField}
+              placeholder="Short topic heading"
+            />
+          </div>
+
+          <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
+            <label>Experience</label>
+            <textarea
+              className={styles.formInput}
+              name="experience"
+              value={newLesson.experience}
+              onChange={handleLessonField}
+              placeholder="What happened?"
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <label>Impact & Recurrence</label>
+            <input
+              className={styles.formInput}
+              name="impactRecurrence"
+              value={newLesson.impactRecurrence}
+              onChange={handleLessonField}
+              placeholder="e.g. High / Rare"
+            />
+          </div>
+
+          <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
+            <label>Lesson Learned</label>
+            <textarea
+              className={styles.formInput}
+              name="lessonsLearned"
+              value={newLesson.lessonsLearned}
+              onChange={handleLessonField}
+              placeholder="Key takeaway"
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <label>Best Practice</label>
+            <input
+              className={styles.formInput}
+              name="bestPractice"
+              value={newLesson.bestPractice}
+              onChange={handleLessonField}
+              placeholder="Recommended approach"
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <label>Assigned To</label>
+            <input
+              className={styles.formInput}
+              name="assignedTo"
+              value={newLesson.assignedTo}
+              onChange={handleLessonField}
+              placeholder="Owner"
+            />
+          </div>
+
+          <div className={styles.formActions} style={{ gridColumn: "1 / -1" }}>
+            <button
+              className={styles.saveRiskButton}
+              onClick={saveLesson}
+              disabled={savingLesson}
+            >
+              {savingLesson ? "Saving…" : "Save Lesson"}
+            </button>
+            <button
+              className={styles.addRiskButton}
+              onClick={() => setShowLessonModal(false)}
             >
               Cancel
             </button>
