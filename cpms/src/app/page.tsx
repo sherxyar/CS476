@@ -12,6 +12,7 @@ import { Search, House } from 'lucide-react';
 
 
 
+
 const Home: NextPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);

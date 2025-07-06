@@ -1,15 +1,14 @@
 // src/pages/admin/ChangeLogTab.tsx
 "use client";
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
 // types
 type ChangeLogEntry = {
-  id: string;
-  date: string;
-  changeType: "Financial" | "Schedule" | "Scope" | "Resource" | "Risk";
-  category: "Budget" | "Forecast" | "Actuals" | "Timeline" | "Milestone" | "Deliverable" | "Other";
+  id: number;
+  changeType: string;
+  category: string;
   description: string;
   impactArea: string;
   oldValue?: string;
@@ -17,23 +16,21 @@ type ChangeLogEntry = {
   justification: string;
   requestedBy: string;
   approvedBy: string;
-  status: "Pending" | "Approved" | "Rejected" | "Implemented";
-  priority: "Low" | "Medium" | "High" | "Critical";
+  status: string;
+  priority: string;
   estimatedImpact: string;
+  createdAt: string;
 };
 
 type Props = {
   project: Project;
 };
 
-export default function ChangeLogTab({ project: _project }: Props) {
+export default function ChangeLogTab({ project }: Props) {
   const [showAddChange, setShowAddChange] = useState(false);
-  const [filterType, setFilterType] = useState<string>("All");
-  const [filterStatus, setFilterStatus] = useState<string>("All");
-
   const [changeLog, setChangeLog] = useState<ChangeLogEntry[]>([]);
 
-  const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
+  const [newChange, setNewChange] = useState({
     changeType: "Financial",
     category: "Budget",
     description: "",
@@ -42,57 +39,127 @@ export default function ChangeLogTab({ project: _project }: Props) {
     newValue: "",
     justification: "",
     requestedBy: "",
+    approvedBy: "",
     status: "Pending",
     priority: "Medium",
     estimatedImpact: "",
   });
 
-  const handleAddChange = () => {
-  if (
-    newChange.description?.trim() &&
-    newChange.impactArea?.trim() &&
-    newChange.justification?.trim() &&
-    newChange.requestedBy?.trim()
-  ) {
-    const entry: ChangeLogEntry = {
-      id: `CHG-2025-${String(changeLog.length + 1).padStart(3, "0")}`,
-      date: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      changeType: newChange.changeType as ChangeLogEntry["changeType"],
-      category: newChange.category as ChangeLogEntry["category"],
-      description: newChange.description,
-      impactArea: newChange.impactArea,
-      oldValue: newChange.oldValue,
-      newValue: newChange.newValue,
-      justification: newChange.justification,
-      requestedBy: newChange.requestedBy,
-      approvedBy: "Pending",
-      status: newChange.status as ChangeLogEntry["status"],
-      priority: newChange.priority as ChangeLogEntry["priority"],
-      estimatedImpact: newChange.estimatedImpact || "To be determined",
-    };
+  const handleAddChange = async () => {
+    const {
+      changeType,
+      category,
+      description,
+      impactArea,
+      oldValue,
+      newValue,
+      justification,
+      requestedBy,
+      approvedBy,
+      status,
+      priority,
+      estimatedImpact,
+    } = newChange;
 
-    setChangeLog([entry, ...changeLog]);
+    if (!description || !impactArea || !justification || !requestedBy) {
+      alert("⚠️ Please fill all required fields.");
+      return;
+    }
 
-    setNewChange({
-      changeType: "Financial",
-      category: "Budget",
-      description: "",
-      impactArea: "",
-      oldValue: "",
-      newValue: "",
-      justification: "",
-      requestedBy: "",
-      status: "Pending",
-      priority: "Medium",
-      estimatedImpact: "",
-    });
+    try {
+      const res = await fetch("/api/change-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          changeType,
+          category,
+          description,
+          impactArea,
+          oldValue,
+          newValue,
+          justification,
+          requestedBy,
+          approvedBy,
+          status,
+          priority,
+          estimatedImpact,
+          userId: 1, // Replace with actual logged-in user ID
+          projectId: project.id,
+        }),
+      });
 
-    setShowAddChange(false);
-  } else {
-    alert("⚠️ Please fill out all required fields: Description, Impact Area, Justification, and Requested By.");
-  }
-};
+      if (!res.ok) throw new Error("Failed to create change log entry");
+
+      const saved = await res.json();
+      setChangeLog((prev) => [saved, ...prev]);
+      setNewChange({
+        changeType: "Financial",
+        category: "Budget",
+        description: "",
+        impactArea: "",
+        oldValue: "",
+        newValue: "",
+        justification: "",
+        requestedBy: "",
+        approvedBy: "",
+        status: "Pending",
+        priority: "Medium",
+        estimatedImpact: "",
+      });
+      setShowAddChange(false);
+    } catch (err) {
+      console.error("❌ Failed to add change:", err);
+      alert("Failed to add change request.");
+    }
+  };
+
+  return (
+    <div>
+      <h1>Change Log</h1>
+      <button onClick={() => setShowAddChange(true)}>Add Change</button>
+
+      {showAddChange && (
+        <div>
+          <h2>New Change Request</h2>
+          <input
+            placeholder="Description"
+            value={newChange.description}
+            onChange={(e) =>
+              setNewChange({ ...newChange, description: e.target.value })
+            }
+          />
+          <input
+            placeholder="Impact Area"
+            value={newChange.impactArea}
+            onChange={(e) =>
+              setNewChange({ ...newChange, impactArea: e.target.value })
+            }
+          />
+          <input
+            placeholder="Justification"
+            value={newChange.justification}
+            onChange={(e) =>
+              setNewChange({ ...newChange, justification: e.target.value })
+            }
+          />
+          <input
+            placeholder="Requested By"
+            value={newChange.requestedBy}
+            onChange={(e) =>
+              setNewChange({ ...newChange, requestedBy: e.target.value })
+            }
+          />
+          <button onClick={handleAddChange}>Submit</button>
+        </div>
+      )}
+
+      <ul>
+        {changeLog.map((entry) => (
+          <li key={entry.id}>
+            {entry.createdAt} - {entry.description} ({entry.status})
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
