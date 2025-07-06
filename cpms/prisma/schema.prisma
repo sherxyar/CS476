@@ -132,9 +132,9 @@ model ProjectSchedule {
   milestones Milestone[]
 }
 
-//the next 2 tables are for delivery tab
+-- the next 2 tables are for delivery tab
 
-//Table for Lessons Learned
+-- Table for Lessons Learned
 CREATE TABLE lessons_learned (
     id SERIAL PRIMARY KEY,
     project_id VARCHAR(255) NOT NULL,
@@ -149,7 +149,7 @@ CREATE TABLE lessons_learned (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
-//Table for Risk Register
+-- Table for Risk Register
 CREATE TABLE risk_register (
     id SERIAL PRIMARY KEY,
     project_id VARCHAR(255) NOT NULL,
