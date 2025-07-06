@@ -132,16 +132,7 @@ model ProjectSchedule {
   milestones Milestone[]
 }
 
-//the next 3 tables are for delivery tab
-
-//Table for Projects 
-CREATE TABLE projects (
-    id VARCHAR(255) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    planned_start_date DATE,
-    planned_end_date DATE
-    -- Add other project-related fields as needed
-);
+//the next 2 tables are for delivery tab
 
 //Table for Lessons Learned
 CREATE TABLE lessons_learned (
