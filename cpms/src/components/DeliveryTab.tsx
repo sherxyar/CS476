@@ -1,12 +1,3 @@
-/*
-  DeliveryTab.tsx — refined UI (no Tailwind)
-  • Cleaner sub-tabs
-  • Table polish
-  • “Add Risk” now opens a lightweight modal popup
-  • No external UI libraries / no Tailwind
-  • Strict-mode compliant (no `any`)
-*/
-
 "use client";
 import {
   useEffect,
@@ -17,7 +8,6 @@ import {
 import styles from "../styles/DeliveryTab.module.css";
 import type { Project } from "@/types/Project";
 
-/* ───────── Types ───────── */
 interface RiskRegister {
   id: number;
   riskID?: string;
@@ -46,7 +36,7 @@ interface Props {
   project: Project;
 }
 
-/* ───────── Reusable modal ───────── */
+/*modal - used for risk - todo for Lessonslearned  */
 const Modal: React.FC<{
   open: boolean;
   title: string;
@@ -73,7 +63,7 @@ const Modal: React.FC<{
   );
 };
 
-/* ───────── Main component ───────── */
+
 export default function DeliveryTab({ project }: Props) {
   /* sub-tabs */
   const [activeTab, setActiveTab] = useState<"risk" | "lessons">("risk");
@@ -182,7 +172,7 @@ export default function DeliveryTab({ project }: Props) {
     }
   };
 
-  /* ───────── Renderers — tables ───────── */
+
   const renderRiskTable = () => {
     if (loadingRisks) return <p className={styles.message}>Loading Risks…</p>;
     if (errorRisks) return <p className={`${styles.message} ${styles.error}`}>{errorRisks}</p>;
@@ -202,7 +192,6 @@ export default function DeliveryTab({ project }: Props) {
               <th>Likelihood</th>
               <th>Score</th>
               <th>Response</th>
-              <th>Type</th>
             </tr>
           </thead>
           <tbody>
@@ -216,7 +205,6 @@ export default function DeliveryTab({ project }: Props) {
                 <td>{r.currentLikelihood ?? "—"}</td>
                 <td>{r.currentScore ?? "—"}</td>
                 <td>{r.riskResponse || "—"}</td>
-                <td>{r.operationalOrProjectRisk || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -261,7 +249,6 @@ export default function DeliveryTab({ project }: Props) {
     );
   };
 
-  /* ───────── JSX ───────── */
   return (
     <div className={styles.container}>
       {/* sub-tabs */}
