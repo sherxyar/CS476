@@ -1,16 +1,25 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-interface Params {
-  riskId: string;
-}
-
 export async function PATCH(
   req: Request,
-  { params }: { params: Params }
+  { params }: { params: { id: string; riskid: string } }
 ) {
-  const id = Number(params.riskId);
+  const riskId = parseInt(params.riskid, 10);
   const data = await req.json();
-  const risk = await prisma.riskRegister.update({ where: { id }, data });
-  return NextResponse.json(risk);
+
+  try {
+    const updatedRisk = await prisma.riskRegister.update({
+      where: { id: riskId },
+      data,
+    });
+    return NextResponse.json(updatedRisk);
+
+  } catch (err) {
+    console.error(`Error updating risk ${riskId}:`, err);
+    return NextResponse.json(
+      { error: "Failed to update risk" },
+      { status: 500 }
+    );
+  }
 }
