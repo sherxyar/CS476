@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { NextApiRequest, NextApiResponse } from 'next';
 
 // --- Risk Register API Handlers ---
 
 // Function to fetch all Risk Register entries
-export async function getRiskRegisters() {
+export async function getRiskRegisters(req: NextApiRequest, res: NextApiResponse) {
   try {
     const risks = await prisma.riskRegister.findMany({
       orderBy: { id: "asc" }, // Order by ID for consistency
