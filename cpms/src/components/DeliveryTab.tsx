@@ -138,11 +138,13 @@ export default function DeliveryTab({ project }: Props) {
 
   /* Handlers */
   const handleRiskField = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    setNewRisk((r) => ({ ...r, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setNewRisk((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleLessonField = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -335,7 +337,7 @@ export default function DeliveryTab({ project }: Props) {
       )}
       {activeTab === "lessons" && (
         <button
-          className={styles.addRiskButton}   
+          className={styles.addRiskButton}
           onClick={() => setShowLessonModal(true)}
           disabled={loadingLessons}
         >
