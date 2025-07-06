@@ -132,42 +132,29 @@ model ProjectSchedule {
   milestones Milestone[]
 }
 
+
 //the next 2 tables are for delivery tab
 
-//Table for Lessons Learned
-CREATE TABLE lessons_learned (
-    id SERIAL PRIMARY KEY,
-    project_id VARCHAR(255) NOT NULL,
-    topic TEXT NOT NULL,
-    experience TEXT NOT NULL,
-    impact_recurrence TEXT NOT NULL,
-    lesson_learned TEXT NOT NULL,
-    best_practice TEXT NOT NULL,
-    assigned_to VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-);
+model RiskRegister {
+  id                    Int     @id @default(autoincrement())
+  riskID                String? @map("Risk ID")
+  riskName              String? @map("Risk Name")
+  riskDescription       String? @map("Risk Description")
+  dateCaptured          DateTime? @map("Date Captured")
+  riskOwner             String? @map("Risk Owner")
+  currentImpact         Int?    @map("Current Impact")
+  currentLikelihood     Int?    @map("Current Likelihood")
+  currentScore          Int?    @map("Current Score")
+  riskResponse          String? @map("Risk Response")
+  operationalOrProjectRisk String? @map("Operational or Project Risk")
+}
 
-//Table for Risk Register
-CREATE TABLE risk_register (
-    id SERIAL PRIMARY KEY,
-    project_id VARCHAR(255) NOT NULL,
-    risk_id VARCHAR(255) UNIQUE NOT NULL,
-    risk_description TEXT NOT NULL,
-    category VARCHAR(255) NOT NULL,
-    impact VARCHAR(255) NOT NULL,
-    likelihood VARCHAR(255) NOT NULL,
-    risk_score INTEGER NOT NULL,
-    mitigation_plan TEXT NOT NULL,
-    contingency_plan TEXT, 
-    owner VARCHAR(255) NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('Open', 'Closed', 'Mitigated')),
-    date_identified DATE NOT NULL,
-    date_closed DATE, 
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-);
-
-
+model LessonsLearned {
+  id            Int     @id @default(autoincrement())
+  topic         String?
+  experience    String?
+  impactRecurrence String? @map("Impact & Recurrence ")
+  lessonsLearned String? @map("Lessons Learned")
+  bestPractice  String? @map("Best Practice")
+  assignedTo    String? @map("Assigned To")
+}
