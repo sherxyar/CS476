@@ -2,6 +2,14 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
+import { type LucideIcon } from 'lucide-react';
+import {
+  Circle,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  X,
+} from 'lucide-react';
 
 type Milestone = {
   id: number;
@@ -11,6 +19,27 @@ type Milestone = {
   endDate: string;
   status: "Not Started" | "In Progress" | "Completed" | "Closed";
 };
+
+// these are from Lucide icons
+const statusIconMap: Record<Milestone['status'], LucideIcon> = {
+  'Not Started': Circle,
+  'In Progress': Loader2,
+  Completed: CheckCircle2,
+  Closed: XCircle,
+};
+
+// Lucide icons helper function
+export function StatusIcon({ status }: { status: Milestone['status'] }) {
+  const Icon = statusIconMap[status];
+  return (
+    <Icon
+      className={`h-4 w-4 inline-block ${status === 'In Progress' ? 'animate-spin' : ''
+        }`}
+    />
+  );
+}
+
+
 
 type Schedule = {
   id: number;
@@ -254,7 +283,7 @@ export default function ScheduleTab({ project }: Props) {
               onClick={() => setShowAddMilestone(!showAddMilestone)}
               disabled={loading}
             >
-              {loading ? "Loading..." : showAddMilestone ? "Cancel" : "Add Milestone"}
+              {loading ? "Loading..." : showAddMilestone ? "Add Milestone" : "Add Milestone"}
             </button>
           </div>
 
@@ -294,23 +323,9 @@ export default function ScheduleTab({ project }: Props) {
                 </div>
               </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formField}>
-                  <label>Description *</label>
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    value={newMilestone.description}
-                    onChange={(e) =>
-                      setNewMilestone({ ...newMilestone, description: e.target.value })
-                    }
-                    placeholder="Enter description"
-                    required
-                  />
-                </div>
-              </div>
 
               <div className={styles.formRow}>
+                {/*  Start - End  */}
                 <div className={styles.formField}>
                   <label>Start Date *</label>
                   <input
@@ -323,6 +338,7 @@ export default function ScheduleTab({ project }: Props) {
                     required
                   />
                 </div>
+
                 <div className={styles.formField}>
                   <label>End Date *</label>
                   <input
@@ -336,9 +352,25 @@ export default function ScheduleTab({ project }: Props) {
                     required
                   />
                 </div>
+
+                <div className={`${styles.formField} ${styles.fullWidthField}`}>
+                  <label>Description *</label>
+                  <textarea                 /* ← changed element */
+                    className={styles.formTextarea}   /* new class */
+                    rows={3}                          /* default height */
+                    value={newMilestone.description}
+                    onChange={(e) =>
+                      setNewMilestone({ ...newMilestone, description: e.target.value })
+                    }
+                    placeholder="Enter description"
+                    required
+                  />
+                </div>
+
               </div>
 
               <div className={styles.formActions}>
+                {/* Save button */}
                 <button
                   className={styles.saveInvoiceButton}
                   onClick={handleAddMilestone}
@@ -346,13 +378,18 @@ export default function ScheduleTab({ project }: Props) {
                 >
                   {loading ? "Saving..." : "Save Milestone"}
                 </button>
+
+                {/* Cancel button */}
                 <button
                   type="button"
                   onClick={() => setShowAddMilestone(false)}
-                  style={{ marginLeft: "10px", background: "#ccc" }}
+                  className={styles.cancelInvoiceButton}
                 >
+
                   Cancel
                 </button>
+
+
               </div>
             </div>
           )}
@@ -388,18 +425,17 @@ export default function ScheduleTab({ project }: Props) {
                       <td>{milestone.description}</td>
                       <td>{formatDateForDisplay(milestone.startDate)}</td>
                       <td>{formatDateForDisplay(milestone.endDate)}</td>
-                      <td>
+                      <td className={styles.statusCell}>
+                        <StatusIcon status={milestone.status} />
                         <select
                           value={milestone.status}
                           onChange={(e) =>
                             handleStatusChange(
                               milestone.id,
-                              e.target.value as Milestone["status"]
+                              e.target.value as Milestone['status'],
                             )
                           }
-                          className={`${styles.statusSelect} ${getStatusClass(
-                            milestone.status
-                          )}`}
+                          className={`${styles.statusSelect} ${getStatusClass(milestone.status)}`}
                         >
                           <option value="Not Started">Not Started</option>
                           <option value="In Progress">In Progress</option>
@@ -407,6 +443,7 @@ export default function ScheduleTab({ project }: Props) {
                           <option value="Closed">Closed</option>
                         </select>
                       </td>
+
                     </tr>
                   ))
                 )}
@@ -418,4 +455,3 @@ export default function ScheduleTab({ project }: Props) {
     </div>
   );
 }
-// {Fixed Errors}
