@@ -132,9 +132,9 @@ model ProjectSchedule {
   milestones Milestone[]
 }
 
--- the next 2 tables are for delivery tab
+//the next 2 tables are for delivery tab
 
--- Table for Lessons Learned
+//Table for Lessons Learned
 CREATE TABLE lessons_learned (
     id SERIAL PRIMARY KEY,
     project_id VARCHAR(255) NOT NULL,
@@ -149,22 +149,22 @@ CREATE TABLE lessons_learned (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
--- Table for Risk Register
+//Table for Risk Register
 CREATE TABLE risk_register (
     id SERIAL PRIMARY KEY,
     project_id VARCHAR(255) NOT NULL,
-    risk_id VARCHAR(255) UNIQUE NOT NULL, -- Assuming risk_id should be unique
+    risk_id VARCHAR(255) UNIQUE NOT NULL,
     risk_description TEXT NOT NULL,
     category VARCHAR(255) NOT NULL,
     impact VARCHAR(255) NOT NULL,
     likelihood VARCHAR(255) NOT NULL,
-    risk_score INTEGER NOT NULL, -- Assuming score is an integer
+    risk_score INTEGER NOT NULL,
     mitigation_plan TEXT NOT NULL,
-    contingency_plan TEXT, -- Optional
+    contingency_plan TEXT, 
     owner VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL CHECK (status IN ('Open', 'Closed', 'Mitigated')),
     date_identified DATE NOT NULL,
-    date_closed DATE, -- Nullable
+    date_closed DATE, 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
