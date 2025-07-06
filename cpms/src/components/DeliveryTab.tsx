@@ -1,11 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
-import styles from "../styles/ProjectModal.module.css";
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import styles from "../styles/DeliveryTab.module.css";
 import type { Project } from "@/types/Project";
 
-/** -------------------------------
- * Types
- * --------------------------------*/
+/* Types */
 interface RiskRegister {
   id: number;
   riskID?: string;
@@ -30,13 +28,12 @@ interface LessonsLearned {
   assignedTo?: string;
 }
 
-type Props = {
+interface Props {
   project: Project;
-};
+  registerChangeHandler?: (fn: () => Partial<Project>) => void;
+}
 
-/** -------------------------------
- *  Helper for local‑timezone‑safe dates
- * --------------------------------*/
+/* date formatting */
 const formatDateForDisplay = (dateString?: string) => {
   if (!dateString) return "N/A";
   try {
@@ -52,26 +49,21 @@ const formatDateForDisplay = (dateString?: string) => {
   }
 };
 
-const MessageDisplay: React.FC<{ message: string; type: "loading" | "error" | "info" }> = ({ message, type }) => (
-  <div
-    className={`p-4 rounded-lg text-center ${
-      type === "loading"
-        ? "bg-blue-100 text-blue-800"
-        : type === "error"
-        ? "bg-red-100 text-red-800"
-        : "bg-gray-100 text-gray-800"
-    } shadow-sm`}
-  >
-    <p className="font-semibold">{message}</p>
+const MessageDisplay: React.FC<{
+  message: string;
+  type: "loading" | "error" | "info";
+}> = ({ message, type }) => (
+  <div className={`${styles.message} ${styles[type]}`}>
+    <p>{message}</p>
   </div>
 );
 
 export default function DeliveryTab({ project }: Props) {
-  /** ------------------------------
-   * State
-   * ------------------------------*/
+
+  /* sub-tabs */
   const [activeTab, setActiveTab] = useState<"risk" | "lessons">("risk");
 
+  /* data state */
   const [risks, setRisks] = useState<RiskRegister[]>([]);
   const [lessons, setLessons] = useState<LessonsLearned[]>([]);
 
@@ -81,13 +73,20 @@ export default function DeliveryTab({ project }: Props) {
   const [errorRisks, setErrorRisks] = useState<string | null>(null);
   const [errorLessons, setErrorLessons] = useState<string | null>(null);
 
-  /** ------------------------------
-   * Data fetch
-   * ------------------------------*/
+  const [showAddRisk, setShowAddRisk] = useState(false);
+  const [draftRisk, setDraftRisk] = useState<RiskRegister>({
+    id: 0,
+    riskName: "",
+    riskDescription: "",
+    riskOwner: "",
+    currentImpact: 1,
+    currentLikelihood: 1,
+  });
+
+  /* fetch data */
   useEffect(() => {
     if (!project?.id) return;
 
-    // Fetch risk register
     const fetchRisks = async () => {
       try {
         setLoadingRisks(true);
@@ -96,15 +95,13 @@ export default function DeliveryTab({ project }: Props) {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data = await res.json();
         setRisks(data || []);
-      } catch (err) {
-        console.error("Risk fetch error", err);
+      } catch {
         setErrorRisks("Failed to load risks");
       } finally {
         setLoadingRisks(false);
       }
     };
 
-    // Fetch lessons learned
     const fetchLessons = async () => {
       try {
         setLoadingLessons(true);
@@ -113,8 +110,7 @@ export default function DeliveryTab({ project }: Props) {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data = await res.json();
         setLessons(data || []);
-      } catch (err) {
-        console.error("Lessons fetch error", err);
+      } catch {
         setErrorLessons("Failed to load lessons learned");
       } finally {
         setLoadingLessons(false);
@@ -125,79 +121,161 @@ export default function DeliveryTab({ project }: Props) {
     fetchLessons();
   }, [project.id]);
 
-  /** ------------------------------
-   * Render helpers
-   * ------------------------------*/
+  /* form handlers */
+  const handleRiskField = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setDraftRisk({ ...draftRisk, [e.target.name]: e.target.value });
+  };
+
+  const saveRisk = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/projects/${project.id}/risks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draftRisk),
+      });
+      if (!res.ok) throw new Error("save failed");
+      const created = await res.json();
+      setRisks([...risks, created]);
+      setDraftRisk({
+        id: 0,
+        riskName: "",
+        riskDescription: "",
+        riskOwner: "",
+        currentImpact: 1,
+        currentLikelihood: 1,
+      });
+      setShowAddRisk(false);
+    } catch {
+      alert("Could not add risk");
+    }
+  };
+
+  /* risk table */
   const renderRiskTable = () => {
     if (loadingRisks) return <MessageDisplay message="Loading Risk Matrix…" type="loading" />;
     if (errorRisks) return <MessageDisplay message={errorRisks} type="error" />;
     if (risks.length === 0) return <MessageDisplay message="No risk data available." type="info" />;
 
     return (
-      <div className="overflow-x-auto rounded-lg shadow-md">
-        <table className="min-w-full bg-white rounded-lg text-sm">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 rounded-tl-lg">Risk ID</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Name</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Description</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Owner</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Impact</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Likelihood</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Score</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Response</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 rounded-tr-lg">Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {risks.map((r) => (
-              <tr key={r.id} className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50">
-                <td className="py-3 px-4 text-gray-700">{r.riskID || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.riskName || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.riskDescription || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.riskOwner || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.currentImpact ?? "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.currentLikelihood ?? "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.currentScore ?? "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.riskResponse || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{r.operationalOrProjectRisk || "—"}</td>
+      <>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Risk&nbsp;ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Owner</th>
+                <th>Impact</th>
+                <th>Likelihood</th>
+                <th>Score</th>
+                <th>Response</th>
+                <th>Type</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {risks.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.riskID || "—"}</td>
+                  <td>{r.riskName || "—"}</td>
+                  <td>{r.riskDescription || "—"}</td>
+                  <td>{r.riskOwner || "—"}</td>
+                  <td>{r.currentImpact ?? "—"}</td>
+                  <td>{r.currentLikelihood ?? "—"}</td>
+                  <td>{r.currentScore ?? "—"}</td>
+                  <td>{r.riskResponse || "—"}</td>
+                  <td>{r.operationalOrProjectRisk || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <button
+          type="button"
+          className={styles.addButton}
+          onClick={() => setShowAddRisk(!showAddRisk)}
+        >
+          {showAddRisk ? "Cancel" : "Add Risk"}
+        </button>
+
+        {showAddRisk && (
+          <form onSubmit={saveRisk} className={styles.addForm}>
+            <input
+              required
+              name="riskName"
+              placeholder="Risk Name"
+              value={draftRisk.riskName}
+              onChange={handleRiskField}
+            />
+            <textarea
+              required
+              name="riskDescription"
+              placeholder="Description"
+              value={draftRisk.riskDescription}
+              onChange={handleRiskField}
+            />
+            <input
+              required
+              name="riskOwner"
+              placeholder="Owner"
+              value={draftRisk.riskOwner}
+              onChange={handleRiskField}
+            />
+            <input
+              type="number"
+              min={1}
+              max={5}
+              name="currentImpact"
+              placeholder="Impact (1-5)"
+              value={draftRisk.currentImpact}
+              onChange={handleRiskField}
+            />
+            <input
+              type="number"
+              min={1}
+              max={5}
+              name="currentLikelihood"
+              placeholder="Likelihood (1-5)"
+              value={draftRisk.currentLikelihood}
+              onChange={handleRiskField}
+            />
+            <button type="submit">Save</button>
+          </form>
+        )}
+      </>
     );
   };
 
+  /* lessons table */
   const renderLessonsTable = () => {
-    if (loadingLessons)
-      return <MessageDisplay message="Loading Lessons Learned…" type="loading" />;
+    if (loadingLessons) return <MessageDisplay message="Loading Lessons Learned…" type="loading" />;
     if (errorLessons) return <MessageDisplay message={errorLessons} type="error" />;
-    if (lessons.length === 0)
-      return <MessageDisplay message="No lessons learned data available." type="info" />;
+    if (lessons.length === 0) return <MessageDisplay message="No lessons learned data available." type="info" />;
 
     return (
-      <div className="overflow-x-auto rounded-lg shadow-md">
-        <table className="min-w-full bg-white rounded-lg text-sm">
-          <thead className="bg-gray-200">
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 rounded-tl-lg">Topic</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Experience</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Impact & Recurrence</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Lesson</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">Best Practice</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 rounded-tr-lg">Assigned To</th>
+              <th>Topic</th>
+              <th>Experience</th>
+              <th>Impact&nbsp;&amp;&nbsp;Recurrence</th>
+              <th>Lesson</th>
+              <th>Best&nbsp;Practice</th>
+              <th>Assigned&nbsp;To</th>
             </tr>
           </thead>
           <tbody>
             {lessons.map((l) => (
-              <tr key={l.id} className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50">
-                <td className="py-3 px-4 text-gray-700">{l.topic || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{l.experience || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{l.impactRecurrence || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{l.lessonsLearned || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{l.bestPractice || "—"}</td>
-                <td className="py-3 px-4 text-gray-700">{l.assignedTo || "—"}</td>
+              <tr key={l.id}>
+                <td>{l.topic || "—"}</td>
+                <td>{l.experience || "—"}</td>
+                <td>{l.impactRecurrence || "—"}</td>
+                <td>{l.lessonsLearned || "—"}</td>
+                <td>{l.bestPractice || "—"}</td>
+                <td>{l.assignedTo || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -206,39 +284,24 @@ export default function DeliveryTab({ project }: Props) {
     );
   };
 
-  /** ------------------------------
-   * UI
-   * ------------------------------*/
+  /* jsx */
   return (
-    <div className="p-6 bg-white rounded-lg shadow-xl font-sans max-w-5xl mx-auto my-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Delivery Overview</h2>
-
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-6">
+    <div className={styles.container}>
+      <div className={styles.subTabHeader}>
         <button
-          className={`py-3 px-6 text-lg font-medium rounded-t-lg transition-all duration-200 ${
-            activeTab === "risk"
-              ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
-              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-          }`}
+          className={`${styles.subTabButton} ${activeTab === "risk" ? styles.activeSubTab : ""}`}
           onClick={() => setActiveTab("risk")}
         >
           Risk Matrix
         </button>
         <button
-          className={`py-3 px-6 text-lg font-medium rounded-t-lg transition-all duration-200 ${
-            activeTab === "lessons"
-              ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50"
-              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-          }`}
+          className={`${styles.subTabButton} ${activeTab === "lessons" ? styles.activeSubTab : ""}`}
           onClick={() => setActiveTab("lessons")}
         >
           Lessons Learned
         </button>
       </div>
-
-      {/* Content */}
       {activeTab === "risk" ? renderRiskTable() : renderLessonsTable()}
-    </div>
+    </div >
   );
 }

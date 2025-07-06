@@ -29,16 +29,12 @@ const TABS = [
 
 type TabName = (typeof TABS)[number];
 
-/* Delivery sub‑tabs */
-const DELIVERY_TABS = ["Risk", "Lessons Learned"] as const;
-type DeliveryTabName = (typeof DELIVERY_TABS)[number];
-
 /* Component */
 export default function ProjectModal({ project: initial, onClose, onProjectUpdate }: Props) {
   /* Project state */
   const [project, setProject] = useState<Project>(initial);
 
-  /* staged‑change callbacks */
+  /* staged-change callbacks */
   const changeHandlersRef = useRef<Array<() => Partial<Project>>>([]);
   const registerChangeHandler = useCallback((fn: () => Partial<Project>) => {
     changeHandlersRef.current.push(fn);
@@ -46,7 +42,6 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
 
   /* ui state */
   const [activeTab, setActiveTab] = useState<TabName>("General");
-  const [activeDeliveryTab, setActiveDeliveryTab] = useState<DeliveryTabName>("Risk");
 
   /* esc to close */
   useEffect(() => {
@@ -113,24 +108,10 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
         return <AdministrationTab project={project} />;
       case "Delivery":
         return (
-          <>
-            <div className={styles.tabHeaderSecondary}>
-              {DELIVERY_TABS.map((d) => (
-                <button
-                  key={d}
-                  className={`${styles.tabButton} ${activeDeliveryTab === d ? styles.activeTab : ""}`}
-                  onClick={() => setActiveDeliveryTab(d)}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-            <DeliveryTab
-              project={project}
-              activeTab={activeDeliveryTab}
-              registerChangeHandler={registerChangeHandler}
-            />
-          </>
+          <DeliveryTab
+            project={project}
+            registerChangeHandler={registerChangeHandler}
+          />
         );
       default:
         return null;
