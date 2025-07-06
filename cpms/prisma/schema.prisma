@@ -160,4 +160,16 @@ model ProjectSchedule {
   notes     String?
 
   project Project @relation("ProjectScheduleRelation", fields: [projectId], references: [id])
+  milestones  Milestone[]
+
 }
+
+
+model Milestone {
+  id             Int              @id @default(autoincrement())
+  title          String
+  startDate      DateTime
+  scheduleId     Int
+  schedule       ProjectSchedule @relation(fields: [scheduleId], references: [id])
+}
+
