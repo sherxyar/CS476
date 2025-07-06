@@ -1,5 +1,10 @@
 "use client";
-import { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  ChangeEvent,
+  KeyboardEvent,
+} from "react";
 import styles from "../styles/DeliveryTab.module.css";
 import type { Project } from "@/types/Project";
 
@@ -30,25 +35,10 @@ interface LessonsLearned {
 
 interface Props {
   project: Project;
-  registerChangeHandler?: (fn: () => Partial<Project>) => void;
+  registerChangeHandler?: (fn: () => Partial<Project>) => void; // (kept for future use)
 }
 
-/* date formatting */
-const formatDateForDisplay = (dateString?: string) => {
-  if (!dateString) return "N/A";
-  try {
-    const [datePart] = dateString.split("T");
-    const [y, m, d] = datePart.split("-").map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString("en-CA", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
-};
-
+/* Helper */
 const MessageDisplay: React.FC<{
   message: string;
   type: "loading" | "error" | "info";
@@ -58,24 +48,23 @@ const MessageDisplay: React.FC<{
   </div>
 );
 
+/* Component */
 export default function DeliveryTab({ project }: Props) {
-
   /* sub-tabs */
   const [activeTab, setActiveTab] = useState<"risk" | "lessons">("risk");
 
   /* data state */
   const [risks, setRisks] = useState<RiskRegister[]>([]);
   const [lessons, setLessons] = useState<LessonsLearned[]>([]);
-
   const [loadingRisks, setLoadingRisks] = useState(false);
   const [loadingLessons, setLoadingLessons] = useState(false);
-
   const [errorRisks, setErrorRisks] = useState<string | null>(null);
   const [errorLessons, setErrorLessons] = useState<string | null>(null);
 
+  /* add-risk UI state */
   const [showAddRisk, setShowAddRisk] = useState(false);
-  const [draftRisk, setDraftRisk] = useState<RiskRegister>({
-    id: 0,
+  const [loadingRiskSave, setLoadingRiskSave] = useState(false);
+  const [newRisk, setNewRisk] = useState({
     riskName: "",
     riskDescription: "",
     riskOwner: "",
@@ -83,7 +72,7 @@ export default function DeliveryTab({ project }: Props) {
     currentLikelihood: 1,
   });
 
-  /* fetch data */
+  /* fetch data on mount / project-id change */
   useEffect(() => {
     if (!project?.id) return;
 
@@ -96,7 +85,7 @@ export default function DeliveryTab({ project }: Props) {
         const data = await res.json();
         setRisks(data || []);
       } catch {
-        setErrorRisks("Failed to load risks");
+        setErrorRisks("Failed to load risks.");
       } finally {
         setLoadingRisks(false);
       }
@@ -111,7 +100,7 @@ export default function DeliveryTab({ project }: Props) {
         const data = await res.json();
         setLessons(data || []);
       } catch {
-        setErrorLessons("Failed to load lessons learned");
+        setErrorLessons("Failed to load lessons learned.");
       } finally {
         setLoadingLessons(false);
       }
@@ -121,24 +110,53 @@ export default function DeliveryTab({ project }: Props) {
     fetchLessons();
   }, [project.id]);
 
-  /* form handlers */
-  const handleRiskField = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setDraftRisk({ ...draftRisk, [e.target.name]: e.target.value });
+  /* Handlers */
+  const handleRiskField = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setNewRisk({ ...newRisk, [e.target.name]: e.target.value });
   };
 
-  const saveRisk = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleNumberField = (field: "currentImpact" | "currentLikelihood") => (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    const val = e.target.valueAsNumber;
+    if (val >= 1 && val <= 5) setNewRisk({ ...newRisk, [field]: val });
+  };
+
+  const handleAddRisk = async () => {
+    const {
+      riskName,
+      riskDescription,
+      riskOwner,
+      currentImpact,
+      currentLikelihood,
+    } = newRisk;
+
+    if (!riskName || !riskDescription || !riskOwner) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
     try {
+      setLoadingRiskSave(true);
+
       const res = await fetch(`/api/projects/${project.id}/risks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draftRisk),
+        body: JSON.stringify({
+          ...newRisk,
+          currentImpact,
+          currentLikelihood,
+        }),
       });
-      if (!res.ok) throw new Error("save failed");
-      const created = await res.json();
-      setRisks([...risks, created]);
-      setDraftRisk({
-        id: 0,
+      if (!res.ok) throw new Error("Save failed");
+
+      const saved = await res.json();
+      setRisks((prev) => [...prev, saved]);
+
+      /* reset */
+      setNewRisk({
         riskName: "",
         riskDescription: "",
         riskOwner: "",
@@ -147,18 +165,29 @@ export default function DeliveryTab({ project }: Props) {
       });
       setShowAddRisk(false);
     } catch {
-      alert("Could not add risk");
+      alert("Could not add risk. Please try again.");
+    } finally {
+      setLoadingRiskSave(false);
     }
   };
 
-  /* risk table */
+  /* Renderers */
   const renderRiskTable = () => {
-    if (loadingRisks) return <MessageDisplay message="Loading Risk Matrix…" type="loading" />;
-    if (errorRisks) return <MessageDisplay message={errorRisks} type="error" />;
-    if (risks.length === 0) return <MessageDisplay message="No risk data available." type="info" />;
+    let body: React.ReactNode;
 
-    return (
-      <>
+    if (loadingRisks)
+      body = <MessageDisplay message="Loading Risk Matrix…" type="loading" />;
+    else if (errorRisks)
+      body = <MessageDisplay message={errorRisks} type="error" />;
+    else if (risks.length === 0)
+      body = (
+        <MessageDisplay
+          message="No risks yet. Click “Add Risk” to create one."
+          type="info"
+        />
+      );
+    else
+      body = (
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead>
@@ -191,68 +220,114 @@ export default function DeliveryTab({ project }: Props) {
             </tbody>
           </table>
         </div>
+      );
 
+    return (
+      <>
+        {body}
+
+        {/* Add Risk Button */}
         <button
-          type="button"
-          className={styles.addButton}
+          className={styles.addRiskButton}
           onClick={() => setShowAddRisk(!showAddRisk)}
+          disabled={loadingRisks}
         >
           {showAddRisk ? "Cancel" : "Add Risk"}
         </button>
 
+        {/* Inline Add Form */}
         {showAddRisk && (
-          <form onSubmit={saveRisk} className={styles.addForm}>
-            <input
-              required
-              name="riskName"
-              placeholder="Risk Name"
-              value={draftRisk.riskName}
-              onChange={handleRiskField}
-            />
-            <textarea
-              required
-              name="riskDescription"
-              placeholder="Description"
-              value={draftRisk.riskDescription}
-              onChange={handleRiskField}
-            />
-            <input
-              required
-              name="riskOwner"
-              placeholder="Owner"
-              value={draftRisk.riskOwner}
-              onChange={handleRiskField}
-            />
-            <input
-              type="number"
-              min={1}
-              max={5}
-              name="currentImpact"
-              placeholder="Impact (1-5)"
-              value={draftRisk.currentImpact}
-              onChange={handleRiskField}
-            />
-            <input
-              type="number"
-              min={1}
-              max={5}
-              name="currentLikelihood"
-              placeholder="Likelihood (1-5)"
-              value={draftRisk.currentLikelihood}
-              onChange={handleRiskField}
-            />
-            <button type="submit">Save</button>
-          </form>
+          <div className={styles.riskForm}>
+            <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
+              <label>Name *</label>
+              <input
+                className={styles.formInput}
+                name="riskName"
+                value={newRisk.riskName}
+                onChange={handleRiskField}
+                placeholder="Risk title"
+                required
+              />
+            </div>
+
+            <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
+              <label>Description *</label>
+              <textarea
+                className={styles.formInput}
+                name="riskDescription"
+                value={newRisk.riskDescription}
+                onChange={handleRiskField}
+                placeholder="Brief description"
+                required
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label>Owner *</label>
+              <input
+                className={styles.formInput}
+                name="riskOwner"
+                value={newRisk.riskOwner}
+                onChange={handleRiskField}
+                placeholder="Person responsible"
+                required
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label>Impact (1-5)</label>
+              <input
+                type="number"
+                min={1}
+                max={5}
+                className={styles.formInput}
+                value={newRisk.currentImpact}
+                onChange={handleNumberField("currentImpact")}
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label>Likelihood (1-5)</label>
+              <input
+                type="number"
+                min={1}
+                max={5}
+                className={styles.formInput}
+                value={newRisk.currentLikelihood}
+                onChange={handleNumberField("currentLikelihood")}
+              />
+            </div>
+
+            <div
+              className={styles.formActions}
+              style={{ gridColumn: "1 / -1" }}
+            >
+              <button
+                className={styles.saveRiskButton}
+                onClick={handleAddRisk}
+                disabled={loadingRiskSave}
+              >
+                {loadingRiskSave ? "Saving…" : "Save Risk"}
+              </button>
+            </div>
+          </div>
         )}
       </>
     );
   };
 
-  /* lessons table */
   const renderLessonsTable = () => {
-    if (loadingLessons) return <MessageDisplay message="Loading Lessons Learned…" type="loading" />;
-    if (errorLessons) return <MessageDisplay message={errorLessons} type="error" />;
-    if (lessons.length === 0) return <MessageDisplay message="No lessons learned data available." type="info" />;
+    if (loadingLessons)
+      return <MessageDisplay message="Loading Lessons…" type="loading" />;
+    if (errorLessons)
+      return <MessageDisplay message={errorLessons} type="error" />;
+    if (lessons.length === 0)
+      return (
+        <MessageDisplay
+          message="No lessons learned data available."
+          type="info"
+        />
+      );
 
     return (
       <div className={styles.tableWrapper}>
@@ -284,24 +359,31 @@ export default function DeliveryTab({ project }: Props) {
     );
   };
 
-  /* jsx */
+  /* JSX */
   return (
     <div className={styles.container}>
+      {/* sub-tabs */}
       <div className={styles.subTabHeader}>
         <button
-          className={`${styles.subTabButton} ${activeTab === "risk" ? styles.activeSubTab : ""}`}
+          className={`${styles.subTabButton} ${
+            activeTab === "risk" ? styles.activeSubTab : ""
+          }`}
           onClick={() => setActiveTab("risk")}
         >
           Risk Matrix
         </button>
         <button
-          className={`${styles.subTabButton} ${activeTab === "lessons" ? styles.activeSubTab : ""}`}
+          className={`${styles.subTabButton} ${
+            activeTab === "lessons" ? styles.activeSubTab : ""
+          }`}
           onClick={() => setActiveTab("lessons")}
         >
           Lessons Learned
         </button>
       </div>
+
+      {/* content */}
       {activeTab === "risk" ? renderRiskTable() : renderLessonsTable()}
-    </div >
+    </div>
   );
 }
