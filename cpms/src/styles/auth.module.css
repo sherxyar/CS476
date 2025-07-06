@@ -2,7 +2,7 @@
 .master {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(to bottom, white 0%, #0b2c68 100%);
   display: flex;

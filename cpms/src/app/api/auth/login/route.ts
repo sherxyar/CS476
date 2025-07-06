@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !(await comparePasswords(password, user.hashedPassword))) {
-        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+        return NextResponse.json({ error: "Invalid credentials! Please try again." }, { status: 401 })
     }
     // generate random 6-digit code
     const code = Math.floor(Math.random() * 1000000).toString();
