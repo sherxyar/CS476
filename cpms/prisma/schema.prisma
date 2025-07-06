@@ -7,30 +7,21 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-/**
- * User Table
- */
-
 model User {
   id             Int    @id @default(autoincrement())
   name           String
   email          String @unique
   hashedPassword String
 
-  // relations
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
   notes            PMNote[]
   projects         Project[]               @relation("ManagerProjects")
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
-  changeLogs       ChangeLog[]             @relation("UserChangeLogs") 
+  changeLogs       ChangeLog[]             @relation("UserChangeLogs")
   projectAccesses  ProjectAccess[]
 }
-
-/**
- * Main Projects Table
- */
 
 model Project {
   id               String    @id @default(uuid())
@@ -46,23 +37,16 @@ model Project {
   dateCreated      DateTime  @default(now())
   lastUpdated      DateTime?
   status           String?
-
   projectManagerId Int?
 
-  /**
-   * relations
-   */
   projectManager   User?                   @relation("ManagerProjects", fields: [projectManagerId], references: [id])
   schedule         ProjectSchedule?        @relation("ProjectScheduleRelation")
   financialHistory FinancialHistoryEntry[]
   Invoice          Invoice[]
   pmNotesHistory   PMNote[]
-  projectManager   User?                   @relation("ManagerProjects", fields: [projectManagerId], references: [id])
+  accessList       ProjectAccess[]
+  changeLogs       ChangeLog[]             @relation("ProjectChangeLogs")
 }
-
-/**
- * Not sure what this is? - Need to check with Dongho Kim
- */
 
 model AuditLog {
   id         Int      @id @default(autoincrement())
@@ -79,10 +63,6 @@ model AuditLog {
   @@map("audit_log")
 }
 
-/**
- * General Tab: PM Notes
- */
-
 model PMNote {
   id        Int      @id @default(autoincrement())
   note      String
@@ -93,10 +73,6 @@ model PMNote {
   project Project @relation(fields: [projectId], references: [id])
   author  User?   @relation(fields: [userId], references: [id])
 }
-
-/**
- * FinancialsTab: Change History
- */
 
 model FinancialHistoryEntry {
   id        Int      @id @default(autoincrement())
@@ -112,10 +88,6 @@ model FinancialHistoryEntry {
   changedBy User?   @relation("UserFinancialChanges", fields: [userId], references: [id])
 }
 
-/**
- * FinancialsTab: Invoices
- */
-
 model Invoice {
   id            Int           @id @default(autoincrement())
   projectId     String
@@ -126,17 +98,14 @@ model Invoice {
   vendor        String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime
-  Project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  Project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 enum InvoiceStatus {
   PAID
   NOT_PAID
 }
-
-/**
- * Not sure what this is? - Need to check with Dongho Kim
- */
 
 model TabAccessRequest {
   id          Int       @id @default(autoincrement())
@@ -148,4 +117,47 @@ model TabAccessRequest {
 
   user     User  @relation("RequestUser", fields: [userId], references: [id])
   approver User? @relation("ApproveUser", fields: [approvedBy], references: [id])
+}
+
+model ChangeLog {
+  id              Int      @id @default(autoincrement())
+  changeType      String
+  category        String
+  description     String
+  impactArea      String
+  oldValue        String?
+  newValue        String?
+  justification   String
+  requestedBy     String
+  approvedBy      String
+  status          String
+  priority        String
+  estimatedImpact String
+  createdAt       DateTime @default(now())
+
+  userId    Int?
+  projectId String?
+
+  user    User?    @relation("UserChangeLogs", fields: [userId], references: [id])
+  project Project? @relation("ProjectChangeLogs", fields: [projectId], references: [id])
+}
+
+model ProjectAccess {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  projectId String
+
+  user    User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+}
+
+model ProjectSchedule {
+  id        Int    @id @default(autoincrement())
+  projectId String @unique
+
+  startDate DateTime
+  endDate   DateTime
+  notes     String?
+
+  project Project @relation("ProjectScheduleRelation", fields: [projectId], references: [id])
 }
