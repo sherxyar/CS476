@@ -6,7 +6,7 @@ import NotesModal from "./NotesModal";
 
 type Props = {
   project: Project;
-  onProjectUpdate: (project: Project) => void;              // parent refresh
+  onProjectUpdate: (project: Project) => void;              
   registerChangeHandler: (getChanges: () => Partial<Project>) => void;
 };
 

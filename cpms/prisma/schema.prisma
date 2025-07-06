@@ -7,11 +7,17 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
+/**
+ * User Table
+ */
+
 model User {
-  id               Int                     @id @default(autoincrement())
-  name             String
-  email            String                  @unique
-  hashedPassword   String
+  id             Int    @id @default(autoincrement())
+  name           String
+  email          String @unique
+  hashedPassword String
+
+  // relations
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
   notes            PMNote[]
   projects         Project[]               @relation("ManagerProjects")
@@ -20,31 +26,44 @@ model User {
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
 }
 
+/**
+ * Main Projects Table
+ */
+
 model Project {
-  id               String                  @id @default(uuid())
-  projectID        String                  @unique
+  id               String    @id @default(uuid())
+  projectID        String    @unique
   title            String
-  phase            String                  @default("Planning")
+  phase            String    @default("Planning")
   description      String
   forecast         Float
   actuals          Float
   budget           Float
   plannedStartDate DateTime
   plannedEndDate   DateTime
-  dateCreated      DateTime                @default(now())
+  dateCreated      DateTime  @default(now())
   lastUpdated      DateTime?
   status           String?
- 
+
   projectManagerId Int?
 
-  schedule ProjectSchedule? @relation("ProjectScheduleRelation")
-
+  /**
+   * relations
+   */
+  projectManager   User?                   @relation("ManagerProjects", fields: [projectManagerId], references: [id])
+  schedule         ProjectSchedule?        @relation("ProjectScheduleRelation")
   financialHistory FinancialHistoryEntry[]
   Invoice          Invoice[]
   pmNotesHistory   PMNote[]
-  projectManager   User?                   @relation("ManagerProjects", fields: [projectManagerId], references: [id])
 
+  // Delivery-tab relations
+  risks          RiskRegister[]   @relation("ProjectRisks")
+  lessonsLearned LessonsLearned[] @relation("ProjectLessons")
 }
+
+/**
+ * Not sure what this is? - Need to check with Dongho Kim
+ */
 
 model AuditLog {
   id         Int      @id @default(autoincrement())
@@ -55,10 +74,15 @@ model AuditLog {
   beforeData Json?
   afterData  Json?
   timestamp  DateTime @default(now())
-  user       User?    @relation(fields: [userId], references: [id])
+
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_log")
 }
+
+/**
+ * General Tab: PM Notes
+ */
 
 model PMNote {
   id        Int      @id @default(autoincrement())
@@ -66,9 +90,14 @@ model PMNote {
   createdAt DateTime @default(now())
   projectId String
   userId    Int?
-  project   Project  @relation(fields: [projectId], references: [id])
-  author    User?    @relation(fields: [userId], references: [id])
+
+  project Project @relation(fields: [projectId], references: [id])
+  author  User?   @relation(fields: [userId], references: [id])
 }
+
+/**
+ * FinancialsTab: Change History
+ */
 
 model FinancialHistoryEntry {
   id        Int      @id @default(autoincrement())
@@ -79,9 +108,14 @@ model FinancialHistoryEntry {
   reason    String?
   changedAt DateTime @default(now())
   userId    Int?
-  project   Project  @relation(fields: [projectId], references: [id])
-  changedBy User?    @relation("UserFinancialChanges", fields: [userId], references: [id])
+
+  project   Project @relation(fields: [projectId], references: [id])
+  changedBy User?   @relation("UserFinancialChanges", fields: [userId], references: [id])
 }
+
+/**
+ * FinancialsTab: Invoices
+ */
 
 model Invoice {
   id            Int           @id @default(autoincrement())
@@ -93,13 +127,18 @@ model Invoice {
   vendor        String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime
-  Project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  Project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 enum InvoiceStatus {
   PAID
   NOT_PAID
 }
+
+/**
+ * Not sure what this is? - Need to check with Dongho Kim
+ */
 
 model TabAccessRequest {
   id          Int       @id @default(autoincrement())
@@ -113,16 +152,20 @@ model TabAccessRequest {
   approver User? @relation("ApproveUser", fields: [approvedBy], references: [id])
 }
 
-//The below 2 tables are for Schedule tab
+/**
+ * Schedule tab
+ */
+
 model Milestone {
-  id          Int             @id @default(autoincrement())
-  title       String          // Changed from task to title for consistency
+  id          Int      @id @default(autoincrement())
+  title       String
   description String
   startDate   DateTime
   endDate     DateTime
   status      String
   scheduleId  Int
-  schedule    ProjectSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  schedule ProjectSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 }
 
 model ProjectSchedule {
@@ -130,4 +173,52 @@ model ProjectSchedule {
   projectId  String      @unique
   project    Project     @relation("ProjectScheduleRelation", fields: [projectId], references: [id], onDelete: Cascade)
   milestones Milestone[]
+}
+
+/**
+ * Delivery tab: Risk Register
+ */
+
+model RiskRegister {
+  id                       Int       @id @default(autoincrement())
+  riskID                   String?   @map("Risk ID")
+  riskName                 String?   @map("Risk Name")
+  riskDescription          String?   @map("Risk Description")
+  dateCaptured             DateTime? @map("Date Captured")
+  riskOwner                String?   @map("Risk Owner")
+  currentImpact            Int?      @map("Current Impact")
+  currentLikelihood        Int?      @map("Current Likelihood")
+  currentScore             Int?      @map("Current Score")
+  riskResponse             String?   @map("Risk Response")
+  operationalOrProjectRisk String?   @map("Operational or Project Risk")
+
+  /**
+   * relation back to project
+   */
+  projectId String
+  project   Project @relation("ProjectRisks", fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+/**
+ * Delivery tab: Lessons Learned
+ */
+
+model LessonsLearned {
+  id               Int     @id @default(autoincrement())
+  topic            String?
+  experience       String?
+  impactRecurrence String? @map("Impact & Recurrence")
+  lessonsLearned   String? @map("Lessons Learned")
+  bestPractice     String? @map("Best Practice")
+  assignedTo       String? @map("Assigned To")
+
+  /**
+   * relation back to project
+   */
+  projectId String
+  project   Project @relation("ProjectLessons", fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
