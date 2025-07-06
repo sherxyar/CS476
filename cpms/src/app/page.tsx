@@ -7,7 +7,7 @@ import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
-import { Building2 } from 'lucide-react';
+import { Building2, Phone, PhoneCall } from 'lucide-react';
 import { Search, House } from 'lucide-react';
 
 
@@ -112,30 +112,36 @@ const Home: NextPage = () => {
       </Head>
 
       <div className={styles.sidebar}>
-        {/* <img src="/icons/InfraPro_Icon.png" alt="Logo" className={styles.sidebarLogo} /> */}
         <nav>
           <div className={styles.logoWrap}>
-            { }
-            <Building2
-              aria-hidden="true"
-              className={styles.logoIcon}
-              strokeWidth={2}
-            />
+            <Building2 aria-hidden className={styles.logoIcon} strokeWidth={2} />
             <span className={styles.logoText}>InfraPro</span>
           </div>
+
           <ul>
             <li className={styles.active}>
               <span className={styles.homeIcon}><House /></span>
-              <span style={{ fontSize: "0.9em" }}>HOME</span>
+              <span style={{ fontSize: "0.8em" }}>HOME</span>
             </li>
           </ul>
+
+          <button
+            className={styles.create}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            + Create Project
+          </button>
+
+          <button className={styles.supportLink}>
+            <Phone/>
+            Get Support
+          </button>
         </nav>
       </div>
-
       <div className={styles.topbar}>
 
-        <div className={styles.outer}>          
-          <div className={styles.inner}>       
+        <div className={styles.outer}>
+          <div className={styles.inner}>
             <Search aria-hidden className={styles.icon} size={16} />
             <input
               type="text"
@@ -189,15 +195,7 @@ const Home: NextPage = () => {
               </tbody>
             </table>
 
-            <div className={styles.buttons}>
-              <button
-                className={styles.create}
-                onClick={() => setIsCreateOpen(true)}
-              >
-                + Create Project
-              </button>
-              <button className={styles.view}>View All Projects</button>
-            </div>
+
           </div>
         </div>
       </main>
