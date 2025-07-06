@@ -131,3 +131,52 @@ model ProjectSchedule {
   project    Project     @relation("ProjectScheduleRelation", fields: [projectId], references: [id], onDelete: Cascade)
   milestones Milestone[]
 }
+
+//the next 3 tables are for delivery tab
+
+//Table for Projects 
+CREATE TABLE projects (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    planned_start_date DATE,
+    planned_end_date DATE
+    -- Add other project-related fields as needed
+);
+
+//Table for Lessons Learned
+CREATE TABLE lessons_learned (
+    id SERIAL PRIMARY KEY,
+    project_id VARCHAR(255) NOT NULL,
+    topic TEXT NOT NULL,
+    experience TEXT NOT NULL,
+    impact_recurrence TEXT NOT NULL,
+    lesson_learned TEXT NOT NULL,
+    best_practice TEXT NOT NULL,
+    assigned_to VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+//Table for Risk Register
+CREATE TABLE risk_register (
+    id SERIAL PRIMARY KEY,
+    project_id VARCHAR(255) NOT NULL,
+    risk_id VARCHAR(255) UNIQUE NOT NULL, -- Assuming risk_id should be unique
+    risk_description TEXT NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    impact VARCHAR(255) NOT NULL,
+    likelihood VARCHAR(255) NOT NULL,
+    risk_score INTEGER NOT NULL, -- Assuming score is an integer
+    mitigation_plan TEXT NOT NULL,
+    contingency_plan TEXT, -- Optional
+    owner VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL CHECK (status IN ('Open', 'Closed', 'Mitigated')),
+    date_identified DATE NOT NULL,
+    date_closed DATE, -- Nullable
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+
