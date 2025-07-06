@@ -80,6 +80,7 @@ export default function DeliveryTab({ project }: Props) {
   const [showRiskModal, setShowRiskModal] = useState(false);
   const [savingRisk, setSavingRisk] = useState(false);
   const [newRisk, setNewRisk] = useState({
+    riskID: "",
     riskName: "",
     riskDescription: "",
     riskOwner: "",
@@ -157,6 +158,7 @@ export default function DeliveryTab({ project }: Props) {
       setRisks((prev) => [...prev, saved]);
       /* reset */
       setNewRisk({
+        riskID: "",
         riskName: "",
         riskDescription: "",
         riskOwner: "",
@@ -184,7 +186,7 @@ export default function DeliveryTab({ project }: Props) {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Risk ID</th>
+              <th>ID</th>
               <th>Name</th>
               <th>Description</th>
               <th>Owner</th>
@@ -197,7 +199,7 @@ export default function DeliveryTab({ project }: Props) {
           <tbody>
             {risks.map((r) => (
               <tr key={r.id}>
-                <td>{r.riskID || "—"}</td>
+                <td>{r.id}</td>
                 <td>{r.riskName || "—"}</td>
                 <td>{r.riskDescription || "—"}</td>
                 <td>{r.riskOwner || "—"}</td>
