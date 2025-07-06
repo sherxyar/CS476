@@ -219,7 +219,7 @@ export default function DeliveryTab({ project }: Props) {
     if (loadingLessons) return <p className={styles.message}>Loading Lessons…</p>;
     if (errorLessons) return <p className={`${styles.message} ${styles.error}`}>{errorLessons}</p>;
     if (lessons.length === 0)
-      return <p className={`${styles.message} ${styles.info}`}>No lessons learned.</p>;
+      return <p className={`${styles.message} ${styles.info}`}>No lessons learned entries.</p>;
 
     return (
       <div className={styles.tableWrapper}>
