@@ -5,7 +5,12 @@ export async function PATCH(
   req: Request,
   { params }: { params: { id: string; riskid: string } }
 ) {
+  // Convert the path param to a number
   const riskId = parseInt(params.riskid, 10);
+  if (isNaN(riskId)) {
+    return NextResponse.json({ error: "Invalid risk ID" }, { status: 400 });
+  }
+
   const data = await req.json();
 
   try {
@@ -14,7 +19,7 @@ export async function PATCH(
       data,
     });
     return NextResponse.json(updatedRisk);
-
+    
   } catch (err) {
     console.error(`Error updating risk ${riskId}:`, err);
     return NextResponse.json(
