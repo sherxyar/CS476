@@ -13,18 +13,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const numericId = parseInt(id);
 
   if (req.method === 'PUT') {
-    const { title, description } = req.body;
+    const {
+      description,
+      impactArea,
+      justification,
+      approvedBy,
+      status,
+      priority,
+      estimatedImpact,
+      oldValue,
+      newValue,
+      category,
+      changeType,
+    } = req.body;
 
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
+    if (!description || !impactArea || !justification || !status) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
       const updatedLog = await prisma.changeLog.update({
         where: { id: numericId },
         data: {
-          title,
           description,
+          impactArea,
+          justification,
+          approvedBy,
+          status,
+          priority,
+          estimatedImpact,
+          oldValue,
+          newValue,
+          category,
+          changeType,
         },
       });
       return res.status(200).json(updatedLog);
@@ -45,7 +66,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: 'Failed to delete change log' });
     }
   }
-
 
   return res.setHeader('Allow', ['PUT', 'DELETE']).status(405).json({ error: 'Method not allowed' });
 }
