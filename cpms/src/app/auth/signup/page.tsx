@@ -7,6 +7,7 @@ import styles from "@/styles/auth.module.css";
 export default function SignupPage() {
     const [form, setForm] = useState({ name: "", email: "", password: "", role: "PROJECT_MANAGER" });
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const router = useRouter();
     const submitHandler = async () => {
         const password = form.password;
@@ -16,17 +17,19 @@ export default function SignupPage() {
             return;
         }
         setError("");
-        const req = await fetch("/api/auth/register", {
+        const req = await fetch("/api/auth/signup", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form)
         });
         const data = await req.json();
         if (req.ok) {
-            alert("User successfully signed up!")
-            router.push("/login");
+            setSuccess("User successfully signed up!")
+            setError("");
+            setTimeout(() => router.back(), 2000);
         } else {
-            alert(data.error || "Signup failed");
+            setError(data.error || "Signup failed");
+            setSuccess("");
         }
     }
     return (
@@ -42,7 +45,6 @@ export default function SignupPage() {
                         <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={styles.input} required />
                         <label className={styles.label}>Password</label>
                         <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className={styles.input} required />
-                        {error && <div className={styles.error}>{error}</div>}
                         <label className={styles.label}>Role</label>
                         <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className={styles.select} required>
                             <option value="PROJECT_MANAGER">Project Manager</option>
@@ -50,6 +52,8 @@ export default function SignupPage() {
                         </select>
                         <button type="submit" className={styles.button}>Create Account</button>
                     </form>
+                    {error && <div className={styles.error}>{error}</div>}
+                    {success && <div className={styles.success}>{success}</div>}
                     <div className={styles.link}>Are you an existing user? <a href="/login">Login</a></div>
                 </div>
             </div>

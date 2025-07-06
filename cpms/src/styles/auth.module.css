@@ -126,3 +126,13 @@
   font-weight: 500;
   text-align: center;
 }
+
+.success {
+  margin-top: 16px;
+  color: white;
+  background-color: #28a745;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+}
