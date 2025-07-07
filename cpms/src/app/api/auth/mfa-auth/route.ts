@@ -9,9 +9,9 @@ export async function POST(req: Request) {
     }
     const isValidCode = user.mfaCodes.find((current_session: { code: string; validUntil: Date }) => current_session.code === code && new Date(current_session.validUntil) > new Date());
     if (!isValidCode) {
-        return NextResponse.json({ error: "Code is invalid or expired" }, { status: 403 });
+        return NextResponse.json({ error: "Code is invalid or expired." }, { status: 403 });
     }
     const res = NextResponse.json({ message: "2FA successful", user: { id: user.id, role: user.role } });
-    res.cookies.set("user", JSON.stringify({ id: user.id, role: user.role }), { path: "/", httpOnly: true });
+    res.cookies.set("user", JSON.stringify({ id: user.id, email: user.email, role: user.role }), { path: "/", httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 60 * 60 * 2 });
     return res;
 }

@@ -1,13 +1,12 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-export function session(req: NextRequest) {
-    const loggedIn = req.cookies.has("user");
-    const pathname = req.nextUrl.pathname;
-    if (!loggedIn && pathname.startsWith("/")) {
+export function middleware(req: NextRequest) {
+    const session = req.cookies.get("user");
+    
+    if (!session) {
         return NextResponse.redirect(new URL("/login", req.url));
     }
     return NextResponse.next();
 }
 
-export const config = { matcher: ["//:path*"] };
+export const config = { matcher: ["//:path*"] }; // still need to work on this
