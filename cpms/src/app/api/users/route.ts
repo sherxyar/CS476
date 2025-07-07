@@ -7,14 +7,14 @@ export async function GET(req: Request) {
 
   //  query string 
   const qRaw  = (searchParams.get("query") ?? "").trim();
-  const query = qRaw.length ? qRaw : "";      // avoid falsy-but-not-empty issues
+  const query = qRaw.length ? qRaw : "";    
 
   //  limit 
   const limitParam = Number(searchParams.get("limit"));
   const limit =
     Number.isFinite(limitParam) && limitParam > 0
-      ? Math.min(limitParam, 50)               // safety cap
-      : 30;                                    // default
+      ? Math.min(limitParam, 50)               
+      : 30;                                   
 
   //  skip (pagination) 
   const skipParam = Number(searchParams.get("skip"));
