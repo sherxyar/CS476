@@ -28,7 +28,7 @@ export default function LoginPage() {
         <div className={styles.master}>
             <div className={styles.wrapper}>
                 <div className={styles.container}>
-                    <img src="/PlanovaLogo1.png" alt="Logo" className={styles.logo} />
+                    <img src="/InfraPro_Logo.png" alt="Logo" className={styles.logo} />
                     <h2 className={styles.heading}>Login</h2>
                     <form className={styles.form} onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
                         <label className={styles.label}>Email</label>

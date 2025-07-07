@@ -109,7 +109,7 @@ const fetchProjects = async () => {
       </Head>
 
       <div className={styles.sidebar}>
-        <img src="/InfraProLogo.png" alt="Logo" className={styles.sidebarLogo} />
+        <img src="/InfraPro_Logo.png" alt="Logo" className={styles.sidebarLogo} />
         <nav>
           <ul>
             <li className={styles.active}><span className={styles.icon}>🏠</span>HOME</li>
