@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 
 interface ChangeLog {
-  id: number;
+  id: string;
   projectId: string;
   title: string;
   description: string;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Implemented';
   createdAt: string;
   createdBy: {
     name: string;
@@ -16,16 +17,18 @@ interface ChangeLog {
 }
 
 export default function ChangeLogUI() {
+  // State variables for logs, input fields, search and sorting
   const [changeLogs, setChangeLogs] = useState<ChangeLog[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'latest' | 'oldest' | 'author'>('latest');
 
-  const projectId = 'demo-project-id'; // 실제 프로젝트 ID로 교체 필요
-  const createdById = 1; // 실제 유저 ID로 교체 필요
+  // Placeholder values for project and user; replace with real data
+  const projectId = 'demo-project-id';
+  const createdById = 1;
 
-  // 초기 데이터 로딩
+  // Fetch initial change logs on component mount
   useEffect(() => {
     fetch('/api/change-log')
       .then(res => res.json())
@@ -33,7 +36,7 @@ export default function ChangeLogUI() {
       .catch(console.error);
   }, []);
 
-  // 새로운 변경 로그 추가
+  // Add a new change log entry
   const handleAdd = async () => {
     if (!title || !description) {
       alert('Title and description are required');
@@ -60,6 +63,7 @@ export default function ChangeLogUI() {
         return;
       }
 
+      // Add new log entry to state and clear input fields
       setChangeLogs(prev => [saved, ...prev]);
       setTitle('');
       setDescription('');
@@ -69,11 +73,12 @@ export default function ChangeLogUI() {
     }
   };
 
-  // 변경 로그 삭제
-  const handleDelete = async (id: number) => {
+  // Delete a change log entry
+  const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/change-log/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
+      // Remove deleted entry from state
       setChangeLogs(prev => prev.filter(log => log.id !== id));
     } catch (error) {
       alert('Failed to delete change log');
@@ -81,8 +86,8 @@ export default function ChangeLogUI() {
     }
   };
 
-  // 변경 로그 수정
-  const handleUpdate = async (id: number, title: string, description: string) => {
+  // Update title and description of a change log entry
+  const handleUpdate = async (id: string, title: string, description: string) => {
     try {
       const res = await fetch(`/api/change-log/${id}`, {
         method: 'PUT',
@@ -90,6 +95,7 @@ export default function ChangeLogUI() {
         body: JSON.stringify({ title, description }),
       });
       if (!res.ok) throw new Error('Failed to update');
+      // Update the local state with new values
       setChangeLogs(prev =>
         prev.map(log =>
           log.id === id ? { ...log, title, description } : log
@@ -101,13 +107,34 @@ export default function ChangeLogUI() {
     }
   };
 
-  // 검색 필터링
+  // Update status of a change log entry (Approve / Reject)
+  const handleStatusChange = async (id: string, newStatus: ChangeLog['status']) => {
+    try {
+      const res = await fetch(`/api/change-log/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      // Update status in the local state
+      setChangeLogs(prev =>
+        prev.map(log =>
+          log.id === id ? { ...log, status: newStatus } : log
+        )
+      );
+    } catch (error) {
+      alert('Failed to update status');
+      console.error(error);
+    }
+  };
+
+  // Filter logs by search input in title or author name
   const filtered = changeLogs.filter(log =>
     log.title.toLowerCase().includes(search.toLowerCase()) ||
     log.createdBy.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // 정렬
+  // Sort logs based on selected option
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === 'latest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -116,6 +143,7 @@ export default function ChangeLogUI() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Input fields for adding new change log */}
       <div className="flex gap-2">
         <Input
           placeholder="Title"
@@ -130,6 +158,7 @@ export default function ChangeLogUI() {
         <Button onClick={handleAdd}>Add</Button>
       </div>
 
+      {/* Search and sort controls */}
       <div className="flex justify-between items-center">
         <Input
           placeholder="Search by title or author"
@@ -148,6 +177,7 @@ export default function ChangeLogUI() {
         </select>
       </div>
 
+      {/* Render each change log entry */}
       {sorted.map(log => (
         <Card key={log.id}>
           <CardContent className="space-y-2">
@@ -156,6 +186,8 @@ export default function ChangeLogUI() {
               By {log.createdBy.name} on {new Date(log.createdAt).toLocaleString()}
             </div>
             <div>{log.description}</div>
+
+            {/* Action buttons for each log */}
             <div className="flex gap-2">
               <Button variant="destructive" onClick={() => handleDelete(log.id)}>Delete</Button>
               <Button
@@ -169,6 +201,18 @@ export default function ChangeLogUI() {
               >
                 Edit
               </Button>
+
+              {/* Show Approve/Reject only if status is Pending */}
+              {log.status === "Pending" && (
+                <>
+                  <Button onClick={() => handleStatusChange(log.id, "Approved")} variant="outline">
+                    Approve
+                  </Button>
+                  <Button onClick={() => handleStatusChange(log.id, "Rejected")} variant="outline" color="destructive">
+                    Reject
+                  </Button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>

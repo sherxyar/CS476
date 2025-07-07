@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // POST method: Create a new change log entry
   if (req.method === 'POST') {
     const {
       changeType,
@@ -22,6 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       userId,
     } = req.body;
 
+    // Validate required fields' types
     if (
       typeof changeType !== 'string' ||
       typeof category !== 'string' ||
@@ -38,6 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
+      // Create new change log entry in DB
       const newLog = await prisma.changeLog.create({
         data: {
           changeType,
@@ -56,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           userId: userId || null,
         },
         include: {
-          user: true,
+          user: true, // include related user data
         },
       });
 
@@ -67,10 +70,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
+  // GET method: Fetch change log entries with optional filtering
   if (req.method === 'GET') {
     const { projectId, userId } = req.query;
 
     try {
+      // Query change logs with optional filters and order by creation date desc
       const logs = await prisma.changeLog.findMany({
         where: {
           ...(projectId ? { projectId: projectId as string } : {}),
@@ -91,6 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
+  // Method not allowed for other HTTP verbs
   res.setHeader('Allow', ['GET', 'POST']);
   return res.status(405).json({ error: `Method ${req.method} not allowed` });
 }
