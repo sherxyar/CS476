@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/auth.module.css";
 
-export default function SignupPage() {
+export default function LoginPage() {
     const [form, setForm] = useState({ email: "", password: ""});
     const [error, setError] = useState("");
     const router = useRouter();
@@ -19,7 +19,7 @@ export default function SignupPage() {
         });
         const data = await req.json();
         if (req.ok) {
-            router.push(`/2fa?email=${encodeURIComponent(form.email)}`);
+            router.push(`/auth/mfa-auth?email=${encodeURIComponent(form.email)}`);
         } else {
             setError(data.error || "Login failed");
         }
@@ -38,7 +38,7 @@ export default function SignupPage() {
                         <button type="submit" className={styles.button}>Submit</button>
                     </form>
                     {error && <div className={styles.error}>{error}</div>}
-                    <div className={styles.link}>New user? <a href="/signup">Sign Up</a></div>
+                    <div className={styles.link}>New user? <a href="/auth/signup">Sign Up</a></div>
                 </div>
             </div>
         </div>

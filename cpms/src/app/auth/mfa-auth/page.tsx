@@ -1,19 +1,21 @@
 "use client"
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "@/styles/auth.module.css";
 
 export default function MfaAuthPage() {
+    const searchParams = useSearchParams();
+    const email = searchParams?.get("email") || "";
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
     const router = useRouter();
 
     const verifyCode = async () => {
-        const req = await fetch("api/auth/mfa-auth", {
+        const req = await fetch("/api/auth/mfa-auth", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code })
+            body: JSON.stringify({ email, code })
         });
         const data = await req.json();
         if (req.ok) {

@@ -54,7 +54,7 @@ export default function SignupPage() {
                     </form>
                     {error && <div className={styles.error}>{error}</div>}
                     {success && <div className={styles.success}>{success}</div>}
-                    <div className={styles.link}>Are you an existing user? <a href="/login">Login</a></div>
+                    <div className={styles.link}>Are you an existing user? <a href="/auth/login">Login</a></div>
                 </div>
             </div>
         </div>

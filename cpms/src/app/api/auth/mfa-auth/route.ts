@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { useSearchParams, useRouter } from "next/navigation";
 
 export async function POST(req: Request) {
     const { email, code } = await req.json();
@@ -12,5 +11,7 @@ export async function POST(req: Request) {
     if (!isValidCode) {
         return NextResponse.json({ error: "Code is invalid or expired" }, { status: 403 });
     }
-    return NextResponse.json({ message: "Multi-factor authentication successful", user: { id: user.id, role: user.role } });
+    const res = NextResponse.json({ message: "2FA successful", user: { id: user.id, role: user.role } });
+    res.cookies.set("user", JSON.stringify({ id: user.id, role: user.role }), { path: "/", httpOnly: true });
+    return res;
 }
