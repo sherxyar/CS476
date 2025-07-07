@@ -1,6 +1,4 @@
-
-"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
@@ -15,60 +13,31 @@ type TeamMember = {
 };
 
 type Props = {
- project: Project;
+  project: Project;
 };
 
-export default function AdministrationTab({ project: _project }: Props) {
+export default function AdministrationTab({ project }: Props) {
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    {
-      id: "TM001",
-      name: "Jane Smith",
-      role: "Project Manager",
-      email: "jane.smith@company.com",
-      accessLevel: "Admin",
-      department: "Engineering",
-      lastActivity: "2 hours ago"
-    },
-    {
-      id: "TM002",
-      name: "Mike Johnson",
-      role: "Lead Engineer",
-      email: "mike.johnson@company.com",
-      accessLevel: "Project Manager",
-      department: "Engineering",
-      lastActivity: "1 day ago"
-    },
-    {
-      id: "TM003",
-      name: "Sarah Wilson",
-      role: "Quality Analyst",
-      email: "sarah.wilson@company.com",
-      accessLevel: "Contributor",
-      department: "Quality",
-      lastActivity: "3 hours ago"
-    },
-    {
-      id: "TM004",
-      name: "David Brown",
-      role: "Stakeholder",
-      email: "david.brown@client.com",
-      accessLevel: "Contributor",
-      department: "Client",
-      lastActivity: "1 week ago"
-    }
-  ]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [newMemberAccess, setNewMemberAccess] = useState<TeamMember["accessLevel"]>("Contributor");
 
-  const [newMember, setNewMember] = useState({
-    name: "",
-    role: "",
-    email: "",
-    accessLevel: "Contributor" as TeamMember["accessLevel"],
-    department: ""
-  });
+  // Fetch current team members from backend
+  const fetchMembers = async () => {
+    try {
+      const res = await fetch(`/api/projects/${project.id}/members`);
+      const data: TeamMember[] = await res.json();
+      setTeamMembers(data);
+    } catch (error) {
+      console.error("Failed to load team members", error);  
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, []);
 
   const filteredMembers = teamMembers.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,36 +54,37 @@ export default function AdministrationTab({ project: _project }: Props) {
     }
   };
 
-  const handleAddMember = () => {
-    if (newMember.name && newMember.email && newMember.role) {
-      const member: TeamMember = {
-        ...newMember,
-        id: `TM${String(teamMembers.length + 1).padStart(3, '0')}`,
-        lastActivity: "Just added"
-      };
-      setTeamMembers([...teamMembers, member]);
-      setNewMember({
-        name: "",
-        role: "",
-        email: "",
-        accessLevel: "Contributor",
-        department: ""
+  // Add existing user by email
+  const handleAddMember = async () => {
+    if (!newMemberEmail) return;
+    try {
+      await fetch(`/api/projects/${project.id}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: newMemberEmail,
+          accessLevel: newMemberAccess
+        })
       });
+      setNewMemberEmail("");
+      setNewMemberAccess("Contributor");
       setShowAddMember(false);
+      fetchMembers();
+    } catch (error) {
+      console.error("Failed to add member", error);
     }
   };
 
   return (
     <div className={styles.generalContent}>
+      {/* Top info */}
       <div className={styles.topSection}>
         <div className={styles.leftColumn}>
           <div className={styles.fieldGroup}>
             <label>Project Owner</label>
-            <div className={styles.fieldValue}>Jane Smith</div>
+            <div className={styles.fieldValue}>{project.projectManager?.name || 'Unassigned'}</div>
           </div>
-
         </div>
-
         <div className={styles.rightColumn}>
           <div className={styles.fieldGroup}>
             <label>Total Team Members</label>
@@ -123,7 +93,7 @@ export default function AdministrationTab({ project: _project }: Props) {
         </div>
       </div>
 
-      <div className={styles.divider}></div>
+      <div className={styles.divider} />
 
       {/* Team Access Management */}
       <div className={styles.actualsSection}>
@@ -131,13 +101,13 @@ export default function AdministrationTab({ project: _project }: Props) {
           <div className={styles.actualsHeader}>
             <label>Team Access Management</label>
             <div className={styles.buttonGroup}>
-              <button 
+              <button
                 className={styles.viewDetailsButton}
                 onClick={() => setShowAccessModal(true)}
               >
                 View All Access
               </button>
-              <button 
+              <button
                 className={styles.addInvoiceButton}
                 onClick={() => setShowAddMember(true)}
               >
@@ -158,60 +128,26 @@ export default function AdministrationTab({ project: _project }: Props) {
             />
           </div>
 
-          {/* Add Member Form */}
+          {/* Add Member Form (select existing user) */}
           {showAddMember && (
             <div className={styles.invoiceForm}>
               <div className={styles.formRow}>
                 <div className={styles.formField}>
-                  <label>Name</label>
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    value={newMember.name}
-                    onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                    placeholder="Full name"
-                  />
-                </div>
-                <div className={styles.formField}>
-                  <label>Email</label>
+                  <label>User Email</label>
                   <input
                     type="email"
                     className={styles.formInput}
-                    value={newMember.email}
-                    onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                    placeholder="Email address"
+                    value={newMemberEmail}
+                    onChange={(e) => setNewMemberEmail(e.target.value)}
+                    placeholder="Enter user email"
                   />
                 </div>
-              </div>
-              <div className={styles.formRow}>
-                <div className={styles.formField}>
-                  <label>Role</label>
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    value={newMember.role}
-                    onChange={(e) => setNewMember({ ...newMember, role: e.target.value })}
-                    placeholder="Job title/role"
-                  />
-                </div>
-                <div className={styles.formField}>
-                  <label>Department</label>
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    value={newMember.department}
-                    onChange={(e) => setNewMember({ ...newMember, department: e.target.value })}
-                    placeholder="Department"
-                  />
-                </div>
-              </div>
-              <div className={styles.formRow}>
                 <div className={styles.formField}>
                   <label>Access Level</label>
                   <select
                     className={styles.formSelect}
-                    value={newMember.accessLevel}
-                    onChange={(e) => setNewMember({ ...newMember, accessLevel: e.target.value as TeamMember["accessLevel"] })}
+                    value={newMemberAccess}
+                    onChange={(e) => setNewMemberAccess(e.target.value as TeamMember["accessLevel"])}
                   >
                     <option value="Contributor">Contributor</option>
                     <option value="Project Manager">Project Manager</option>
@@ -241,7 +177,7 @@ export default function AdministrationTab({ project: _project }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {filteredMembers.map((member) => (
+                {filteredMembers.map(member => (
                   <tr key={member.id}>
                     <td style={{ fontWeight: '600' }}>{member.name}</td>
                     <td>{member.role}</td>
@@ -261,9 +197,9 @@ export default function AdministrationTab({ project: _project }: Props) {
         </div>
       </div>
 
-      <div className={styles.divider}></div>
+      <div className={styles.divider} />
 
-      {/* Additional Administration Features */}
+      {/* Quick Actions */}
       <div className={styles.actualsSection}>
         <div className={styles.fieldGroup}>
           <label>Quick Actions</label>
@@ -273,9 +209,11 @@ export default function AdministrationTab({ project: _project }: Props) {
             </button>
             <button className={styles.viewDetailsButton}>
               Audit Log
-            </button>        </div>
+            </button>
+          </div>
         </div>
       </div>
+
 
       {/* Access Modal */}
       {showAccessModal && (
@@ -283,7 +221,7 @@ export default function AdministrationTab({ project: _project }: Props) {
           <div className={styles.popup}>
             <div className={styles.popupHeader}>
               <h3>Team Access Overview</h3>
-              <button 
+              <button
                 className={styles.popupCloseButton}
                 onClick={() => setShowAccessModal(false)}
               >
@@ -310,9 +248,9 @@ export default function AdministrationTab({ project: _project }: Props) {
                     {teamMembers.filter(m => m.accessLevel === "Contributor").length} members
                   </span>
                 </div>
-               
+
               </div>
-              
+
               <h4 style={{ marginTop: '24px', marginBottom: '16px' }}>Access Permissions</h4>
               <div className={styles.tableContainer}>
                 <table className={styles.historyTable}>
@@ -323,38 +261,38 @@ export default function AdministrationTab({ project: _project }: Props) {
                       <th>Project Manager</th>
                       <th>Contributor</th>
                     </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>View Project</td>
-                        <td>✓</td>
-                        <td>✓</td>
-                        <td>✓</td>
-                      </tr>
-                      <tr>
-                        <td>Edit Project Details</td>
-                        <td>✓</td>
-                        <td>✓</td>
-                        <td>✗</td>
-                      </tr>
-                      <tr>
-                        <td>Manage Financials</td>
-                        <td>✓</td>
-                        <td>✓</td>
-                        <td>✗</td>
-                      </tr>
-                      <tr>
-                        <td>Approve Changes</td>
-                        <td>✓</td>
-                        <td>✓</td>
-                        <td>✗</td>
-                      </tr>
-                      <tr>
-                        <td>Manage Team Access</td>
-                        <td>✓</td>
-                        <td>✗</td>
-                        <td>✗</td>
-                      </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>View Project</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td>Edit Project Details</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✗</td>
+                    </tr>
+                    <tr>
+                      <td>Manage Financials</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✗</td>
+                    </tr>
+                    <tr>
+                      <td>Approve Changes</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✗</td>
+                    </tr>
+                    <tr>
+                      <td>Manage Team Access</td>
+                      <td>✓</td>
+                      <td>✗</td>
+                      <td>✗</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
