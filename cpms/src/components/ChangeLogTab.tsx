@@ -1,5 +1,5 @@
-// src/pages/admin/ChangeLogTab.tsx
 "use client";
+
 import { useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
@@ -83,7 +83,7 @@ export default function ChangeLogTab({ project }: Props) {
           status,
           priority,
           estimatedImpact,
-          userId: 1, // Replace with actual logged-in user ID
+          userId: 1,
           projectId: project.id,
         }),
       });
@@ -114,52 +114,105 @@ export default function ChangeLogTab({ project }: Props) {
   };
 
   return (
-    <div>
-      <h1>Change Log</h1>
-      <button onClick={() => setShowAddChange(true)}>Add Change</button>
+    <div className={styles.generalContent}>
+      <div className={styles.actualsHeader}>
+        <label>Change Log</label>
+        <button
+          className={styles.addInvoiceButton}
+          onClick={() => setShowAddChange(true)}
+        >
+          + Add Change
+        </button>
+      </div>
 
       {showAddChange && (
-        <div>
-          <h2>New Change Request</h2>
-          <input
-            placeholder="Description"
-            value={newChange.description}
-            onChange={(e) =>
-              setNewChange({ ...newChange, description: e.target.value })
-            }
-          />
-          <input
-            placeholder="Impact Area"
-            value={newChange.impactArea}
-            onChange={(e) =>
-              setNewChange({ ...newChange, impactArea: e.target.value })
-            }
-          />
-          <input
-            placeholder="Justification"
-            value={newChange.justification}
-            onChange={(e) =>
-              setNewChange({ ...newChange, justification: e.target.value })
-            }
-          />
-          <input
-            placeholder="Requested By"
-            value={newChange.requestedBy}
-            onChange={(e) =>
-              setNewChange({ ...newChange, requestedBy: e.target.value })
-            }
-          />
-          <button onClick={handleAddChange}>Submit</button>
+        <div className={styles.invoiceForm}>
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Description</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                value={newChange.description}
+                onChange={(e) =>
+                  setNewChange({ ...newChange, description: e.target.value })
+                }
+              />
+            </div>
+            <div className={styles.formField}>
+              <label>Impact Area</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                value={newChange.impactArea}
+                onChange={(e) =>
+                  setNewChange({ ...newChange, impactArea: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formField}>
+              <label>Justification</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                value={newChange.justification}
+                onChange={(e) =>
+                  setNewChange({ ...newChange, justification: e.target.value })
+                }
+              />
+            </div>
+            <div className={styles.formField}>
+              <label>Requested By</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                value={newChange.requestedBy}
+                onChange={(e) =>
+                  setNewChange({ ...newChange, requestedBy: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <div className={styles.formActions}>
+            <button
+              className={styles.saveInvoiceButton}
+              onClick={handleAddChange}
+            >
+              Save Change
+            </button>
+            <button
+              className={styles.cancelNoteButton}
+              onClick={() => setShowAddChange(false)}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
-      <ul>
-        {changeLog.map((entry) => (
-          <li key={entry.id}>
-            {entry.createdAt} - {entry.description} ({entry.status})
-          </li>
-        ))}
-      </ul>
+      <div className={styles.divider} />
+
+      <div className={styles.notesSection}>
+        {changeLog.length === 0 ? (
+          <p>No change log entries yet.</p>
+        ) : (
+          <ul>
+            {changeLog.map((entry) => (
+              <li key={entry.id} className={styles.noteItem}>
+                <div className={styles.fieldGroup}>
+                  <div className={styles.fieldValue}>
+                    <strong>{entry.createdAt}</strong>: {entry.description} ({entry.status})
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

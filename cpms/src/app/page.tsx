@@ -6,6 +6,7 @@ import Head from "next/head";
 import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
+
 import type { Project } from "@/types/Project";
 import { Building2, Phone, PhoneCall } from 'lucide-react';
 import { Search, House } from 'lucide-react';
