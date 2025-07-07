@@ -10,7 +10,6 @@ datasource db {
 /**
  * User Table
  */
-
 model User {
   id             Int    @id @default(autoincrement())
   name           String
@@ -24,7 +23,8 @@ model User {
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
-  changeLogs       ChangeLog[]             @relation("UserToChangeLogs")
+
+  changeLogs ChangeLog[] @relation("UserToChangeLogs")
 }
 
 /**
@@ -47,7 +47,8 @@ model Project {
   status           String?
 
   projectManagerId Int?
-  changeLogs       ChangeLog[] @relation("ProjectToChangeLogs")
+
+  changeLogs ChangeLog[] @relation("ProjectToChangeLogs")
 
   /**
    * relations
@@ -58,14 +59,9 @@ model Project {
   Invoice          Invoice[]
   pmNotesHistory   PMNote[]
 
-  // Delivery-tab relations
   risks          RiskRegister[]   @relation("ProjectRisks")
   lessonsLearned LessonsLearned[] @relation("ProjectLessons")
 }
-
-/**
- * Not sure what this is? - Need to check with Dongho Kim
- */
 
 model AuditLog {
   id         Int      @id @default(autoincrement())
@@ -231,8 +227,8 @@ model ChangeLog {
   category        String
   description     String
   impactArea      String
-  oldValue        String?  
-  newValue        String?  
+  oldValue        String?
+  newValue        String?
   justification   String
   requestedBy     String
   approvedBy      String
@@ -241,13 +237,9 @@ model ChangeLog {
   estimatedImpact String
   createdAt       DateTime @default(now())
 
-  userId    Int?    
-  projectId String? 
-  user      User?   @relation(fields: [userId], references: [id])
-  project   Project? @relation(fields: [projectId], references: [id])
-}
+  userId    Int?
+  projectId String?
 
-await prisma.changeLog.update({
-  where: { id: someId },
-  data: { status: "Approved", approvedBy: "AdminName" },
-});
+  user    User?    @relation("UserToChangeLogs", fields: [userId], references: [id])
+  project Project? @relation("ProjectToChangeLogs", fields: [projectId], references: [id])
+}
