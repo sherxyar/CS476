@@ -1,11 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import type { NextApiRequest, NextApiResponse } from "next";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // POST method: Create a new change log entry
-  if (req.method === 'POST') {
+  if (req.method === "POST") {
     const {
       changeType,
       category,
@@ -23,24 +22,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       userId,
     } = req.body;
 
-    // Validate required fields' types
+    // Validate required fields
     if (
-      typeof changeType !== 'string' ||
-      typeof category !== 'string' ||
-      typeof description !== 'string' ||
-      typeof impactArea !== 'string' ||
-      typeof justification !== 'string' ||
-      typeof requestedBy !== 'string' ||
-      typeof approvedBy !== 'string' ||
-      typeof status !== 'string' ||
-      typeof priority !== 'string' ||
-      typeof estimatedImpact !== 'string'
+      typeof changeType !== "string" ||
+      typeof category !== "string" ||
+      typeof description !== "string" ||
+      typeof impactArea !== "string" ||
+      typeof justification !== "string" ||
+      typeof requestedBy !== "string" ||
+      typeof approvedBy !== "string" ||
+      typeof status !== "string" ||
+      typeof priority !== "string" ||
+      typeof estimatedImpact !== "string"
     ) {
-      return res.status(400).json({ error: 'Missing or invalid required fields.' });
+      return res.status(400).json({ error: "Missing or invalid required fields." });
     }
 
     try {
-      // Create new change log entry in DB
       const newLog = await prisma.changeLog.create({
         data: {
           changeType,
@@ -58,45 +56,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           projectId: projectId || null,
           userId: userId || null,
         },
-        include: {
-          user: true, // include related user data
-        },
       });
 
       return res.status(201).json(newLog);
     } catch (error) {
-      console.error('❌ Error creating change log:', error);
-      return res.status(500).json({ error: 'Internal server error while creating change log' });
+      console.error("❌ Error creating change log:", error);
+      return res.status(500).json({ error: "Internal server error while creating change log" });
     }
   }
 
-  // GET method: Fetch change log entries with optional filtering
-  if (req.method === 'GET') {
+  if (req.method === "GET") {
     const { projectId, userId } = req.query;
 
     try {
-      // Query change logs with optional filters and order by creation date desc
       const logs = await prisma.changeLog.findMany({
         where: {
           ...(projectId ? { projectId: projectId as string } : {}),
           ...(userId ? { userId: Number(userId) } : {}),
         },
         orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          user: true,
+          createdAt: "desc",
         },
       });
 
       return res.status(200).json(logs);
     } catch (error) {
-      console.error('❌ Error fetching change logs:', error);
-      return res.status(500).json({ error: 'Internal server error while fetching change logs' });
+      console.error("❌ Error fetching change logs:", error);
+      return res.status(500).json({ error: "Internal server error while fetching change logs" });
     }
   }
 
-  // Method not allowed for other HTTP verbs
-  res.setHeader('Allow', ['GET', 'POST']);
+  res.setHeader("Allow", ["GET", "POST"]);
   return res.status(405).json({ error: `Method ${req.method} not allowed` });
 }
