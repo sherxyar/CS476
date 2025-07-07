@@ -22,16 +22,18 @@ export default function ChangeLogUI() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'latest' | 'oldest' | 'author'>('latest');
 
-  // ✅ 실제 값으로 교체
-  const projectId = 'demo-project-id';
-  const createdById = 1;
+  const projectId = 'demo-project-id'; // 실제 프로젝트 ID로 교체 필요
+  const createdById = 1; // 실제 유저 ID로 교체 필요
 
+  // 초기 데이터 로딩
   useEffect(() => {
     fetch('/api/change-log')
       .then(res => res.json())
-      .then(data => setChangeLogs(data));
+      .then(data => setChangeLogs(data))
+      .catch(console.error);
   }, []);
 
+  // 새로운 변경 로그 추가
   const handleAdd = async () => {
     if (!title || !description) {
       alert('Title and description are required');
@@ -45,47 +47,67 @@ export default function ChangeLogUI() {
       createdById,
     };
 
-    const res = await fetch('/api/change-log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newLog),
-    });
+    try {
+      const res = await fetch('/api/change-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newLog),
+      });
+      const saved = await res.json();
 
-    const saved = await res.json();
+      if (!res.ok) {
+        alert('Error: ' + saved.error);
+        return;
+      }
 
-    if (!res.ok) {
-      alert('Error: ' + saved.error);
-      return;
+      setChangeLogs(prev => [saved, ...prev]);
+      setTitle('');
+      setDescription('');
+    } catch (error) {
+      alert('Failed to add change log');
+      console.error(error);
     }
-
-    setChangeLogs(prev => [saved, ...prev]);
-    setTitle('');
-    setDescription('');
   };
 
+  // 변경 로그 삭제
   const handleDelete = async (id: number) => {
-    await fetch(`/api/change-log/${id}`, { method: 'DELETE' });
-    setChangeLogs(prev => prev.filter(log => log.id !== id));
+    try {
+      const res = await fetch(`/api/change-log/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      setChangeLogs(prev => prev.filter(log => log.id !== id));
+    } catch (error) {
+      alert('Failed to delete change log');
+      console.error(error);
+    }
   };
 
+  // 변경 로그 수정
   const handleUpdate = async (id: number, title: string, description: string) => {
-    await fetch(`/api/change-log/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, description }),
-    });
-    setChangeLogs(prev =>
-      prev.map(log =>
-        log.id === id ? { ...log, title, description } : log
-      )
-    );
+    try {
+      const res = await fetch(`/api/change-log/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description }),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      setChangeLogs(prev =>
+        prev.map(log =>
+          log.id === id ? { ...log, title, description } : log
+        )
+      );
+    } catch (error) {
+      alert('Failed to update change log');
+      console.error(error);
+    }
   };
 
+  // 검색 필터링
   const filtered = changeLogs.filter(log =>
     log.title.toLowerCase().includes(search.toLowerCase()) ||
     log.createdBy.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  // 정렬
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === 'latest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -118,7 +140,7 @@ export default function ChangeLogUI() {
         <select
           className="border rounded px-2 py-1"
           value={sortBy}
-         onChange={e => setSortBy(e.target.value as 'latest' | 'oldest' | 'author')}
+          onChange={e => setSortBy(e.target.value as 'latest' | 'oldest' | 'author')}
         >
           <option value="latest">Latest</option>
           <option value="oldest">Oldest</option>
