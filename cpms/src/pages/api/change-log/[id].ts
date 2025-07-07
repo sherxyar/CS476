@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Invalid ID' });
   }
 
-  const numericId = parseInt(id);
+  const numericId = parseInt(id, 10);
 
   if (req.method === 'PUT') {
     const {
@@ -27,8 +27,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       changeType,
     } = req.body;
 
+    // 필수 필드 간단 체크 (필요 시 더 확장 가능)
     if (!description || !impactArea || !justification || !status) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: 'Missing required fields: description, impactArea, justification, status' });
     }
 
     try {
@@ -38,14 +39,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           description,
           impactArea,
           justification,
-          approvedBy,
+          approvedBy: approvedBy || null, // optional 필드 nullable 처리
           status,
-          priority,
-          estimatedImpact,
-          oldValue,
-          newValue,
-          category,
-          changeType,
+          priority: priority || null,
+          estimatedImpact: estimatedImpact || null,
+          oldValue: oldValue ?? null,
+          newValue: newValue ?? null,
+          category: category || null,
+          changeType: changeType || null,
         },
       });
       return res.status(200).json(updatedLog);
@@ -67,5 +68,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  return res.setHeader('Allow', ['PUT', 'DELETE']).status(405).json({ error: 'Method not allowed' });
+  res.setHeader('Allow', ['PUT', 'DELETE']);
+  return res.status(405).json({ error: `Method ${req.method} not allowed` });
 }
