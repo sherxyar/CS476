@@ -24,13 +24,17 @@ model User {
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
-  memberships      ProjectMember[]
+  memberships      ProjectMember[]         @relation("UserMembership")   // ⬅ fixed
   managedProjects  Project[]               @relation("ProjectManager")          
+  department       String?
+  lastActivity     DateTime?
+  addedMembers     ProjectMember[]         @relation("AddedMembers")     // ⬅ fixed
 }
 
 /**
  * Main Projects Table
  */
+
 model Project {
   id               String    @id @default(uuid())
   projectID        String    @unique
@@ -48,7 +52,6 @@ model Project {
   projectManagerId Int?             @unique
   projectManager   User?            @relation("ProjectManager", fields: [projectManagerId], references: [id])
 
-  /** NEW — many‐to‐many contributors / extra PM via join table */
   members          ProjectMember[]
 
   /**
@@ -58,6 +61,7 @@ model Project {
   financialHistory FinancialHistoryEntry[]
   Invoice          Invoice[]
   pmNotesHistory   PMNote[]
+  
   // Delivery-tab relations
   risks            RiskRegister[]   @relation("ProjectRisks")
   lessonsLearned   LessonsLearned[] @relation("ProjectLessons")
@@ -234,8 +238,8 @@ model ProjectMember {
 
   /** relations */
   project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user       User         @relation(fields: [userId], references: [id])
-  addedBy    User?        @relation("AddedMembers", fields: [addedById], references: [id])
+  user       User         @relation("UserMembership", fields: [userId], references: [id]) // ⬅ fixed
+  addedBy    User?        @relation("AddedMembers", fields: [addedById], references: [id]) // ⬅ fixed
 
   @@unique([projectId, userId])              
 }

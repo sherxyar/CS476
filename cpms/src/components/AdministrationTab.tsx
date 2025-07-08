@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
+// Data type
 type TeamMember = {
   id: string;
   name: string;
@@ -12,61 +13,90 @@ type TeamMember = {
   lastActivity: string;
 };
 
-type Props = {
+// user select
+interface UserOption {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface Props {
   project: Project;
-};
+}
 
 export default function AdministrationTab({ project }: Props) {
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [newMemberEmail, setNewMemberEmail] = useState("");
-  const [newMemberAccess, setNewMemberAccess] = useState<TeamMember["accessLevel"]>("Contributor");
 
-  // Fetch current team members from backend
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [userOptions, setUserOptions] = useState<UserOption[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<number | "">("");
+  const [newMemberAccess, setNewMemberAccess] = useState<TeamMember["accessLevel"]>(
+    "Contributor"
+  );
+
+// GET- Fetch current team members for this project
   const fetchMembers = async () => {
     try {
       const res = await fetch(`/api/projects/${project.id}/members`);
       const data: TeamMember[] = await res.json();
       setTeamMembers(data);
     } catch (error) {
-      console.error("Failed to load team members", error);  
+      console.error("Failed to load team members", error);
     }
   };
+
+  // Fetch all users (for dropdown)
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/users"); // adjust to your route
+      const data: UserOption[] = await res.json();
+      setUserOptions(data);
+    } catch (error) {
+      console.error("Failed to load users", error);
+    }
+  };
+
 
   useEffect(() => {
     fetchMembers();
+    fetchUsers();
   }, []);
 
-  const filteredMembers = teamMembers.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.role.toLowerCase().includes(searchTerm.toLowerCase())
+ 
+  const filteredMembers = teamMembers.filter((member) =>
+    [member.name, member.email, member.role]
+      .some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  
   const getAccessLevelColor = (level: string) => {
     switch (level) {
-      case "Admin": return styles.statusNotPaid;
-      case "Project Manager": return styles.statusInProgress;
-      case "Contributor": return styles.statusClosed;
-      default: return "";
+      case "Admin":
+        return styles.statusNotPaid;
+      case "Project Manager":
+        return styles.statusInProgress;
+      case "Contributor":
+        return styles.statusClosed;
+      default:
+        return "";
     }
   };
 
-  // Add existing user by email
+  // handle member add
   const handleAddMember = async () => {
-    if (!newMemberEmail) return;
+    if (!selectedUserId) return;
     try {
       await fetch(`/api/projects/${project.id}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: newMemberEmail,
-          accessLevel: newMemberAccess
-        })
+          userId: selectedUserId,
+          accessLevel: newMemberAccess,
+        }),
       });
-      setNewMemberEmail("");
+      setSelectedUserId("");
       setNewMemberAccess("Contributor");
       setShowAddMember(false);
       fetchMembers();
@@ -77,12 +107,13 @@ export default function AdministrationTab({ project }: Props) {
 
   return (
     <div className={styles.generalContent}>
-      {/* Top info */}
       <div className={styles.topSection}>
         <div className={styles.leftColumn}>
           <div className={styles.fieldGroup}>
             <label>Project Owner</label>
-            <div className={styles.fieldValue}>{project.projectManager?.name || 'Unassigned'}</div>
+            <div className={styles.fieldValue}>
+              {project.projectManager?.name || "Unassigned"}
+            </div>
           </div>
         </div>
         <div className={styles.rightColumn}>
@@ -116,38 +147,48 @@ export default function AdministrationTab({ project }: Props) {
             </div>
           </div>
 
-          {/* Search */}
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: "16px" }}>
             <input
               type="text"
               className={styles.formInput}
               placeholder="Search team members..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ maxWidth: '300px' }}
+              style={{ maxWidth: "300px" }}
             />
           </div>
 
-          {/* Add Member Form (select existing user) */}
           {showAddMember && (
             <div className={styles.invoiceForm}>
               <div className={styles.formRow}>
                 <div className={styles.formField}>
-                  <label>User Email</label>
-                  <input
-                    type="email"
-                    className={styles.formInput}
-                    value={newMemberEmail}
-                    onChange={(e) => setNewMemberEmail(e.target.value)}
-                    placeholder="Enter user email"
-                  />
+                  <label>Select User</label>
+                  <select
+                    className={styles.formSelect}
+                    value={selectedUserId}
+                    onChange={(e) =>
+                      setSelectedUserId(
+                        e.target.value === "" ? "" : Number(e.target.value)
+                      )
+                    }
+                  >
+                    <option value="">-- Choose a user --</option>
+                    {userOptions.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name} ({user.email})
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
                 <div className={styles.formField}>
                   <label>Access Level</label>
                   <select
                     className={styles.formSelect}
                     value={newMemberAccess}
-                    onChange={(e) => setNewMemberAccess(e.target.value as TeamMember["accessLevel"])}
+                    onChange={(e) =>
+                      setNewMemberAccess(e.target.value as TeamMember["accessLevel"])
+                    }
                   >
                     <option value="Contributor">Contributor</option>
                     <option value="Project Manager">Project Manager</option>
@@ -156,7 +197,11 @@ export default function AdministrationTab({ project }: Props) {
                 </div>
               </div>
               <div className={styles.formActions}>
-                <button className={styles.saveInvoiceButton} onClick={handleAddMember}>
+                <button
+                  className={styles.saveInvoiceButton}
+                  disabled={!selectedUserId}
+                  onClick={handleAddMember}
+                >
                   Add Team Member
                 </button>
               </div>
@@ -177,9 +222,9 @@ export default function AdministrationTab({ project }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {filteredMembers.map(member => (
+                {filteredMembers.map((member) => (
                   <tr key={member.id}>
-                    <td style={{ fontWeight: '600' }}>{member.name}</td>
+                    <td style={{ fontWeight: "600" }}>{member.name}</td>
                     <td>{member.role}</td>
                     <td>{member.email}</td>
                     <td>{member.department}</td>
@@ -204,16 +249,11 @@ export default function AdministrationTab({ project }: Props) {
         <div className={styles.fieldGroup}>
           <label>Quick Actions</label>
           <div className={styles.buttonGroup}>
-            <button className={styles.viewDetailsButton}>
-              Export Project Data
-            </button>
-            <button className={styles.viewDetailsButton}>
-              Audit Log
-            </button>
+            <button className={styles.viewDetailsButton}>Export Project Data</button>
+            <button className={styles.viewDetailsButton}>Audit Log</button>
           </div>
         </div>
       </div>
-
 
       {/* Access Modal */}
       {showAccessModal && (
@@ -233,25 +273,29 @@ export default function AdministrationTab({ project }: Props) {
                 <div className={styles.summaryItem}>
                   <span className={styles.summaryLabel}>Admin Access</span>
                   <span className={styles.summaryValue}>
-                    {teamMembers.filter(m => m.accessLevel === "Admin").length} members
+                    {teamMembers.filter((m) => m.accessLevel === "Admin").length} members
                   </span>
                 </div>
                 <div className={styles.summaryItem}>
                   <span className={styles.summaryLabel}>Project Manager Access</span>
                   <span className={styles.summaryValue}>
-                    {teamMembers.filter(m => m.accessLevel === "Project Manager").length} members
+                    {
+                      teamMembers.filter((m) => m.accessLevel === "Project Manager")
+                        .length
+                    } members
                   </span>
                 </div>
                 <div className={styles.summaryItem}>
                   <span className={styles.summaryLabel}>Contributor Access</span>
                   <span className={styles.summaryValue}>
-                    {teamMembers.filter(m => m.accessLevel === "Contributor").length} members
+                    {teamMembers.filter((m) => m.accessLevel === "Contributor").length} members
                   </span>
                 </div>
-
               </div>
 
-              <h4 style={{ marginTop: '24px', marginBottom: '16px' }}>Access Permissions</h4>
+              <h4 style={{ marginTop: "24px", marginBottom: "16px" }}>
+                Access Permissions
+              </h4>
               <div className={styles.tableContainer}>
                 <table className={styles.historyTable}>
                   <thead>
