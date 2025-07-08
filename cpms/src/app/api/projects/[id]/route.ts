@@ -1,14 +1,16 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse,NextRequest } from "next/server";
 
 type Context = { params: Promise<{ id: string }> };
 
-//
+
 // GET /api/projects/[id]  – fetch a single project
-//
-export async function GET(_req: Request, props: Context) {
-  const params = await props.params;
-  const { id } = params;
+
+export async function GET(
+  _req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const { id } = await context.params;  
 
   try {
     const project = await prisma.project.findUnique({
@@ -22,7 +24,9 @@ export async function GET(_req: Request, props: Context) {
           },
         },
         financialHistory: {
-          include: { changedBy: { select: { id: true, name: true, email: true } } },
+          include: {
+            changedBy: { select: { id: true, name: true, email: true } },
+          },
           orderBy: { changedAt: "desc" },
         },
       },
@@ -34,16 +38,17 @@ export async function GET(_req: Request, props: Context) {
     return NextResponse.json(project);
   } catch (err) {
     console.error(`GET /api/projects/${id} error:`, err);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json("Internal Server Error", { status: 500 });
   }
 }
 
-//
-// PATCH /api/projects/[id]  – update phase / financials / add note
-//
-export async function PATCH(req: Request, props: Context) {
-  const params = await props.params;
-  const { id } = params;
+// PATCH 
+
+export async function PATCH(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const { id } = await context.params;
   const body = await req.json();
 
   /*  Phase update  */
@@ -150,18 +155,22 @@ export async function PATCH(req: Request, props: Context) {
   }
 }
 
-//
-// DELETE /api/projects/[id]  – remove project
-//
-export async function DELETE(_req: Request, props: Context) {
-  const params = await props.params;
-  const { id } = params;
+// DELETE - Make it so only a user with Admin role can delete
+export async function DELETE(
+  _req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const { id } = await context.params;
 
   try {
     await prisma.project.delete({ where: { id } });
     return new NextResponse(null, { status: 204 });
   } catch (err) {
     console.error(`DELETE /api/projects/${id} error:`, err);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json("Internal Server Error", { status: 500 });
   }
+}
+
+export function OPTIONS() {
+  return NextResponse.json({}, { status: 200 });
 }

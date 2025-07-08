@@ -24,11 +24,11 @@ model User {
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
-  memberships      ProjectMember[]         @relation("UserMembership")   // ⬅ fixed
+  memberships      ProjectMember[]         @relation("UserMembership")   
   managedProjects  Project[]               @relation("ProjectManager")          
   department       String?
   lastActivity     DateTime?
-  addedMembers     ProjectMember[]         @relation("AddedMembers")     // ⬅ fixed
+  addedMembers     ProjectMember[]         @relation("AddedMembers")     
 }
 
 /**
@@ -238,8 +238,8 @@ model ProjectMember {
 
   /** relations */
   project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user       User         @relation("UserMembership", fields: [userId], references: [id]) // ⬅ fixed
-  addedBy    User?        @relation("AddedMembers", fields: [addedById], references: [id]) // ⬅ fixed
+  user       User         @relation("UserMembership", fields: [userId], references: [id]) 
+  addedBy    User?        @relation("AddedMembers", fields: [addedById], references: [id]) 
 
   @@unique([projectId, userId])              
 }
