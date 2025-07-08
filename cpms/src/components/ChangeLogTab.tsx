@@ -413,21 +413,52 @@ export default function ChangeLogTab({ project }: Props) {
               </div>
 
               {expandedId === entry.id && (
-                <div className={styles.changeDetails}>
-                  <p><strong>Change Type:</strong> {entry.changeType}</p>
-                  <p><strong>Category:</strong> {entry.category}</p>
-                  <p><strong>Impact Area:</strong> {entry.impactArea}</p>
-                  <p><strong>Old Value:</strong> {entry.oldValue || "N/A"}</p>
-                  <p><strong>New Value:</strong> {entry.newValue || "N/A"}</p>
-                  <p><strong>Justification:</strong> {entry.justification}</p>
-                  <p><strong>Requested By:</strong> {entry.requestedBy}</p>
-                  <p><strong>Approved By:</strong> {entry.approvedBy}</p>
-                  <p><strong>Priority:</strong> <span className={priorityClassName} style={priorityInlineStyle}>{entry.priority}</span></p>
-                  <p><strong>Estimated Impact:</strong> {entry.estimatedImpact}</p>
-                </div>
+                <table className={styles.changeDetailsTable}>
+                  <tbody>
+                    <tr>
+                      <td><strong>Change Type:</strong></td>
+                      <td>{entry.changeType}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Category:</strong></td>
+                      <td>{entry.category}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Impact Area:</strong></td>
+                      <td>{entry.impactArea}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Old Value:</strong></td>
+                      <td>{entry.oldValue || "N/A"}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>New Value:</strong></td>
+                      <td>{entry.newValue || "N/A"}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Justification:</strong></td>
+                      <td>{entry.justification}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Requested By:</strong></td>
+                      <td>{entry.requestedBy}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Approved By:</strong></td>
+                      <td>{entry.approvedBy}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Priority:</strong></td>
+                      <td><span className={priorityClassName} style={priorityInlineStyle}>{entry.priority}</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>Estimated Impact:</strong></td>
+                      <td>{entry.estimatedImpact}</td>
+                    </tr>
+                  </tbody>
+                </table>
               )}
 
-              {/* Approve/Reject buttons only if status is Pending */}
               {entry.status === "Pending" && (
                 <div className={styles.formActions}>
                   <button
