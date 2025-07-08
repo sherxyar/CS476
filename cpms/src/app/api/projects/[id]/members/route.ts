@@ -1,86 +1,84 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+// app/api/projects/[id]/members/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const ALLOWED_ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
-type DbRole = typeof ALLOWED_ROLES[number];
+const ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
+type DbRole = typeof ROLES[number];
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
+// Get all members
+export async function GET(
+  _req: NextRequest,
+  context: { params: { id: string } }
 ) {
 
-  const { projectId } = req.query;
-  if (typeof projectId !== "string") {
-    return res.status(400).json({ error: "Invalid project ID" });
+  const projectId = (await context.params).id;
+
+  const memberships = await prisma.projectMember.findMany({
+    where: { projectId },
+    include: { user: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return NextResponse.json(
+    memberships.map((m) => ({
+      id: m.id,
+      name: m.user.name,
+      email: m.user.email,
+      department: m.user.department ?? "",
+      lastActivity: m.user.lastActivity ?? "",
+      role: m.role as DbRole,
+    }))
+  );
+}
+
+// Post member
+export async function POST(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const projectId = (await context.params).id;
+  const { userId, role } = await req.json();
+
+  if (!userId || !ROLES.includes(role)) {
+    return NextResponse.json(
+      { error: "userId and valid role required" },
+      { status: 400 }
+    );
   }
 
-  if (req.method === "OPTIONS") {
-    res.setHeader("Allow", "GET,POST,OPTIONS");
-    return res.status(200).end();
-  }
+  try {
+    const membership = await prisma.projectMember.create({
+      data: { projectId, userId, role },
+      include: { user: true },
+    });
 
-// GET members
-  if (req.method === "GET") {
-    try {
-      const memberships = await prisma.projectMember.findMany({
-        where: { projectId },
-        include: { user: true },
-        orderBy: { createdAt: "asc" },
-      });
-
-      const result = memberships.map((m) => ({
-        id: m.id,
-        name: m.user.name,
-        email: m.user.email,
-        department: m.user.department ?? "",
-        lastActivity: m.user.lastActivity ?? "",
-        role: m.role as DbRole, 
-      }));
-
-      return res.status(200).json(result);
-    } catch (err) {
-      console.error("GET members error", err);
-      return res.status(500).json({ error: "Failed to fetch members" });
-    }
-  }
-
-  // Add a new member
-  if (req.method === "POST") {
-    const { userId, role } = req.body as {
-      userId: number;
-      role: DbRole;
-    };
-
-    if (!userId || !ALLOWED_ROLES.includes(role)) {
-      return res.status(400).json({ error: "userId and valid role required" });
-    }
-
-    try {
-      // create membership
-      const membership = await prisma.projectMember.create({
-        data: { projectId, userId, role },
-        include: { user: true },
-      });
-
-      return res.status(201).json({
+    return NextResponse.json(
+      {
         id: membership.id,
         name: membership.user.name,
         email: membership.user.email,
         department: membership.user.department ?? "",
         lastActivity: membership.user.lastActivity ?? "",
         role: membership.role,
-      });
-    } catch (err: any) {
-      // this cath is for preventing double entries
-      if (err.code === "P2002") {
-        return res.status(409).json({ error: "User already on project" });
-      }
-      console.error("POST members error", err);
-      return res.status(500).json({ error: "Failed to add member" });
+      },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    if (err.code === "P2002") {
+      return NextResponse.json(
+        { error: "User already on project" },
+        { status: 409 }
+      );
     }
+    console.error("POST members error", err);
+    return NextResponse.json(
+      { error: "Failed to add member" },
+      { status: 500 }
+    );
   }
+}
 
-  // was getting 405, this helps with that
-  res.setHeader("Allow", "GET,POST,OPTIONS");
-  return res.status(405).end(`Method ${req.method} Not Allowed`);
+// preventing 405
+export function OPTIONS() {
+  return NextResponse.json({}, { status: 200 });
 }
