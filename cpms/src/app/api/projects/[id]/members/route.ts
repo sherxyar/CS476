@@ -5,13 +5,30 @@ import { prisma } from "@/lib/prisma";
 const ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
 type DbRole = typeof ROLES[number];
 
-// Get all members
+
+interface AddMemberPayload {
+  userId: number;
+  role: DbRole;
+}
+
+function isAddMemberPayload(data: unknown): data is AddMemberPayload {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "userId" in data &&
+    typeof (data as { userId: unknown }).userId === "number" &&
+    "role" in data &&
+    ROLES.includes((data as { role: unknown }).role as DbRole)
+  );
+}
+
+// GET reuqest
+
 export async function GET(
   _req: NextRequest,
   context: { params: { id: string } }
 ) {
-
-  const projectId = (await context.params).id;
+  const projectId = context.params.id;
 
   const memberships = await prisma.projectMember.findMany({
     where: { projectId },
@@ -31,20 +48,23 @@ export async function GET(
   );
 }
 
-// Post member
+// Post Request
+
 export async function POST(
   req: NextRequest,
   context: { params: { id: string } }
 ) {
-  const projectId = (await context.params).id;
-  const { userId, role } = await req.json();
+  const projectId = context.params.id;
+  const body: unknown = await req.json();
 
-  if (!userId || !ROLES.includes(role)) {
+  if (!isAddMemberPayload(body)) {
     return NextResponse.json(
-      { error: "userId and valid role required" },
+      { error: "userId (number) and valid role required" },
       { status: 400 }
     );
   }
+
+  const { userId, role } = body;
 
   try {
     const membership = await prisma.projectMember.create({
@@ -59,17 +79,25 @@ export async function POST(
         email: membership.user.email,
         department: membership.user.department ?? "",
         lastActivity: membership.user.lastActivity ?? "",
-        role: membership.role,
+        role: membership.role as DbRole,
       },
       { status: 201 }
     );
-  } catch (err: any) {
-    if (err.code === "P2002") {
+  } catch (err: unknown) {
+
+    // no double same member
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as { code: string }).code === "P2002"
+    ) {
       return NextResponse.json(
         { error: "User already on project" },
         { status: 409 }
       );
     }
+
     console.error("POST members error", err);
     return NextResponse.json(
       { error: "Failed to add member" },
@@ -78,7 +106,7 @@ export async function POST(
   }
 }
 
-// preventing 405
+
 export function OPTIONS() {
   return NextResponse.json({}, { status: 200 });
 }
