@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import styles from "@/styles/auth.module.css";
 
 function Form() {
+
+  
     const searchParams = useSearchParams();
     const email = searchParams?.get("email") || "";
     const [code, setCode] = useState("");
