@@ -134,13 +134,7 @@ export default function AdministrationTab({ project }: Props) {
           <div className={styles.actualsHeader}>
             <label>Team Access Management</label>
             <div className={styles.buttonGroup}>
-              <button
-                className={styles.viewDetailsButton}
-                onClick={() => setShowAccessModal(true)}
-              >
-                View All Access
-              </button>
-              <button
+                            <button
                 className={styles.addInvoiceButton}
                 onClick={() => setShowAddMember(true)}
               >
@@ -252,95 +246,6 @@ export default function AdministrationTab({ project }: Props) {
         </div>
       </div>
 
-      {/* Access Modal */}
-      {showAccessModal && (
-        <div className={styles.popupOverlay}>
-          <div className={styles.popup}>
-            <div className={styles.popupHeader}>
-              <h3>Team Access Overview</h3>
-              <button
-                className={styles.popupCloseButton}
-                onClick={() => setShowAccessModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className={styles.popupContent}>
-              <div className={styles.summaryCard}>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Admin Access</span>
-                  <span className={styles.summaryValue}>
-                    {teamMembers.filter((m) => m.accessLevel === "Admin").length} members
-                  </span>
-                </div>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Project Manager Access</span>
-                  <span className={styles.summaryValue}>
-                    {
-                      teamMembers.filter((m) => m.accessLevel === "Project Manager")
-                        .length
-                    } members
-                  </span>
-                </div>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Contributor Access</span>
-                  <span className={styles.summaryValue}>
-                    {teamMembers.filter((m) => m.accessLevel === "Contributor").length} members
-                  </span>
-                </div>
-              </div>
-
-              <h4 style={{ marginTop: "24px", marginBottom: "16px" }}>
-                Access Permissions
-              </h4>
-              <div className={styles.tableContainer}>
-                <table className={styles.historyTable}>
-                  <thead>
-                    <tr>
-                      <th>Permission</th>
-                      <th>Admin</th>
-                      <th>Project Manager</th>
-                      <th>Contributor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>View Project</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                    </tr>
-                    <tr>
-                      <td>Edit Project Details</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                    </tr>
-                    <tr>
-                      <td>Manage Financials</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                    </tr>
-                    <tr>
-                      <td>Approve Changes</td>
-                      <td>✓</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                    </tr>
-                    <tr>
-                      <td>Manage Team Access</td>
-                      <td>✓</td>
-                      <td>✗</td>
-                      <td>✗</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

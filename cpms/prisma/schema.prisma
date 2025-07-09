@@ -49,7 +49,7 @@ model Project {
   dateCreated      DateTime  @default(now())
   lastUpdated      DateTime?
   status           String?
-  projectManagerId Int?             @unique
+  projectManagerId Int?            
   projectManager   User?            @relation("ProjectManager", fields: [projectManagerId], references: [id])
 
   members          ProjectMember[]
