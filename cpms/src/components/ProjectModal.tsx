@@ -23,8 +23,8 @@ const TABS = [
   "Financials",
   "Schedule",
   "Change Log",
-  "Administration",
   "Delivery",
+  "Administration"
 ] as const;
 
 type TabName = (typeof TABS)[number];
@@ -73,7 +73,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
       onProjectUpdate(updated);
       alert("Project saved.");
 
-      changeHandlersRef.current = []; 
+      changeHandlersRef.current = [];
     } catch (err) {
       console.error(err);
       alert("Failed to save project.");
@@ -105,8 +105,6 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
         return <ScheduleTab project={project} />;
       case "Change Log":
         return <ChangeLogTab project={project} />;
-      case "Administration":
-        return <AdministrationTab project={project} />;
       case "Delivery":
         return (
           <DeliveryTab
@@ -114,6 +112,9 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
             registerChangeHandler={registerChangeHandler}
           />
         );
+      case "Administration":
+        return <AdministrationTab project={project} />;
+
       default:
         return null;
     }

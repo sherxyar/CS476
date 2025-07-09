@@ -10,20 +10,25 @@ datasource db {
 /**
  * User Table
  */
-
 model User {
   id             Int    @id @default(autoincrement())
   name           String
   email          String @unique
   hashedPassword String
 
+  accountRole      AccountRole 
+
   // relations
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
   notes            PMNote[]
-  projects         Project[]               @relation("ManagerProjects")
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
+  memberships      ProjectMember[]         @relation("UserMembership")   
+  managedProjects  Project[]               @relation("ProjectManager")          
+  department       String?
+  lastActivity     DateTime?
+  addedMembers     ProjectMember[]         @relation("AddedMembers")     
 }
 
 /**
@@ -44,27 +49,27 @@ model Project {
   dateCreated      DateTime  @default(now())
   lastUpdated      DateTime?
   status           String?
+  projectManagerId Int?            
+  projectManager   User?            @relation("ProjectManager", fields: [projectManagerId], references: [id])
 
-  projectManagerId Int?
+  members          ProjectMember[]
 
   /**
    * relations
    */
-  projectManager   User?                   @relation("ManagerProjects", fields: [projectManagerId], references: [id])
   schedule         ProjectSchedule?        @relation("ProjectScheduleRelation")
   financialHistory FinancialHistoryEntry[]
   Invoice          Invoice[]
   pmNotesHistory   PMNote[]
-
+  
   // Delivery-tab relations
-  risks          RiskRegister[]   @relation("ProjectRisks")
-  lessonsLearned LessonsLearned[] @relation("ProjectLessons")
+  risks            RiskRegister[]   @relation("ProjectRisks")
+  lessonsLearned   LessonsLearned[] @relation("ProjectLessons")
 }
 
 /**
  * Not sure what this is? - Need to check with Dongho Kim
  */
-
 model AuditLog {
   id         Int      @id @default(autoincrement())
   userId     Int?
@@ -83,7 +88,6 @@ model AuditLog {
 /**
  * General Tab: PM Notes
  */
-
 model PMNote {
   id        Int      @id @default(autoincrement())
   note      String
@@ -98,7 +102,6 @@ model PMNote {
 /**
  * FinancialsTab: Change History
  */
-
 model FinancialHistoryEntry {
   id        Int      @id @default(autoincrement())
   projectId String
@@ -116,7 +119,6 @@ model FinancialHistoryEntry {
 /**
  * FinancialsTab: Invoices
  */
-
 model Invoice {
   id            Int           @id @default(autoincrement())
   projectId     String
@@ -139,7 +141,6 @@ enum InvoiceStatus {
 /**
  * Not sure what this is? - Need to check with Dongho Kim
  */
-
 model TabAccessRequest {
   id          Int       @id @default(autoincrement())
   userId      Int
@@ -155,7 +156,6 @@ model TabAccessRequest {
 /**
  * Schedule tab
  */
-
 model Milestone {
   id          Int      @id @default(autoincrement())
   title       String
@@ -178,7 +178,6 @@ model ProjectSchedule {
 /**
  * Delivery tab: Risk Register
  */
-
 model RiskRegister {
   id                       Int       @id @default(autoincrement())
   riskID                   String?   @map("Risk ID")
@@ -204,7 +203,6 @@ model RiskRegister {
 /**
  * Delivery tab: Lessons Learned
  */
-
 model LessonsLearned {
   id               Int     @id @default(autoincrement())
   topic            String?
@@ -221,4 +219,27 @@ model LessonsLearned {
   project   Project @relation("ProjectLessons", fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+}
+
+// Admin tab
+enum AccountRole {
+  ADMIN          
+  PROJECT_MANAGER
+  CONTRIBUTOR
+}
+
+model ProjectMember {
+  id         Int          @id @default(autoincrement())
+  projectId  String
+  userId     Int
+  role       AccountRole                        
+  createdAt  DateTime     @default(now())
+  addedById  Int?
+
+  /** relations */
+  project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User         @relation("UserMembership", fields: [userId], references: [id]) 
+  addedBy    User?        @relation("AddedMembers", fields: [addedById], references: [id]) 
+
+  @@unique([projectId, userId])              
 }
