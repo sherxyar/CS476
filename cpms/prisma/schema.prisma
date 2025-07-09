@@ -15,7 +15,7 @@ model User {
   name           String
   email          String @unique
   hashedPassword String
-
+  mfaCodes         Mfacode[]
   accountRole      AccountRole 
 
   // relations
