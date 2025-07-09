@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import styles from "@/styles/auth.module.css";
 
 export default function SignupPage() {
-    const [form, setForm] = useState({ name: "", email: "", password: "", role: "PROJECT_MANAGER" });
+    const [form, setForm] = useState({ name: "", email: "", password: "", accountRole: "PROJECT_MANAGER" });
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const router = useRouter();
@@ -45,8 +45,8 @@ export default function SignupPage() {
                         <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={styles.input} required />
                         <label className={styles.label}>Password</label>
                         <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className={styles.input} required />
-                        <label className={styles.label}>Role</label>
-                        <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className={styles.select} required>
+                        <label className={styles.label}>accountRole</label>
+                        <select value={form.accountRole} onChange={e => setForm({ ...form, accountRole: e.target.value })} className={styles.select} required>
                             <option value="PROJECT_MANAGER">Project Manager</option>
                             <option value="COLLABORATOR">Collaborator</option>
                         </select>

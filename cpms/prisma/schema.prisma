@@ -243,3 +243,12 @@ model ProjectMember {
 
   @@unique([projectId, userId])              
 }
+
+
+model Mfacode {
+  id          Int @id @default(autoincrement())
+  userId      Int
+  code        String
+  validUntil  DateTime
+  user        User  @relation(fields: [userId], references: [id])
+}

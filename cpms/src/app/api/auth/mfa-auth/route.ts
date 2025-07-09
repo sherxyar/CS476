@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     if (!isValidCode) {
         return NextResponse.json({ error: "Code is invalid or expired." }, { status: 403 });
     }
-    const res = NextResponse.json({ message: "2FA successful", user: { id: user.id, role: user.role } });
-    res.cookies.set("user", JSON.stringify({ id: user.id, email: user.email, role: user.role }), { path: "/", httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 60 * 60 * 2 });
+    const res = NextResponse.json({ message: "2FA successful", user: { id: user.id, role: user.accountRole } });
+    res.cookies.set("user", JSON.stringify({ id: user.id, email: user.email, role: user.accountRole }), { path: "/", httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 60 * 60 * 2 });
     return res;
 }

@@ -1,33 +1,71 @@
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
 import { hashPassword } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 
-export async function POST(req: Request) {
+// To make sure roles match with our backend
+const ALLOWED_ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
+type AccountRole = (typeof ALLOWED_ROLES)[number];
+
+
+// POST user details
+export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, role } = await req.json();
 
-    if (!name) {
+    const body = await req.json() as {
+      name?: string;
+      email?: string;
+      password?: string;
+      accountRole?: string;
+    };
+
+    const { name, email, password, accountRole } = body;
+
+    if (!name?.trim())
       return NextResponse.json({ error: "name is required" }, { status: 400 });
-    }
-    if (!email) {
+    if (!email?.trim())
       return NextResponse.json({ error: "email is required" }, { status: 400 });
-    }
-    if (!password) {
+    if (!password)
       return NextResponse.json({ error: "password is required" }, { status: 400 });
-    }
-    if (!role) {
+    if (!accountRole)
       return NextResponse.json({ error: "role is required" }, { status: 400 });
-    }
+
+    if (!ALLOWED_ROLES.includes(accountRole as AccountRole))
+      return NextResponse.json(
+        { error: `role must be one of ${ALLOWED_ROLES.join(", ")}` },
+        { status: 400 }
+      );
+
 
     const hashedPassword = await hashPassword(password);
 
     const user = await prisma.user.create({
-      data: { name, email, hashedPassword, role },
+      data: {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        hashedPassword,
+        accountRole: accountRole as AccountRole,
+      },
     });
 
-    return NextResponse.json({ user: { id: user.id, email: user.email } });
+    return NextResponse.json(
+      { user: { id: user.id, name: user.name, email: user.email, accountRole: user.accountRole } },
+      { status: 201 }
+    );
   } catch (err) {
+
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002" &&                       
+      (err.meta as any)?.target?.includes("email")
+    ) {
+      return NextResponse.json(
+        { error: "A user with that e-mail already exists." },
+        { status: 409 }
+      );
+    }
+
     console.error("Signup error:", err);
-    return NextResponse.json({ error: "User already exists!" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
