@@ -1,31 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
+import type { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
-  // text filter
-  const qRaw = (searchParams.get("query") ?? "").trim();
-  const query = qRaw.length ? qRaw : "";
 
-  // pagination
-  const limit = Math.min(
-    parseInt(searchParams.get("limit") ?? "30", 10) || 30,
-    50
-  );
-  const skip = parseInt(searchParams.get("skip") ?? "0", 10) || 0;
+  const limit = Math.min(Number(searchParams.get("limit")) || 30, 50); 
+  const skip  = Number(searchParams.get("skip"))  || 0;                
 
-  // DB read
+  // PMs only
+  const queryStr = (searchParams.get("query") || "").trim();
+  const managersOnly =
+    searchParams.get("managersOnly") === "true" ||         
+    searchParams.get("role") === "PM";                    
+
+  const where: Prisma.UserWhereInput = {
+    ...(managersOnly && {
+      accountRole: { in: ["PROJECT_MANAGER", "ADMIN"] },
+    }),
+    ...(queryStr && {
+      OR: [
+        { name:  { contains: queryStr, mode: "insensitive" } },
+        { email: { contains: queryStr, mode: "insensitive" } },
+      ],
+    }),
+  };
+
   const users = await prisma.user.findMany({
-    where: query
-      ? {
-          OR: [
-            { name:  { contains: query, mode: "insensitive" } },
-            { email: { contains: query, mode: "insensitive" } },
-          ],
-        }
-      : undefined,
+    where,
     select: { id: true, name: true, email: true },
     orderBy: { name: "asc" },
     take: limit,

@@ -23,6 +23,7 @@ export async function GET(
         orderBy: { timestamp: 'desc' },
         take: 10,
         select: { action: true, tableName: true, timestamp: true },
+        
       },
     },
   })
