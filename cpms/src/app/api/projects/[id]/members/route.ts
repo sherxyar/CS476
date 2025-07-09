@@ -1,10 +1,8 @@
-// app/api/projects/[id]/members/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";   
 import { prisma } from "@/lib/prisma";
 
 const ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
 type DbRole = typeof ROLES[number];
-
 
 interface AddMemberPayload {
   userId: number;
@@ -22,13 +20,12 @@ function isAddMemberPayload(data: unknown): data is AddMemberPayload {
   );
 }
 
-// GET reuqest
-
-export async function GET(
-  _req: NextRequest,
-  context: { params: { id: string } }
+// GET requeest
+ export async function GET(
+  _request: Request,
+  { params }: { params: { id: string } }
 ) {
-  const projectId = context.params.id;
+  const { id: projectId } = params;
 
   const memberships = await prisma.projectMember.findMany({
     where: { projectId },
@@ -48,14 +45,13 @@ export async function GET(
   );
 }
 
-// Post Request
-
+// POST 
 export async function POST(
-  req: NextRequest,
-  context: { params: { id: string } }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
-  const projectId = context.params.id;
-  const body: unknown = await req.json();
+  const { id: projectId } = params;
+  const body = await request.json();
 
   if (!isAddMemberPayload(body)) {
     return NextResponse.json(
@@ -84,8 +80,6 @@ export async function POST(
       { status: 201 }
     );
   } catch (err: unknown) {
-
-    // no double same member
     if (
       typeof err === "object" &&
       err !== null &&
@@ -105,7 +99,6 @@ export async function POST(
     );
   }
 }
-
 
 export function OPTIONS() {
   return NextResponse.json({}, { status: 200 });
