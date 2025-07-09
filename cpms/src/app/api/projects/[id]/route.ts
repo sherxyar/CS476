@@ -1,16 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse,NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 type Context = { params: Promise<{ id: string }> };
 
-
-// GET /api/projects/[id]  – fetch a single project
-
-export async function GET(
-  _req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const { id } = await context.params;  
+//  GET Request for projects
+export async function GET(_req: NextRequest, { params }: Context) {
+  const { id } = await params;               
 
   try {
     const project = await prisma.project.findUnique({
@@ -42,16 +37,11 @@ export async function GET(
   }
 }
 
-// PATCH 
-
-export async function PATCH(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const { id } = await context.params;
+// Projcet Updates - PATCH
+export async function PATCH(req: NextRequest, { params }: Context) {
+  const { id } = await params;
   const body = await req.json();
 
-  /*  Phase update  */
   if (body.phase) {
     try {
       const updated = await prisma.project.update({
@@ -65,15 +55,21 @@ export async function PATCH(
     }
   }
 
-  /*  Add a PM note */
+
   if (body.note) {
     const { note, userId } = body;
 
     if (typeof note !== "string" || !note.trim()) {
-      return NextResponse.json({ error: "note must be a non-empty string" }, { status: 400 });
+      return NextResponse.json(
+        { error: "note must be a non-empty string" },
+        { status: 400 },
+      );
     }
     if (typeof userId !== "number") {
-      return NextResponse.json({ error: "userId must be a number" }, { status: 400 });
+      return NextResponse.json(
+        { error: "userId must be a number" },
+        { status: 400 },
+      );
     }
 
     try {
@@ -99,7 +95,6 @@ export async function PATCH(
     }
   }
 
-  /*  Financials update  */
   const { field, newValue, reason, userId } = body;
 
   if (!["forecast", "budget", "actuals"].includes(field)) {
@@ -116,7 +111,6 @@ export async function PATCH(
   const numericField = field as NumericField;
 
   try {
-    // Fetch all three numeric columns so the result is strongly typed
     const current = await prisma.project.findUnique({
       where: { id },
       select: { forecast: true, budget: true, actuals: true },
@@ -138,12 +132,20 @@ export async function PATCH(
         [numericField]: newValue,
         lastUpdated: new Date(),
         financialHistory: {
-          create: { field: numericField, oldValue, newValue, reason: reason ?? "", userId },
+          create: {
+            field: numericField,
+            oldValue,
+            newValue,
+            reason: reason ?? "",
+            userId,
+          },
         },
       },
       include: {
         financialHistory: {
-          include: { changedBy: { select: { id: true, name: true, email: true } } },
+          include: {
+            changedBy: { select: { id: true, name: true, email: true } },
+          },
           orderBy: { changedAt: "desc" },
         },
       },
@@ -155,12 +157,9 @@ export async function PATCH(
   }
 }
 
-// DELETE - Make it so only a user with Admin role can delete
-export async function DELETE(
-  _req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const { id } = await context.params;
+// DELETE - by Admins
+export async function DELETE(_req: NextRequest, { params }: Context) {
+  const { id } = await params;
 
   try {
     await prisma.project.delete({ where: { id } });

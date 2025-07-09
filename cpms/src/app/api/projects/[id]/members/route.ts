@@ -22,9 +22,9 @@ function isAddMemberPayload(data: unknown): data is AddMemberPayload {
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> } // ⚠️ params is now a Promise
+  { params }: { params: Promise<{ id: string }> } 
 ) {
-  const { id: projectId } = await params;          // ⚠️ MUST await
+  const { id: projectId } = await params;          
 
   const memberships = await prisma.projectMember.findMany({
     where: { projectId },
