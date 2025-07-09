@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";   
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
-type DbRole = typeof ROLES[number];
+type DbRole = (typeof ROLES)[number];
 
 interface AddMemberPayload {
   userId: number;
@@ -20,12 +20,11 @@ function isAddMemberPayload(data: unknown): data is AddMemberPayload {
   );
 }
 
-// GET requeest
- export async function GET(
+export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // ⚠️ params is now a Promise
 ) {
-  const { id: projectId } = params;
+  const { id: projectId } = await params;          // ⚠️ MUST await
 
   const memberships = await prisma.projectMember.findMany({
     where: { projectId },
@@ -45,12 +44,11 @@ function isAddMemberPayload(data: unknown): data is AddMemberPayload {
   );
 }
 
-// POST 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } 
 ) {
-  const { id: projectId } = params;
+  const { id: projectId } = await params;          
   const body = await request.json();
 
   if (!isAddMemberPayload(body)) {
