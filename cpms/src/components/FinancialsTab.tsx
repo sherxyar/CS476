@@ -11,9 +11,9 @@ import type { Project } from "@/types/Project";
 type InvoiceStatusForm = "PAID" | "NOT_PAID";
 
 interface InvoiceFormState {
-  date: string;           
+  date: string;
   invoiceNumber: string;
-  amount: string;        
+  amount: string;
   status: InvoiceStatusForm;
   vendor: string;
 }
@@ -45,28 +45,31 @@ interface Props {
 export default function FinancialsTab({ project }: Props) {
   /* Animation  */
   const [isCalculating, setIsCalculating] = useState(true);
-  const [isUpdating,    setIsUpdating]    = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   /* Project-level financial values  */
   const [financialValues, setFinancialValues] = useState({
     forecast: 0,
-    budget:   0,
-    actuals:  0,
+    budget: 0,
+    actuals: 0,
   });
+
+  console.log('Test actuals', financialValues.actuals, 'budget', financialValues.budget);
+
   const [animatedValues, setAnimatedValues] = useState(financialValues);
   const [financialHistory, setFinancialHistory] = useState<HistoryItem[]>([]);
 
   /* UI state  */
-  const [showAddInvoice,   setShowAddInvoice]   = useState(false);
+  const [showAddInvoice, setShowAddInvoice] = useState(false);
   const [showActualsPopup, setShowActualsPopup] = useState(false);
   const [showHistoryPopup, setShowHistoryPopup] = useState(false);
-  const [showUpdatePopup,  setShowUpdatePopup]  = useState(false);
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
   /* Invoices (SWR)  */
   const {
     invoices,
     isLoading: invLoading,
-    mutate:    refreshInvoices,
+    mutate: refreshInvoices,
   } = useInvoices(project.id);
 
   const paidTotal = useMemo(
@@ -84,6 +87,17 @@ export default function FinancialsTab({ project }: Props) {
         .reduce((sum, inv) => sum + Number(inv.amount), 0),
     [invoices]
   );
+
+  // test 
+console.log('actuals', financialValues.actuals, 'budget', financialValues.budget);
+
+  const actualsProgress =
+    financialValues.actuals > 0
+      ? Math.min(
+        (financialValues.actuals / financialValues.budget) * 100,
+        100,
+      )
+      : 0;
 
   /* Add-invoice form  */
   const [invoiceForm, setInvoiceForm] = useState<InvoiceFormState>({
@@ -119,7 +133,7 @@ export default function FinancialsTab({ project }: Props) {
         }),
       });
 
-      await refreshInvoices(); // re-validate cache
+      await refreshInvoices(); 
       setInvoiceForm({
         date: "",
         invoiceNumber: "",
@@ -135,7 +149,7 @@ export default function FinancialsTab({ project }: Props) {
     }
   };
 
-// GET 
+  // GET 
   useEffect(() => {
     (async () => {
       try {
@@ -147,8 +161,8 @@ export default function FinancialsTab({ project }: Props) {
 
         const target = {
           forecast: fullProject.forecast ?? 0,
-          budget:   fullProject.budget   ?? 0,
-          actuals:  fullProject.actuals  ?? 0,
+          budget: fullProject.budget ?? 0,
+          actuals: fullProject.actuals ?? 0,
         };
 
         setIsCalculating(true);
@@ -168,8 +182,8 @@ export default function FinancialsTab({ project }: Props) {
                 entry.field === "forecast"
                   ? "Total Project Forecast"
                   : entry.field === "budget"
-                  ? "Total Project Budget"
-                  : "Total Project Actuals to Date",
+                    ? "Total Project Budget"
+                    : "Total Project Actuals to Date",
               oldValue: `$${entry.oldValue.toFixed(2)}`,
               newValue: `$${entry.newValue.toFixed(2)}`,
               changedBy: entry.changedBy?.name ?? "Unknown",
@@ -184,11 +198,11 @@ export default function FinancialsTab({ project }: Props) {
     })();
   }, [project.id]);
 
-// Patch 
+  // Patch 
 
   const fieldMap: Record<string, "forecast" | "budget"> = {
     "Total Project Forecast": "forecast",
-    "Total Project Budget":   "budget",
+    "Total Project Budget": "budget",
   };
 
   const [updateForm, setUpdateForm] = useState({
@@ -281,7 +295,7 @@ export default function FinancialsTab({ project }: Props) {
           <div className={styles.leftColumn}>
             {[
               ["Total Project Forecast", animatedValues.forecast],
-              ["Total Project Budget",   animatedValues.budget],
+              ["Total Project Budget", animatedValues.budget],
             ].map(([label, val]) => (
               <div className={styles.fieldGroup} key={label}>
                 <label>{label}</label>
@@ -327,7 +341,18 @@ export default function FinancialsTab({ project }: Props) {
                 View Details
               </button>
             </div>
-
+            {/*  Budget-vs-Actuals progress bar  */}
+            <div className={styles.progressWrap}>
+              <div className={styles.progressBar}>
+                <div
+                  className={styles.progressFill}
+                  style={{ width: `${actualsProgress}%` }}
+                />
+              </div>
+              <span className={styles.progressLabel}>
+                {actualsProgress.toFixed(1)}%
+              </span>
+            </div>
             <div className={styles.summaryCard}>
               <div className={styles.summaryItem}>
                 <span className={styles.summaryLabel}>Total Invoices:</span>
@@ -342,9 +367,9 @@ export default function FinancialsTab({ project }: Props) {
                   {invLoading
                     ? "—"
                     : paidTotal.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })}
+                      style: "currency",
+                      currency: "CAD",
+                    })}
                 </span>
               </div>
 
@@ -354,9 +379,9 @@ export default function FinancialsTab({ project }: Props) {
                   {invLoading
                     ? "—"
                     : unpaidTotal.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })}
+                      style: "currency",
+                      currency: "CAD",
+                    })}
                 </span>
               </div>
             </div>
@@ -736,7 +761,7 @@ export default function FinancialsTab({ project }: Props) {
                             : "pointer",
                       }}
                     >
-                     {isUpdating ? "Saving…" : "Save Update"}
+                      {isUpdating ? "Saving…" : "Save Update"}
                     </button>
                   </div>
                 </div>

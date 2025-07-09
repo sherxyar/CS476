@@ -7,6 +7,9 @@ import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
+import { Building2, Phone, PhoneCall } from 'lucide-react';
+import { Search, House } from 'lucide-react';
+
 
 
 const Home: NextPage = () => {
@@ -19,19 +22,19 @@ const Home: NextPage = () => {
     fetchProjects();
   }, []);
 
-const fetchProjects = async () => {
-  try {
-    const res = await fetch("/api/projects");
-    if (!res.ok) {
-      const text = await res.text();  
-      throw new Error(`status ${res.status} , ${text}`);
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch("/api/projects");
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`status ${res.status} , ${text}`);
+      }
+      const data = await res.json();
+      setProjects(data);
+    } catch (err) {
+      console.error("Project fetch failed:", err);
     }
-    const data = await res.json();
-    setProjects(data);
-  } catch (err) {
-    console.error("Project fetch failed:", err);
-  }
-};
+  };
 
   const openProject = async (p: Project) => {
     try {
@@ -103,23 +106,51 @@ const fetchProjects = async () => {
   return (
     <>
       <Head>
-        <title>InfraPro - Home</title>
+        <title>InfraPro - Home </title>
         <meta name="description" content="InfraPro Project Management Dashboard" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <div className={styles.sidebar}>
-        <img src="/InfraPro_Logo.png" alt="Logo" className={styles.sidebarLogo} />
+        <img src="/InfraProLogo.png" alt="Logo" className={styles.sidebarLogo} />
         <nav>
+          <div className={styles.logoWrap}>
+            <Building2 aria-hidden className={styles.logoIcon} strokeWidth={2} />
+            <span className={styles.logoText}>InfraPro</span>
+          </div>
+
           <ul>
-            <li className={styles.active}><span className={styles.icon}>🏠</span>HOME</li>
+            <li className={styles.active}>
+              <span className={styles.homeIcon}><House /></span>
+              <span style={{ fontSize: "0.8em" }}>HOME</span>
+            </li>
           </ul>
+
+          <button
+            className={styles.create}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            + Create Project
+          </button>
+
+          <button className={styles.supportLink}>
+            <Phone/>
+            Get Support
+          </button>
         </nav>
       </div>
-
       <div className={styles.topbar}>
-        <div className={styles.logoText}>InfraPro</div>
-        <input type="text" className={styles.searchBox} placeholder="Search" />
+
+        <div className={styles.outer}>
+          <div className={styles.inner}>
+            <Search aria-hidden className={styles.icon} size={16} />
+            <input
+              type="text"
+              placeholder="Search…"
+              className={styles.searchBox}
+            />
+          </div>
+        </div>
         <div className={styles.topbarActions}>
           <a href="/auth/signup" className={styles.topbarButton}>Sign Up</a>
           <a href="/auth/login" className={styles.topbarButton}>Login</a>
@@ -152,11 +183,10 @@ const fetchProjects = async () => {
                     <td>{p.title}</td>
                     <td>
                       <span
-                        className={`${styles.status} ${
-                          p.phase.toLowerCase() === "planning"
-                            ? styles.planning
-                            : styles.construction
-                        }`}
+                        className={`${styles.status} ${p.phase.toLowerCase() === "planning"
+                          ? styles.planning
+                          : styles.construction
+                          }`}
                       />
                       {p.phase}
                     </td>
@@ -166,15 +196,7 @@ const fetchProjects = async () => {
               </tbody>
             </table>
 
-            <div className={styles.buttons}>
-              <button
-                className={styles.create}
-                onClick={() => setIsCreateOpen(true)}
-              >
-                + Create Project
-              </button>
-              <button className={styles.view}>View All Projects</button>
-            </div>
+
           </div>
         </div>
       </main>

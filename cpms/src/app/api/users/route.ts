@@ -1,36 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// list users - GET request
-export async function GET(req: Request) {
+
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
-  //  query string 
-  const qRaw  = (searchParams.get("query") ?? "").trim();
-  const query = qRaw.length ? qRaw : "";      // avoid falsy-but-not-empty issues
+  // text filter
+  const qRaw = (searchParams.get("query") ?? "").trim();
+  const query = qRaw.length ? qRaw : "";
 
-  //  limit 
-  const limitParam = Number(searchParams.get("limit"));
-  const limit =
-    Number.isFinite(limitParam) && limitParam > 0
-      ? Math.min(limitParam, 50)               // safety cap
-      : 30;                                    // default
+  // pagination
+  const limit = Math.min(
+    parseInt(searchParams.get("limit") ?? "30", 10) || 30,
+    50
+  );
+  const skip = parseInt(searchParams.get("skip") ?? "0", 10) || 0;
 
-  //  skip (pagination) 
-  const skipParam = Number(searchParams.get("skip"));
-  const skip =
-    Number.isFinite(skipParam) && skipParam >= 0 ? skipParam : 0;
-
-  //  DB query 
+  // DB read
   const users = await prisma.user.findMany({
     where: query
       ? {
           OR: [
-            { name:  { contains: query } },  
-            { email: { contains: query } },
+            { name:  { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
           ],
         }
-      : undefined,                            
+      : undefined,
     select: { id: true, name: true, email: true },
     orderBy: { name: "asc" },
     take: limit,
@@ -38,4 +33,8 @@ export async function GET(req: Request) {
   });
 
   return NextResponse.json(users);
+}
+
+export function OPTIONS() {
+  return NextResponse.json({}, { status: 200 });
 }

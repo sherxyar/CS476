@@ -1,88 +1,192 @@
-
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
+import { type LucideIcon } from 'lucide-react';
+import {
+  Circle,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  X,
+} from 'lucide-react';
 
 type Milestone = {
-  task: string;
+  id: number;
+  title: string;
   description: string;
   startDate: string;
   endDate: string;
   status: "Not Started" | "In Progress" | "Completed" | "Closed";
 };
 
+// these are from Lucide icons
+const statusIconMap: Record<Milestone['status'], LucideIcon> = {
+  'Not Started': Circle,
+  'In Progress': Loader2,
+  Completed: CheckCircle2,
+  Closed: XCircle,
+};
+
+// Lucide icons helper function
+export function StatusIcon({ status }: { status: Milestone['status'] }) {
+  const Icon = statusIconMap[status];
+  return (
+    <Icon
+      className={`h-4 w-4 inline-block ${status === 'In Progress' ? 'animate-spin' : ''
+        }`}
+    />
+  );
+}
+
+
+
+type Schedule = {
+  id: number;
+  projectId: string;
+  milestones: Milestone[];
+};
 
 type Props = {
   project: Project;
-}; 
+};
 
-export default function ScheduleTab({ project: _project }: Props) {
-  const [milestones, setMilestones] = useState<Milestone[]>([
-    {
-      task: "Site Survey & Assessment",
-      description: "Complete initial site evaluation and measurements",
-      startDate: "Jan 15, 2025",
-      endDate: "Jan 18, 2025",
-      status: "Completed"
-    },
-    {
-      task: "Material Procurement",
-      description: "Order and receive all necessary construction materials",
-      startDate: "Jan 20, 2025",
-      endDate: "Jan 25, 2025",
-      status: "In Progress"
-    },
-    {
-      task: "Surface Preparation",
-      description: "Clean and prepare existing pavement surface",
-      startDate: "Jan 28, 2025",
-      endDate: "Feb 3, 2025",
-      status: "Not Started"
-    },
-    {
-      task: "Pavement Repair Work",
-      description: "Execute main repair work including crack sealing and resurfacing",
-      startDate: "Feb 5, 2025",
-      endDate: "Feb 15, 2025",
-      status: "Not Started"
-    },
-    {
-      task: "Final Inspection",
-      description: "Quality control inspection and project completion review",
-      startDate: "Feb 18, 2025",
-      endDate: "Feb 20, 2025",
-      status: "Not Started"
-    }
-  ]);
-
+export default function ScheduleTab({ project }: Props) {
+  const [schedule, setSchedule] = useState<Schedule | null>(null);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [showAddMilestone, setShowAddMilestone] = useState(false);
-  const [newMilestone, setNewMilestone] = useState<Milestone>({
-    task: "",
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [newMilestone, setNewMilestone] = useState<Omit<Milestone, "id">>({
+    title: "",
     description: "",
     startDate: "",
     endDate: "",
-    status: "Not Started"
+    status: "Not Started",
   });
 
-  const handleAddMilestone = () => {
-    if (newMilestone.task && newMilestone.description && newMilestone.startDate && newMilestone.endDate) {
-      setMilestones([...milestones, newMilestone]);
-      setNewMilestone({
-        task: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-        status: "Not Started"
+  // 🛠 Date display fix: create local date to avoid timezone shift
+  const formatDateForDisplay = (dateString: string) => {
+    try {
+      const [datePart] = dateString.split("T");
+      const [year, month, day] = datePart.split("-").map(Number);
+      const displayDate = new Date(year, month - 1, day);
+      return displayDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
-      setShowAddMilestone(false);
+    } catch {
+      return dateString;
     }
   };
 
-  const handleStatusChange = (index: number, newStatus: Milestone["status"]) => {
-    const updatedMilestones = [...milestones];
-    updatedMilestones[index].status = newStatus;
-    setMilestones(updatedMilestones);
+  // Date string creation with UTC noon to avoid shift
+  const createDateString = (dateInput: string) => {
+    if (dateInput && !dateInput.includes("T")) {
+      return `${dateInput}T12:00:00Z`;
+    }
+    return dateInput;
+  };
+
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      if (!project.id) return;
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(`/api/projects/${project.id}/milestones`);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+        const data = await response.json();
+        setSchedule({
+          id: data.id || 0,
+          projectId: project.id,
+          milestones: data.milestones || [],
+        });
+        setMilestones(data.milestones || []);
+      } catch (err) {
+        console.error("Fetch schedule error:", err);
+        setError("Failed to load schedule data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSchedule();
+  }, [project.id]);
+
+  const handleAddMilestone = async () => {
+    const { title, description, startDate, endDate, status } = newMilestone;
+    if (!title || !description || !startDate || !endDate) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/projects/${project.id}/milestones`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          startDate: createDateString(startDate),
+          endDate: createDateString(endDate),
+          status,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      const savedMilestone = await response.json();
+      setMilestones((prev) => [...prev, savedMilestone]);
+
+      setNewMilestone({
+        title: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+        status: "Not Started",
+      });
+      setShowAddMilestone(false);
+    } catch (err) {
+      console.error("Add milestone error:", err);
+      setError("Failed to add milestone. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (
+    milestoneId: number,
+    newStatus: Milestone["status"]
+  ) => {
+    try {
+      setError(null);
+
+      const response = await fetch(`/api/projects/${project.id}/milestones`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ milestoneId, status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error("Status update failed");
+
+      setMilestones((prev) =>
+        prev.map((m) =>
+          m.id === milestoneId ? { ...m, status: newStatus } : m
+        )
+      );
+    } catch (err) {
+      console.error("Status update error:", err);
+      setError("Failed to update milestone status. Please try again.");
+    }
   };
 
   const getStatusClass = (status: string) => {
@@ -100,21 +204,57 @@ export default function ScheduleTab({ project: _project }: Props) {
     }
   };
 
+  const getActualStartDate = () => {
+    if (milestones.length === 0) return "Not started";
+    const sorted = [...milestones].sort(
+      (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    );
+    return formatDateForDisplay(sorted[0].startDate);
+  };
+
+  const getActualEndDate = () => {
+    const completed = milestones.filter((m) => m.status === "Completed");
+    if (completed.length === 0) return "In Progress";
+
+    const latest = completed.reduce((a, b) =>
+      new Date(a.endDate) > new Date(b.endDate) ? a : b
+    );
+    return formatDateForDisplay(latest.endDate);
+  };
+
   return (
     <div className={styles.generalContent}>
+      {error && (
+        <div
+          style={{
+            background: "#fee",
+            color: "#c33",
+            padding: "10px",
+            marginBottom: "20px",
+            borderRadius: "4px",
+            border: "1px solid #fcc",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
       <div className={styles.topSection}>
         <div className={styles.leftColumn}>
           <div className={styles.fieldGroup}>
             <label>Planned Start Date</label>
             <div className={styles.fieldValue}>
-              January 15, 2025
+              {project.plannedStartDate
+                ? formatDateForDisplay(project.plannedStartDate.toString())
+                : "Not set"}
             </div>
           </div>
-
           <div className={styles.fieldGroup}>
             <label>Planned End Date</label>
             <div className={styles.fieldValue}>
-              February 20, 2025
+              {project.plannedEndDate
+                ? formatDateForDisplay(project.plannedEndDate.toString())
+                : "Not set"}
             </div>
           </div>
         </div>
@@ -122,31 +262,28 @@ export default function ScheduleTab({ project: _project }: Props) {
         <div className={styles.rightColumn}>
           <div className={styles.fieldGroup}>
             <label>Actual Start Date</label>
-            <div className={styles.fieldValue}>
-              January 16, 2025
-            </div>
+            <div className={styles.fieldValue}>{getActualStartDate()}</div>
           </div>
-
           <div className={styles.fieldGroup}>
             <label>Actual End Date</label>
-            <div className={styles.fieldValue}>
-              In Progress
-            </div>
+            <div className={styles.fieldValue}>{getActualEndDate()}</div>
           </div>
         </div>
       </div>
 
       <div className={styles.divider}></div>
 
+      {/* Milestones Section */}
       <div className={styles.actualsSection}>
         <div className={styles.fieldGroup}>
           <div className={styles.actualsHeader}>
             <label>Milestones</label>
-            <button 
-              className={styles.addInvoiceButton} 
+            <button
+              className={styles.addInvoiceButton}
               onClick={() => setShowAddMilestone(!showAddMilestone)}
+              disabled={loading}
             >
-              Add Milestone
+              {loading ? "Loading..." : showAddMilestone ? "Add Milestone" : "Add Milestone"}
             </button>
           </div>
 
@@ -154,13 +291,16 @@ export default function ScheduleTab({ project: _project }: Props) {
             <div className={styles.invoiceForm}>
               <div className={styles.formRow}>
                 <div className={styles.formField}>
-                  <label>Task</label>
+                  <label>Task *</label>
                   <input
                     type="text"
                     className={styles.formInput}
-                    value={newMilestone.task}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, task: e.target.value })}
+                    value={newMilestone.title}
+                    onChange={(e) =>
+                      setNewMilestone({ ...newMilestone, title: e.target.value })
+                    }
                     placeholder="Enter task name"
+                    required
                   />
                 </div>
                 <div className={styles.formField}>
@@ -168,7 +308,12 @@ export default function ScheduleTab({ project: _project }: Props) {
                   <select
                     className={styles.formSelect}
                     value={newMilestone.status}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, status: e.target.value as Milestone["status"] })}
+                    onChange={(e) =>
+                      setNewMilestone({
+                        ...newMilestone,
+                        status: e.target.value as Milestone["status"],
+                      })
+                    }
                   >
                     <option value="Not Started">Not Started</option>
                     <option value="In Progress">In Progress</option>
@@ -177,42 +322,74 @@ export default function ScheduleTab({ project: _project }: Props) {
                   </select>
                 </div>
               </div>
+
+
               <div className={styles.formRow}>
+                {/*  Start - End  */}
                 <div className={styles.formField}>
-                  <label>Description</label>
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    value={newMilestone.description}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, description: e.target.value })}
-                    placeholder="Enter description"
-                  />
-                </div>
-              </div>
-              <div className={styles.formRow}>
-                <div className={styles.formField}>
-                  <label>Start Date</label>
+                  <label>Start Date *</label>
                   <input
                     type="date"
                     className={styles.formInput}
                     value={newMilestone.startDate}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, startDate: e.target.value })}
+                    onChange={(e) =>
+                      setNewMilestone({ ...newMilestone, startDate: e.target.value })
+                    }
+                    required
                   />
                 </div>
+
                 <div className={styles.formField}>
-                  <label>End Date</label>
+                  <label>End Date *</label>
                   <input
                     type="date"
                     className={styles.formInput}
                     value={newMilestone.endDate}
-                    onChange={(e) => setNewMilestone({ ...newMilestone, endDate: e.target.value })}
+                    onChange={(e) =>
+                      setNewMilestone({ ...newMilestone, endDate: e.target.value })
+                    }
+                    min={newMilestone.startDate}
+                    required
                   />
                 </div>
+
+                <div className={`${styles.formField} ${styles.fullWidthField}`}>
+                  <label>Description *</label>
+                  <textarea                 /* ← changed element */
+                    className={styles.formTextarea}   /* new class */
+                    rows={3}                          /* default height */
+                    value={newMilestone.description}
+                    onChange={(e) =>
+                      setNewMilestone({ ...newMilestone, description: e.target.value })
+                    }
+                    placeholder="Enter description"
+                    required
+                  />
+                </div>
+
               </div>
+
               <div className={styles.formActions}>
-                <button className={styles.saveInvoiceButton} onClick={handleAddMilestone}>
-                  Save Milestone
+                {/* Save button */}
+                <button
+                  className={styles.saveInvoiceButton}
+                  onClick={handleAddMilestone}
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save Milestone"}
                 </button>
+
+                {/* Cancel button */}
+                <button
+                  type="button"
+                  onClick={() => setShowAddMilestone(false)}
+                  className={styles.cancelInvoiceButton}
+                >
+
+                  Cancel
+                </button>
+
+
               </div>
             </div>
           )}
@@ -229,26 +406,47 @@ export default function ScheduleTab({ project: _project }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {milestones.map((milestone, index) => (
-                  <tr key={index}>
-                    <td style={{ fontWeight: '600' }}>{milestone.task}</td>
-                    <td>{milestone.description}</td>
-                    <td>{milestone.startDate}</td>
-                    <td>{milestone.endDate}</td>
-                    <td>
-                      <select
-                        value={milestone.status}
-                        onChange={(e) => handleStatusChange(index, e.target.value as Milestone["status"])}
-                        className={`${styles.statusSelect} ${getStatusClass(milestone.status)}`}
-                      >
-                        <option value="Not Started">Not Started</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Closed">Closed</option>
-                      </select>
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
+                      Loading milestones...
                     </td>
                   </tr>
-                ))}
+                ) : milestones.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
+                      No milestones found. Add your first milestone!
+                    </td>
+                  </tr>
+                ) : (
+                  milestones.map((milestone) => (
+                    <tr key={milestone.id}>
+                      <td style={{ fontWeight: "600" }}>{milestone.title}</td>
+                      <td>{milestone.description}</td>
+                      <td>{formatDateForDisplay(milestone.startDate)}</td>
+                      <td>{formatDateForDisplay(milestone.endDate)}</td>
+                      <td className={styles.statusCell}>
+                        <StatusIcon status={milestone.status} />
+                        <select
+                          value={milestone.status}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              milestone.id,
+                              e.target.value as Milestone['status'],
+                            )
+                          }
+                          className={`${styles.statusSelect} ${getStatusClass(milestone.status)}`}
+                        >
+                          <option value="Not Started">Not Started</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Closed">Closed</option>
+                        </select>
+                      </td>
+
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

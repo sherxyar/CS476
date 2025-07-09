@@ -1,0 +1,203 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+}
+
+.subTabHeader {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e8e8e8;
+    padding: 0 24px;
+    gap: 4px;
+    margin-top: -4px;
+}
+
+.subTabButton {
+    flex: 1;
+    padding: 12px 14px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    border-radius: 8px 8px 0 0;
+    transition: background 0.2s, color 0.2s;
+}
+
+.subTabButton:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.activeSubTab {
+    background: #fff;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 2px solid #fff;
+    margin-bottom: -2px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.table thead {
+    background: #e9ecef;
+}
+
+.table th,
+.table td {
+    padding: 12px 16px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+}
+
+.table tbody tr:hover {
+    background: #f1f3f4;
+}
+
+.addRiskButton {
+    margin-top: 16px;
+    padding: 6px 14px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.addRiskButton:disabled,
+.addRiskButton:hover {
+    background: #0056b3;
+}
+
+.riskForm {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+}
+
+.formField label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.formInput {
+    font: inherit;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.formInput:focus {
+    outline: 2px solid #007bff;
+}
+
+.formActions {
+    display: flex;
+    align-items: center;
+}
+
+.saveRiskButton {
+    background: #0502be;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.saveRiskButton:hover {
+    background: #000000;
+}
+
+.message {
+    padding: 16px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.loading {
+    background: #e8f0fe;
+    color: #1a73e8;
+}
+
+.error {
+    background: #fdecea;
+    color: #d93025;
+}
+
+.info {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0 0 0 / 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 10px 32px rgba(0 0 0 / 0.35);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.closeButton {
+  font-size: 24px;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.activeSubTab {
+  background: #fff;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 3px solid #0502be; 
+  margin-bottom: -3px;
+}

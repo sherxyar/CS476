@@ -1,5 +1,3 @@
-// ProjectModal.tsx — fully updated for staged‑save architecture
-
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import styles from "../styles/ProjectModal.module.css";
@@ -8,51 +6,51 @@ import FinancialsTab from "./FinancialsTab";
 import ScheduleTab from "./ScheduleTab";
 import ChangeLogTab from "./ChangeLogTab";
 import AdministrationTab from "./AdministrationTab";
+import DeliveryTab from "./DeliveryTab";
 import type { Project } from "@/types/Project";
+import { SquareX } from "lucide-react";
 
 /* Types */
-
 interface Props {
   project: Project;
   onClose: () => void;
   onProjectUpdate: (project: Project) => void;
 }
 
-/*  UI Tabs  */
+/* UI Tabs */
 const TABS = [
   "General",
   "Financials",
   "Schedule",
   "Change Log",
-  "Administration",
   "Delivery",
+  "Administration"
 ] as const;
 
 type TabName = (typeof TABS)[number];
 
-/*  Components  */
+/* Component */
 export default function ProjectModal({ project: initial, onClose, onProjectUpdate }: Props) {
   /* Project state */
   const [project, setProject] = useState<Project>(initial);
 
-  /* Staged‑change callbacks to make sure no lost data */
+  /* staged-change callbacks */
   const changeHandlersRef = useRef<Array<() => Partial<Project>>>([]);
   const registerChangeHandler = useCallback((fn: () => Partial<Project>) => {
     changeHandlersRef.current.push(fn);
   }, []);
 
-  /* UI state */
+  /* ui state */
   const [activeTab, setActiveTab] = useState<TabName>("General");
-  const [activeDeliveryTab, setActiveDeliveryTab] = useState<"Risk" | "Lessons Learned">("Risk");
 
-  /* Esc key for closing  */
+  /* esc to close */
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onEsc);
     return () => document.removeEventListener("keydown", onEsc);
   }, [onClose]);
 
-  /*  Save Project (single PATCH)  */
+  /* save (single PATCH) */
   const handleSaveProject = async () => {
     const combined: Partial<Project> = {};
     changeHandlersRef.current.forEach((get) => Object.assign(combined, get()));
@@ -74,14 +72,15 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
       setProject(updated);
       onProjectUpdate(updated);
       alert("Project saved.");
-      changeHandlersRef.current = []; // reset staged callbacks
+
+      changeHandlersRef.current = [];
     } catch (err) {
       console.error(err);
       alert("Failed to save project.");
     }
   };
 
-  /*  Tab Renderer  */
+  /* render tab */
   const renderTab = () => {
     switch (activeTab) {
       case "General":
@@ -106,45 +105,39 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
         return <ScheduleTab project={project} />;
       case "Change Log":
         return <ChangeLogTab project={project} />;
-      case "Administration":
-        return <AdministrationTab project={project} />;
       case "Delivery":
         return (
-          <div>
-            <div className={styles.tabHeader}>
-              {(["Risk", "Lessons Learned"] as const).map((d) => (
-                <button
-                  key={d}
-                  className={`${styles.tabButton} ${activeDeliveryTab === d ? styles.activeTab : ""}`}
-                  onClick={() => setActiveDeliveryTab(d)}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-            {/* TODO: We need to work on these two logs.  */} 
-            {activeDeliveryTab === "Risk" ? <div>Risk Matrix</div> : <div>Lessons Log</div>}
-          </div>
+          <DeliveryTab
+            project={project}
+            registerChangeHandler={registerChangeHandler}
+          />
         );
+      case "Administration":
+        return <AdministrationTab project={project} />;
+
       default:
         return null;
     }
   };
 
-  /*  JSX  */
+  /* jsx */
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        {/* Header */}
+        {/* header */}
         <div className={styles.header}>
           <h2>{project.title}</h2>
-          <button className={styles.closeButton} onClick={onClose}>\
-          {  /* TODO: We need to add a close icon here */}
-            X
+          <button
+            className={styles.closeButton}
+            onClick={onClose}
+            title="Close"
+            aria-label="Close"
+          >
+            <SquareX aria-hidden="true" className={styles.logoIcon} strokeWidth={2} />
           </button>
         </div>
 
-        {/* Tab buttons */}
+        {/* main tabs */}
         <div className={styles.tabHeader}>
           {TABS.map((t) => (
             <button
@@ -157,10 +150,9 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
           ))}
         </div>
 
-        {/* Active tab content */}
         <div className={styles.tabContent}>{renderTab()}</div>
 
-        {/* Footer */}
+        {/* footer */}
         <div className={styles.footer}>
           <button className={styles.backButton} onClick={onClose}>
             Close
@@ -168,7 +160,12 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
           <button className={styles.editButton} onClick={handleSaveProject}>
             Save Project
           </button>
-          <button className={styles.editButton} onClick={() => console.log("Edit mode")}>Edit Project</button>
+          <button
+            className={styles.editButton}
+            onClick={() => console.log("Edit mode")}
+          >
+            Edit Project
+          </button>
         </div>
       </div>
     </div>
