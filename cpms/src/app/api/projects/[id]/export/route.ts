@@ -5,10 +5,10 @@ import { prisma }          from '@/lib/prisma';
 import type { Project } from '@/types/Project';
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = context.params.id;
 
   const project = await prisma.project.findUnique({
     where: { id },
@@ -38,7 +38,7 @@ export async function GET(
   }
   
   // Transform Prisma date objects to ISO strings to match our Project type
-  const formattedProject = {
+  const formattedProject: Project = {
     ...project,
     dateCreated: project.dateCreated.toISOString(),
     plannedStartDate: project.plannedStartDate.toISOString(),
@@ -52,9 +52,9 @@ export async function GET(
       ...entry,
       changedAt: entry.changedAt.toISOString()
     }))
-  };
+  } as Project;
 
-  const pdf = await renderToBuffer(projectToPdf(formattedProject as unknown as Project));
+  const pdf = await renderToBuffer(projectToPdf(formattedProject));
 
   return new NextResponse(pdf, {
     headers: {
