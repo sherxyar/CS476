@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }   // 👈 promise!
+  { params }: { params: Promise<{ id: string }> }  
 ) {
-  const { id: idStr } = await params               // 👈 await before use
+  const { id: idStr } = await params               
   const id = Number(idStr)
 
   if (!Number.isInteger(id) || id <= 0) {
@@ -18,11 +18,12 @@ export async function GET(
       id: true,
       name: true,
       email: true,
-      _count: { select: { projects: true } },
+      _count: { select: { addedMembers: true } },
       auditLogs: {
         orderBy: { timestamp: 'desc' },
         take: 10,
         select: { action: true, tableName: true, timestamp: true },
+        
       },
     },
   })

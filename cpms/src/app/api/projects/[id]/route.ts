@@ -1,14 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 type Context = { params: Promise<{ id: string }> };
 
-//
-// GET /api/projects/[id]  – fetch a single project
-//
-export async function GET(_req: Request, props: Context) {
-  const params = await props.params;
-  const { id } = params;
+//  GET Request for projects
+export async function GET(_req: NextRequest, { params }: Context) {
+  const { id } = await params;               
 
   try {
     const project = await prisma.project.findUnique({
@@ -22,7 +19,9 @@ export async function GET(_req: Request, props: Context) {
           },
         },
         financialHistory: {
-          include: { changedBy: { select: { id: true, name: true, email: true } } },
+          include: {
+            changedBy: { select: { id: true, name: true, email: true } },
+          },
           orderBy: { changedAt: "desc" },
         },
       },
@@ -34,19 +33,15 @@ export async function GET(_req: Request, props: Context) {
     return NextResponse.json(project);
   } catch (err) {
     console.error(`GET /api/projects/${id} error:`, err);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json("Internal Server Error", { status: 500 });
   }
 }
 
-//
-// PATCH /api/projects/[id]  – update phase / financials / add note
-//
-export async function PATCH(req: Request, props: Context) {
-  const params = await props.params;
-  const { id } = params;
+// Projcet Updates - PATCH
+export async function PATCH(req: NextRequest, { params }: Context) {
+  const { id } = await params;
   const body = await req.json();
 
-  /*  Phase update  */
   if (body.phase) {
     try {
       const updated = await prisma.project.update({
@@ -60,15 +55,21 @@ export async function PATCH(req: Request, props: Context) {
     }
   }
 
-  /*  Add a PM note */
+
   if (body.note) {
     const { note, userId } = body;
 
     if (typeof note !== "string" || !note.trim()) {
-      return NextResponse.json({ error: "note must be a non-empty string" }, { status: 400 });
+      return NextResponse.json(
+        { error: "note must be a non-empty string" },
+        { status: 400 },
+      );
     }
     if (typeof userId !== "number") {
-      return NextResponse.json({ error: "userId must be a number" }, { status: 400 });
+      return NextResponse.json(
+        { error: "userId must be a number" },
+        { status: 400 },
+      );
     }
 
     try {
@@ -94,7 +95,6 @@ export async function PATCH(req: Request, props: Context) {
     }
   }
 
-  /*  Financials update  */
   const { field, newValue, reason, userId } = body;
 
   if (!["forecast", "budget", "actuals"].includes(field)) {
@@ -111,7 +111,6 @@ export async function PATCH(req: Request, props: Context) {
   const numericField = field as NumericField;
 
   try {
-    // Fetch all three numeric columns so the result is strongly typed
     const current = await prisma.project.findUnique({
       where: { id },
       select: { forecast: true, budget: true, actuals: true },
@@ -133,12 +132,20 @@ export async function PATCH(req: Request, props: Context) {
         [numericField]: newValue,
         lastUpdated: new Date(),
         financialHistory: {
-          create: { field: numericField, oldValue, newValue, reason: reason ?? "", userId },
+          create: {
+            field: numericField,
+            oldValue,
+            newValue,
+            reason: reason ?? "",
+            userId,
+          },
         },
       },
       include: {
         financialHistory: {
-          include: { changedBy: { select: { id: true, name: true, email: true } } },
+          include: {
+            changedBy: { select: { id: true, name: true, email: true } },
+          },
           orderBy: { changedAt: "desc" },
         },
       },
@@ -150,18 +157,19 @@ export async function PATCH(req: Request, props: Context) {
   }
 }
 
-//
-// DELETE /api/projects/[id]  – remove project
-//
-export async function DELETE(_req: Request, props: Context) {
-  const params = await props.params;
-  const { id } = params;
+// DELETE - by Admins
+export async function DELETE(_req: NextRequest, { params }: Context) {
+  const { id } = await params;
 
   try {
     await prisma.project.delete({ where: { id } });
     return new NextResponse(null, { status: 204 });
   } catch (err) {
     console.error(`DELETE /api/projects/${id} error:`, err);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json("Internal Server Error", { status: 500 });
   }
+}
+
+export function OPTIONS() {
+  return NextResponse.json({}, { status: 200 });
 }
