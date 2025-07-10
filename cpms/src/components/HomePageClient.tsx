@@ -1,4 +1,3 @@
-// src/components/HomePageClient.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,7 +9,8 @@ import type { Project } from "@/types/Project";
 import { Building2, Phone, Search, House } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 
-/* ------------ Helper to greet signed-in user ------------ */
+
+// User name in greeting
 function UserGreeting() {
   const [name, setName] = useState<string | null>(null);
 
@@ -24,14 +24,13 @@ function UserGreeting() {
   return <h2>Welcome back{name ? `, ${name}!` : "!"}</h2>;
 }
 
-/* -------------------- Dashboard ------------------------- */
 export default function HomePageClient() {
   const [projects, setProjects]           = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal]         = useState(false);
   const [isCreateOpen, setIsCreateOpen]   = useState(false);
 
-  /* -------- fetch list on mount -------- */
+  // FETCH
   useEffect(() => { fetchProjects(); }, []);
 
   async function fetchProjects() {
@@ -44,7 +43,6 @@ export default function HomePageClient() {
     }
   }
 
-  /* -------- open a single project -------- */
   async function openProject(p: Project) {
     try {
       const res = await fetch(`/api/projects/${p.id}`);
@@ -56,7 +54,6 @@ export default function HomePageClient() {
     }
   }
 
-  /* -------- create project -------- */
   async function handleCreate(draft: {
     title: string;
     projectManagerId?: string;
@@ -98,7 +95,6 @@ export default function HomePageClient() {
     }
   }
 
-  /* -------- update project in-place -------- */
   function handleProjectUpdate(updated: Project) {
     setProjects((prev) =>
       prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
@@ -106,7 +102,6 @@ export default function HomePageClient() {
     setSelectedProject(updated);
   }
 
-  /* ---------------- JSX ------------------- */
   return (
     <>
       <Head>
@@ -114,9 +109,7 @@ export default function HomePageClient() {
         <meta name="description" content="InfraPro Project Management Dashboard" />
       </Head>
 
-      {/* -------- Sidebar -------- */}
       <div className={styles.sidebar}>
-        <img src="/InfraProLogo.png" alt="Logo" className={styles.sidebarLogo} />
         <nav>
           <div className={styles.logoWrap}>
             <Building2 className={styles.logoIcon} strokeWidth={2} />
@@ -140,7 +133,6 @@ export default function HomePageClient() {
         </nav>
       </div>
 
-      {/* -------- Top-bar -------- */}
       <div className={styles.topbar}>
         <div className={styles.outer}>
           <div className={styles.inner}>
@@ -153,7 +145,6 @@ export default function HomePageClient() {
         </div>
       </div>
 
-      {/* -------- Main content -------- */}
       <main className={styles.main}>
         <div className={styles.content}>
           <UserGreeting />
@@ -197,7 +188,6 @@ export default function HomePageClient() {
         </div>
       </main>
 
-      {/* -------- Modals -------- */}
       {showModal && selectedProject && (
         <ProjectModal
           project={selectedProject}
