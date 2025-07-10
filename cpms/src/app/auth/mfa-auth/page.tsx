@@ -17,7 +17,8 @@ function Form() {
         const req = await fetch("/api/auth/mfa-auth", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, code })
+            body: JSON.stringify({ email, code }),
+            credentials: "include"
         });
         const data = await req.json();
         if (req.ok) {

@@ -9,7 +9,22 @@ import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
 import { Building2, Phone, PhoneCall } from 'lucide-react';
 import { Search, House } from 'lucide-react';
+import UserMenu from "@/components/UserMenu";
 
+
+// Function to get current user's name
+function UserGreeting() {
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((session) => setName(session?.email?.split("@")[0] ?? null))
+      .catch(() => setName(null));
+  }, []);
+
+  return <h2>Welcome back{name ? `, ${name}!` : "!"}</h2>;
+}
 
 
 const Home: NextPage = () => {
@@ -112,7 +127,6 @@ const Home: NextPage = () => {
       </Head>
 
       <div className={styles.sidebar}>
-        <img src="/InfraProLogo.png" alt="Logo" className={styles.sidebarLogo} />
         <nav>
           <div className={styles.logoWrap}>
             <Building2 aria-hidden className={styles.logoIcon} strokeWidth={2} />
@@ -126,6 +140,7 @@ const Home: NextPage = () => {
             </li>
           </ul>
 
+
           <button
             className={styles.create}
             onClick={() => setIsCreateOpen(true)}
@@ -134,7 +149,7 @@ const Home: NextPage = () => {
           </button>
 
           <button className={styles.supportLink}>
-            <Phone/>
+            <Phone />
             Get Support
           </button>
         </nav>
@@ -143,6 +158,7 @@ const Home: NextPage = () => {
 
         <div className={styles.outer}>
           <div className={styles.inner}>
+
             <Search aria-hidden className={styles.icon} size={16} />
             <input
               type="text"
@@ -152,14 +168,14 @@ const Home: NextPage = () => {
           </div>
         </div>
         <div className={styles.topbarActions}>
-          <a href="/auth/signup" className={styles.topbarButton}>Sign Up</a>
-          <a href="/auth/login" className={styles.topbarButton}>Login</a>
+          <UserMenu />
         </div>
+
       </div>
 
       <main className={styles.main}>
         <div className={styles.content}>
-          <h2>Welcome back!</h2>
+          <UserGreeting />
 
           <div className={styles.card}>
             <h3>Project Overview</h3>
