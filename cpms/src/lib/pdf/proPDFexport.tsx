@@ -1,5 +1,7 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type { Project, PMNote } from '@/types/Project';
+// Citation: Most of the work is inspired by the example from the react-pdf documentation
+// https://react-pdf.org/
 
 const s = StyleSheet.create({
   page: { padding: 24, fontSize: 11 },
@@ -72,19 +74,39 @@ export function projectToPdf(p: Project) {
 
         {/* Notes section */}
         <View style={s.sectionBreak}>
-          <Text style={s.h1}>PM Notes</Text>
+          <Text style={s.h1}>Project Notes History</Text>
+          
           {p.pmNotesHistory && p.pmNotesHistory.length > 0 ? (
-            p.pmNotesHistory.slice(0, 3).map((note, i) => (
-              <View key={i} style={s.note}>
-                <Text style={{ fontWeight: 'bold' }}>
-                  {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : 'Date unknown'} 
-                  {note.author ? ` - ${note.author.name}` : ''}
-                </Text>
-                <Text>{note.note}</Text>
+            <>
+              <View style={[s.row, { backgroundColor: '#f5f5f5', marginTop: 4 }]}>
+                <Text style={[s.cell, { fontWeight: 'bold', flex: 0.3 }]}>Date</Text>
+                <Text style={[s.cell, { fontWeight: 'bold', flex: 0.3 }]}>Author</Text>
+                <Text style={[s.cell, { fontWeight: 'bold', flex: 1.4 }]}>Note</Text>
               </View>
-            ))
+              
+              {[...p.pmNotesHistory]
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .map((note, i) => (
+                <View key={i} style={[s.row, i % 2 === 0 ? { backgroundColor: '#fafafa' } : {}]}>
+                  <Text style={[s.cell, { flex: 0.3 }]}>
+                    {note && note.createdAt ? 
+                      new Date(note.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      }) : 'Unknown date'}
+                  </Text>
+                  <Text style={[s.cell, { flex: 0.3 }]}>
+                    {note && note.author && note.author.name ? note.author.name : 'Unknown user'}
+                  </Text>
+                  <Text style={[s.cell, { flex: 1.4 }]}>
+                    {note && note.note ? note.note : 'No content'}
+                  </Text>
+                </View>
+              ))}
+            </>
           ) : (
-            <Text>No notes available.</Text>
+            <Text>No notes available for this project.</Text>
           )}
         </View>
 
