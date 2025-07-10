@@ -13,7 +13,6 @@ function MfaForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const router            = useRouter();
 
   async function verifyCode() {
     setError("");
@@ -29,7 +28,7 @@ function MfaForm() {
         cache:        "no-store",
       });
 
-      let data = await res.json();
+      const data = await res.json();
       
       if (!res.ok) {
         setError(data.error || `Error ${res.status}`);
