@@ -3,10 +3,22 @@ import { useState, useEffect } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 import NotesModal from "./NotesModal";
+import { useSession } from "next-auth/react";
+
+declare module "next-auth" {
+  interface Session {
+    user?: {
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      accountRole?: string | null;
+    };
+  }
+}
 
 type Props = {
   project: Project;
-  onProjectUpdate: (project: Project) => void;              
+  onProjectUpdate: (project: Project) => void;
   registerChangeHandler: (getChanges: () => Partial<Project>) => void;
 };
 
@@ -16,6 +28,9 @@ export default function GeneralTab({
   registerChangeHandler,
 }: Props) {
   const [phase, setPhase] = useState(project.phase);
+  const [title, setTitle] = useState(project.title);
+  const [description, setDescription] = useState(project.description);
+
   // this is for PM notes history
   const [showAll, setShowAll] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
@@ -24,15 +39,38 @@ export default function GeneralTab({
   // Add state for current user
   const [currentUser, setCurrentUser] = useState<{ id: number; name: string; email: string } | null>(null);
   const [note, setNote] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const { data: session } = useSession();
 
-
-  /*  Register change handler (only for phase now)  */
   useEffect(() => {
-    const getChanges = (): Partial<Project> =>
-      phase !== project.phase ? { phase } : {};
+    async function checkAdmin() {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        if (res.ok) {
+          const userData = await res.json();
+          setIsAdmin(userData?.accountRole === "ADMIN");
+        }
+      } catch (err) {
+        console.error("Failed to check admin status:", err);
+      }
+    }
+
+    checkAdmin();
+  }, []);
+
+  useEffect(() => {
+    const getChanges = (): Partial<Project> => {
+      const changes: Partial<Project> = {};
+
+      if (phase !== project.phase) changes.phase = phase;
+      if (title !== project.title) changes.title = title;
+      if (description !== project.description) changes.description = description;
+
+      return changes;
+    };
 
     registerChangeHandler(getChanges);
-  }, [phase, project.phase, registerChangeHandler]);
+  }, [phase, title, description, project, registerChangeHandler]);
 
   /*  Handlers  */
   const handleAddNoteClick = () => setShowAdd(true);
@@ -62,9 +100,10 @@ export default function GeneralTab({
     } catch (err) {
       console.error("Add-note failed:", err);
       alert("Couldnt save note - please try again.");
-    }  };
+    }
+  };
 
-   const handleViewAll = () => setShowAll(true);
+  const handleViewAll = () => setShowAll(true);
 
 
   /*  render  */
@@ -80,7 +119,16 @@ export default function GeneralTab({
 
           <div className={styles.fieldGroup}>
             <label>Title</label>
-            <div className={styles.fieldValue}>{project.title}</div>
+            {isAdmin ? (
+              <input
+                type="text"
+                className={styles.formInput}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            ) : (
+              <div className={styles.fieldValue}>{project.title}</div>
+            )}
           </div>
 
           <div className={styles.fieldGroup}>
@@ -119,16 +167,20 @@ export default function GeneralTab({
           {/* Phase selector (staged for Save) */}
           <div className={styles.fieldGroup}>
             <label>Phase</label>
-            <select
-              className={styles.formSelect}
-              value={phase}
-              onChange={(e) => setPhase(e.target.value)}
-            >
-              <option value="Planning">Planning</option>
-              <option value="Design">Design</option>
-              <option value="Construction">Construction</option>
-              <option value="Closed">Closed</option>
-            </select>
+            {isAdmin ? (
+              <select
+                className={styles.formSelect}
+                value={phase}
+                onChange={(e) => setPhase(e.target.value)}
+              >
+                <option value="Planning">Planning</option>
+                <option value="Design">Design</option>
+                <option value="Construction">Construction</option>
+                <option value="Closed">Closed</option>
+              </select>
+            ) : (
+              <div className={styles.fieldValue}>{phase}</div>
+            )}
           </div>
         </div>
       </div>
@@ -194,7 +246,16 @@ export default function GeneralTab({
       <div className={styles.descriptionSection}>
         <div className={styles.fieldGroup}>
           <label>Project Description</label>
-          <div className={styles.descriptionBox}>{project.description}</div>
+          {isAdmin ? (
+            <textarea
+              className={styles.formTextarea}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+            />
+          ) : (
+            <div className={styles.descriptionBox}>{project.description}</div>
+          )}
         </div>
       </div>
     </div>

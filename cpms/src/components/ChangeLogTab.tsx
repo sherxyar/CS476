@@ -218,10 +218,100 @@ const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
   });
 
   if (loading) {
-    return <div className={styles.generalContent}>Loading change log…</div>;
+    return (
+      <div className={styles.generalContent}>
+        <div className={styles.topSection}>
+          {/* Empty card placeholders with fixed heights */}
+          <div className={styles.leftColumn}>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Total Changes</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Pending Approval</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+          </div>
+          <div className={styles.rightColumn}>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Financial Changes</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Schedule Changes</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.divider} />
+
+        {/* Table section with fixed height */}
+        <div className={styles.actualsSection}>
+          <div className={styles.fieldGroup}>
+            <div className={styles.actualsHeader}>
+              <label>Change Request Log</label>
+              <div className={styles.spinnerContainer}>
+                <div className={styles.spinner}></div>
+                <span>Loading...</span>
+              </div>
+            </div>
+            
+            {/* Empty table with fixed height */}
+            <div className={styles.tableContainer} style={{ minHeight: "300px" }}>
+              {/* Loading indicator centered in table area */}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
+
   if (error) {
-    return <div className={styles.generalContent}>Error: {error}</div>;
+    return (
+      <div className={styles.generalContent}>
+        <div className={styles.topSection}>
+          {/* Same empty placeholders as loading state */}
+          <div className={styles.leftColumn}>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Total Changes</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Pending Approval</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+          </div>
+          <div className={styles.rightColumn}>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Financial Changes</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+            <div className={styles.fieldGroup} style={{ minHeight: "80px" }}>
+              <label>Schedule Changes</label>
+              <div className={styles.fieldValue}>—</div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.divider} />
+
+        {/* Error message with same height as table */}
+        <div className={styles.actualsSection}>
+          <div className={styles.fieldGroup}>
+            <div className={styles.actualsHeader}>
+              <label>Change Request Log</label>
+            </div>
+            
+            <div className={styles.tableContainer} style={{ minHeight: "300px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className={styles.errorMessage}>
+                Error: {error}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
