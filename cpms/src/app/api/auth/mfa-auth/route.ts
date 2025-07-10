@@ -1,12 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";          
 
-const COOKIE_NAME      = "session";
-const COOKIE_TTL_SEC   = 60 * 60 * 2;           
 export async function POST(req: Request) {
   const { email = "", code = "" } = await req.json();
 
@@ -36,28 +34,18 @@ export async function POST(req: Request) {
 
   await prisma.mfacode.delete({ where: { id: mfa.id } });
 
-  const token = jwt.sign(
-    {
-      sub: String(mfa.user.id),
-      email: mfa.user.email,
-      role: mfa.user.accountRole,
-    },
-    process.env.JWT_SECRET!,                 
-    { expiresIn: COOKIE_TTL_SEC }
-  );
-
-  (await cookies()).set({
-    name:       COOKIE_NAME,
-    value:      token,
-    httpOnly:   true,
-    secure:     process.env.NODE_ENV === "production",
-    sameSite:   "lax",
-    path:       "/",
-    maxAge:     COOKIE_TTL_SEC,
-  });
-
+  // Return success response so the client-side can sign in using NextAuth
   return NextResponse.json(
-    { message: "2FA successful" },
+    { 
+      message: "2FA successful",
+      // Include the user's credentials for the client to use with NextAuth
+      user: {
+        id: mfa.user.id,
+        email: mfa.user.email,
+        accountRole: mfa.user.accountRole
+      }
+    },
     { headers: { "Cache-Control": "no-store" } }
   );
 }
+

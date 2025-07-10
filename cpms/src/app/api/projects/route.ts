@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import type { Prisma } from '@prisma/client'; 
-
+import { getServerSession } from "next-auth/next";
 // list projects - GET request
+
 
 export async function GET() {
   try {

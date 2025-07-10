@@ -9,6 +9,7 @@ import AdministrationTab from "./AdministrationTab";
 import DeliveryTab from "./DeliveryTab";
 import type { Project } from "@/types/Project";
 import { SquareX } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 /* Types */
 interface Props {
@@ -18,7 +19,7 @@ interface Props {
 }
 
 /* UI Tabs */
-const TABS = [
+const ALL_TABS = [
   "General",
   "Financials",
   "Schedule",
@@ -27,11 +28,15 @@ const TABS = [
   "Administration"
 ] as const;
 
-type TabName = (typeof TABS)[number];
+type TabName = (typeof ALL_TABS)[number];
 
 /* Component */
 export default function ProjectModal({ project: initial, onClose, onProjectUpdate }: Props) {
-  /* Project state */
+  /* Get user session */
+  const { data: session } = useSession();
+  const userRole = session?.user?.accountRole || '';
+  const isContributor = userRole === 'CONTRIBUTOR';
+
   const [project, setProject] = useState<Project>(initial);
 
   const changeHandlersRef = useRef<Array<() => Partial<Project>>>([]);
@@ -39,8 +44,17 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
     changeHandlersRef.current.push(fn);
   }, []);
 
-  /* ui state */
+  /* Get filtered tabs based on user role */
+  const TABS = ALL_TABS.filter(tab => !isContributor || tab !== "Administration");
+  
   const [activeTab, setActiveTab] = useState<TabName>("General");
+  
+  /* Switch away from Administration tab if user is a contributor */
+  useEffect(() => {
+    if (isContributor && activeTab === "Administration") {
+      setActiveTab("General");
+    }
+  }, [isContributor, activeTab]);
 
   /* esc to close */
   useEffect(() => {
@@ -49,7 +63,6 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
     return () => document.removeEventListener("keydown", onEsc);
   }, [onClose]);
 
-  /* save (single PATCH) */
   const handleSaveProject = async () => {
     const combined: Partial<Project> = {};
     changeHandlersRef.current.forEach((get) => Object.assign(combined, get()));
@@ -112,7 +125,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
           />
         );
       case "Administration":
-        return <AdministrationTab project={project} />;
+        return !isContributor ? <AdministrationTab project={project} /> : null;
 
       default:
         return null;

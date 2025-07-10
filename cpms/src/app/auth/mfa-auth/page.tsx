@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "@/styles/auth.module.css";
+import { signIn } from "next-auth/react";
 
 function MfaForm() {
   const searchParams = useSearchParams();
@@ -10,31 +11,55 @@ function MfaForm() {
 
   const [code,  setCode]  = useState("");
   const [error, setError] = useState("");
-  const router            = useRouter();
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function verifyCode() {
     setError("");
+    setSuccess("");
+    setLoading(true);
 
-    const res = await fetch("/api/auth/mfa-auth", {
-      method:       "POST",
-      headers:      { "Content-Type": "application/json" },
-      credentials:  "include",              
-      body:         JSON.stringify({ email: emailParam, code }),
-      cache:        "no-store",
-    });
-
-    let data: { error?: string; message?: string } = {};
     try {
-      data = await res.clone().json();
-    } catch { /* EMPTY */ }
+      const res = await fetch("/api/auth/mfa-auth", {
+        method:       "POST",
+        headers:      { "Content-Type": "application/json" },
+        credentials:  "include",              
+        body:         JSON.stringify({ email: emailParam, code }),
+        cache:        "no-store",
+      });
 
-    if (!res.ok) {
-      setError(data.error || `Error ${res.status}`);
-      return;
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setError(data.error || `Error ${res.status}`);
+        setLoading(false);
+        return;
+      }
+
+      console.log("MFA verification successful, user data:", data.user);
+      
+
+      const result = await signIn("credentials", {
+        email: emailParam,
+        password: code,
+        redirect: true, 
+        callbackUrl: "/" 
+      });
+      
+      if (result?.error) {
+        console.error("NextAuth sign in error:", result.error);
+        setError(`Authentication error: ${result.error}`);
+        setLoading(false);
+        return;
+      }
+
+      // Successfully authenticated
+      setSuccess("Authentication successful! Redirecting...");
+    } catch (err) {
+      console.error("MFA verification error:", err);
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
-
-
-    router.replace("/");
   }
 
   return (
@@ -56,14 +81,16 @@ function MfaForm() {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
+          disabled={loading}
         />
 
-        <button type="submit" className={styles.button}>
-          Verify Code
+        <button type="submit" className={styles.button} disabled={loading}>
+          {loading ? "Verifying..." : "Verify Code"}
         </button>
       </form>
 
       {error && <div className={styles.error}>{error}</div>}
+      {success && <div className={styles.success}>{success}</div>}
     </>
   );
 }

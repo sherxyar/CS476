@@ -13,6 +13,7 @@
     "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.11.1",
+    "@react-pdf/renderer": "^4.3.0",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "decimal.js": "^10.5.0",

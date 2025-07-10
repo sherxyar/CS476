@@ -10,7 +10,7 @@ interface TeamMember {
   email: string;
   department: string | null;
   lastActivity: string | null;
-  role: DbRole; 
+  role: DbRole;
 }
 
 interface UserOption {
@@ -108,7 +108,7 @@ export default function AdministrationTab({ project }: Props) {
 
   return (
     <div className={styles.generalContent}>
-    
+
       <div className={styles.topSection}>
         <div className={styles.leftColumn}>
           <div className={styles.fieldGroup}>
@@ -134,7 +134,7 @@ export default function AdministrationTab({ project }: Props) {
           <div className={styles.actualsHeader}>
             <label>Team Access Management</label>
             <div className={styles.buttonGroup}>
-                            <button
+              <button
                 className={styles.addInvoiceButton}
                 onClick={() => setShowAddMember(true)}
               >
@@ -240,8 +240,14 @@ export default function AdministrationTab({ project }: Props) {
         <div className={styles.fieldGroup}>
           <label>Quick Actions</label>
           <div className={styles.buttonGroup}>
-            <button className={styles.viewDetailsButton}>Export Project Data</button>
-            <button className={styles.viewDetailsButton}>Audit Log</button>
+            <button
+              className={styles.viewDetailsButton}
+              onClick={() =>
+                window.open(`/api/projects/${project.id}/export`, '_blank')
+              }
+            >
+              Export Project Data
+            </button>
           </div>
         </div>
       </div>

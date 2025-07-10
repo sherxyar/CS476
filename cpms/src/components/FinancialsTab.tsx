@@ -4,7 +4,9 @@ import { useState, useEffect, useMemo } from "react";
 import useInvoices from "@/lib/invoices";
 import { toast } from "react-toastify";
 import styles from "../styles/ProjectModal.module.css";
-
+import financialStyles from "../styles/FinancialsTab.module.css";
+import { useSession, signIn } from "next-auth/react";
+import type { Session } from "next-auth";
 import type { Project } from "@/types/Project";
 
 
@@ -46,6 +48,47 @@ export default function FinancialsTab({ project }: Props) {
   /* Animation  */
   const [isCalculating, setIsCalculating] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  /* User role check */
+  const { data: session, status } = useSession();
+  const [isSessionLoaded, setIsSessionLoaded] = useState(false);
+
+  const [isCollaborator, setIsCollaborator] = useState(false);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
+
+  useEffect(() => {
+    console.log("Session status:", status);
+    console.log("Session data:", session);
+    console.log("User role:", session?.user?.accountRole);
+
+    if (status === "authenticated") {
+      setIsSessionLoaded(true);
+
+      if (!session?.user?.accountRole) {
+        // User has no role defined
+        console.error("User has no role defined in session");
+        setIsUnauthorized(true);
+        setIsCollaborator(false);
+      } else {
+        // Set collaborator status based on role (CONTRIBUTOR == Collaborator in UI terms)
+        const isContributor = session.user.accountRole === "CONTRIBUTOR";
+        setIsCollaborator(isContributor);
+        setIsUnauthorized(false);
+
+        console.log("User is contributor/collaborator:", isContributor);
+        console.log("Full session details:", JSON.stringify(session, null, 2));
+      }
+    } else if (status === "unauthenticated") {
+      // Handle unauthenticated state
+      setIsSessionLoaded(true);
+      setIsCollaborator(false);
+      setIsUnauthorized(true);
+      console.log("User is not authenticated");
+    } else {
+      console.log("Session is loading...");
+    }
+    // Loading state is handled by not setting isSessionLoaded to true
+  }, [session, status]);
 
   /* Project-level financial values  */
   const [financialValues, setFinancialValues] = useState({
@@ -89,7 +132,7 @@ export default function FinancialsTab({ project }: Props) {
   );
 
   // test 
-console.log('actuals', financialValues.actuals, 'budget', financialValues.budget);
+  console.log('actuals', financialValues.actuals, 'budget', financialValues.budget);
 
   const actualsProgress =
     financialValues.actuals > 0
@@ -114,6 +157,18 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
   ) => setInvoiceForm((prev) => ({ ...prev, [field]: value }));
 
   const handleAddInvoice = async () => {
+    // Double-check that the user is authenticated and has appropriate permissions
+    if (!isSessionLoaded || !session) {
+      toast.error("You must be logged in to add invoices.");
+      return;
+    }
+
+    // Only admins and contributors can add invoices
+    if (isUnauthorized) {
+      toast.error("You don't have permission to add invoices.");
+      return;
+    }
+
     const { date, invoiceNumber, amount, status, vendor } = invoiceForm;
     if (!date || !invoiceNumber || !amount || !vendor) {
       toast.error("Please fill all required fields.");
@@ -121,9 +176,11 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
     }
 
     try {
-      await fetch(`/api/projects/${project.id}/invoices`, {
+      const response = await fetch(`/api/projects/${project.id}/invoices`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           dateIssued: date,
           invoiceNumber,
@@ -133,7 +190,12 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
         }),
       });
 
-      await refreshInvoices(); 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}`);
+      }
+
+      await refreshInvoices();
       setInvoiceForm({
         date: "",
         invoiceNumber: "",
@@ -145,7 +207,7 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
       toast.success("Invoice added");
     } catch (err) {
       console.error("Add invoice failed:", err);
-      toast.error("Could not add invoice");
+      toast.error(err instanceof Error ? err.message : "Could not add invoice");
     }
   };
 
@@ -155,9 +217,11 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
       try {
         const res = await fetch(
           `/api/projects/${project.id}/financials`
+
         );
         if (!res.ok) throw new Error("Failed to fetch project");
         const fullProject = await res.json();
+        // Check for unauthorized users
 
         const target = {
           forecast: fullProject.forecast ?? 0,
@@ -213,6 +277,24 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
   });
 
   const handleUpdateFieldChange = (field: string) => {
+    // Check if session is still loading
+    if (!isSessionLoaded) {
+      toast.info("Loading user session...");
+      return;
+    }
+
+    // Check for unauthorized users
+    if (isUnauthorized) {
+      toast.error("You don't have permission to update Budget and Forecast values.");
+      return;
+    }
+
+    // If user is a collaborator, show toast notification and return
+    if (isCollaborator) {
+      toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+      return;
+    }
+
     const currentValue =
       field === "Total Project Forecast"
         ? `$${financialValues.forecast.toFixed(2)}`
@@ -223,6 +305,23 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
 
   const handleSaveUpdate = async () => {
     if (!updateForm.newValue || !updateForm.reason) return;
+
+    // Check if session is still loading
+    if (!isSessionLoaded) {
+      toast.info("Loading user session...");
+      return;
+    }
+
+    // Check for unauthorized users
+    if (isUnauthorized) {
+      toast.error("You don't have permission to update financial values.");
+      return;
+    }
+
+    if (isCollaborator) {
+      toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+      return;
+    }
 
     setIsUpdating(true);
     const newValueNum = parseFloat(
@@ -238,10 +337,14 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
           field: fieldKey,
           newValue: newValueNum,
           reason: updateForm.reason,
-          userId: 1, // TODO: real user ID
+          userId: session?.user?.id || 0, 
         }),
       });
-      if (!res.ok) throw new Error();
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || `Error ${res.status}`);
+      }
 
       const updated = { ...financialValues, [fieldKey]: newValueNum };
       setFinancialValues(updated);
@@ -277,11 +380,18 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
     <>
       {/*  Financial summary  */}
       <div className={styles.financialsContent}>
-        <div className={styles.actualsHeader} style={{ marginBottom: 16 }}>
+        <div className={`${styles.actualsHeader} ${financialStyles.updateButtonSpacing}`}>
           <label>Financial Summary</label>
           <button
-            className={styles.addInvoiceButton}
+            className={`${styles.addInvoiceButton} ${(!isSessionLoaded || isCollaborator) ? financialStyles.disabledButton : ''}`}
             onClick={() => {
+              if (!isSessionLoaded) {
+                return; 
+              }
+              if (isCollaborator) {
+                toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+                return;
+              }
               handleUpdateFieldChange(updateForm.field);
               setShowUpdatePopup(true);
             }}
@@ -336,19 +446,28 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
               <label>Actuals Summary</label>
               <button
                 className={styles.viewDetailsButton}
-                onClick={() => setShowActualsPopup(true)}
+                onClick={() => {
+                  if (!isSessionLoaded) {
+                    toast.info("Loading user session...");
+                    return;
+                  }
+                  if (isUnauthorized) {
+                    toast.error("You don't have permission to access this feature.");
+                    return;
+                  }
+                  setShowActualsPopup(true);
+                }}
               >
-                View Details
+                {isCollaborator ? "Add Invoice" : "View Details"}
               </button>
             </div>
             {/*  Budget-vs-Actuals progress bar  */}
-            <div className={styles.progressWrap}>
-              <div className={styles.progressBar}>
-                <div
-                  className={styles.progressFill}
-                  style={{ width: `${actualsProgress}%` }}
-                />
-              </div>
+            <div className={styles.progressWrap}>                <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${actualsProgress}%` }}
+              />
+            </div>
               <span className={styles.progressLabel}>
                 {actualsProgress.toFixed(1)}%
               </span>
@@ -396,8 +515,22 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
             <div className={styles.actualsHeader}>
               <label>Financial History</label>
               <button
-                className={styles.viewDetailsButton}
-                onClick={() => setShowHistoryPopup(true)}
+                className={`${styles.viewDetailsButton} ${(!isSessionLoaded || isCollaborator || isUnauthorized) ? financialStyles.disabledButton : ''}`}
+                onClick={() => {
+                  if (!isSessionLoaded) {
+                    toast.info("Loading user session...");
+                    return;
+                  }
+                  if (isCollaborator) {
+                    toast.info("Contributors can only add invoices. You cannot view financial history.");
+                    return;
+                  }
+                  if (isUnauthorized) {
+                    toast.error("You don't have permission to access this feature.");
+                    return;
+                  }
+                  setShowHistoryPopup(true);
+                }}
               >
                 View History
               </button>
@@ -438,7 +571,7 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.popupHeader}>
-              <h3>Project Actuals</h3>
+              <h3>{isCollaborator ? "Add Invoice" : "Project Actuals"}</h3>
               <button
                 className={styles.popupCloseButton}
                 onClick={() => setShowActualsPopup(false)}
@@ -448,19 +581,26 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
             </div>
 
             <div className={styles.popupContent}>
-              <div className={styles.actualsHeader}>
-                <label>Invoice Management</label>
-                <button
-                  className={styles.addInvoiceButton}
-                  onClick={() => setShowAddInvoice(!showAddInvoice)}
-                >
-                  {showAddInvoice ? "Cancel" : "+ Add Invoice"}
-                </button>
-              </div>
+              {!isCollaborator && !isUnauthorized && (
+                <div className={styles.actualsHeader}>
+                  <label>Invoice Management</label>
+                  <button
+                    className={styles.addInvoiceButton}
+                    onClick={() => setShowAddInvoice(!showAddInvoice)}
+                  >
+                    {showAddInvoice ? "Cancel" : "+ Add Invoice"}
+                  </button>
+                </div>
+              )}
 
               {/*  Add-invoice form  */}
-              {showAddInvoice && (
+              {(showAddInvoice || isCollaborator) && (
                 <div className={styles.invoiceForm}>
+                  {isCollaborator && (
+                    <div className={financialStyles.collaboratorMessage}>
+                      <p>As a Collaborator, you can add new invoice data to the system.</p>
+                    </div>
+                  )}
                   <div className={styles.formRow}>
                     <div className={styles.formField}>
                       <label>Date</label>
@@ -545,55 +685,57 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
               )}
 
               {/*  Invoice table  */}
-              <div className={styles.tableContainer}>
-                <table className={styles.actualsTable}>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Invoice #</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Vendor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invLoading ? (
+              {!isCollaborator && (
+                <div className={styles.tableContainer}>
+                  <table className={styles.actualsTable}>
+                    <thead>
                       <tr>
-                        <td colSpan={5} style={{ textAlign: "center" }}>
-                          Loading…
-                        </td>
+                        <th>Date</th>
+                        <th>Invoice #</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Vendor</th>
                       </tr>
-                    ) : (
-                      invoices.map((inv) => (
-                        <tr key={inv.id}>
-                          <td>
-                            {new Date(inv.dateIssued).toLocaleDateString("en-CA")}
+                    </thead>
+                    <tbody>
+                      {invLoading ? (
+                        <tr>
+                          <td colSpan={5} className={financialStyles.centeredText}>
+                            Loading…
                           </td>
-                          <td>{inv.invoiceNumber}</td>
-                          <td>
-                            {Number(inv.amount).toLocaleString("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                            })}
-                          </td>
-                          <td>
-                            <span
-                              className={
-                                inv.status === "PAID"
-                                  ? styles.statusPaid
-                                  : styles.statusNotPaid
-                              }
-                            >
-                              {inv.status === "PAID" ? "Paid" : "Not Paid"}
-                            </span>
-                          </td>
-                          <td>{inv.vendor}</td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                      ) : (
+                        invoices.map((inv) => (
+                          <tr key={inv.id}>
+                            <td>
+                              {new Date(inv.dateIssued).toLocaleDateString("en-CA")}
+                            </td>
+                            <td>{inv.invoiceNumber}</td>
+                            <td>
+                              {Number(inv.amount).toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                              })}
+                            </td>
+                            <td>
+                              <span
+                                className={
+                                  inv.status === "PAID"
+                                    ? styles.statusPaid
+                                    : styles.statusNotPaid
+                                }
+                              >
+                                {inv.status === "PAID" ? "Paid" : "Not Paid"}
+                              </span>
+                            </td>
+                            <td>{inv.vendor}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -652,7 +794,7 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
       )}
 
       {/*  Update values popup  */}
-      {showUpdatePopup && (
+      {showUpdatePopup && isSessionLoaded && !isCollaborator && !isUnauthorized && (
         <div
           className={styles.popupOverlay}
           onClick={() => setShowUpdatePopup(false)}
@@ -698,13 +840,9 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
                     <label>Current Value</label>
                     <input
                       type="text"
-                      className={styles.formInput}
+                      className={`${styles.formInput} ${financialStyles.readOnlyInput}`}
                       value={updateForm.currentValue}
                       disabled
-                      style={{
-                        backgroundColor: "#f0f0f0",
-                        color: "#666",
-                      }}
                     />
                   </div>
                   <div className={styles.formField}>
@@ -719,7 +857,7 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
                           newValue: e.target.value,
                         })
                       }
-                      placeholder="125000.00"
+                      placeholder="$12500.00"
                     />
                   </div>
                 </div>
@@ -743,23 +881,13 @@ console.log('actuals', financialValues.actuals, 'budget', financialValues.budget
 
                   <div className={styles.formActions}>
                     <button
-                      className={styles.saveInvoiceButton}
+                      className={`${styles.saveInvoiceButton} ${(!updateForm.newValue || !updateForm.reason) ? financialStyles.disabledButton : ''}`}
                       onClick={handleSaveUpdate}
                       disabled={
                         !updateForm.newValue ||
                         !updateForm.reason ||
                         isUpdating
                       }
-                      style={{
-                        opacity:
-                          !updateForm.newValue || !updateForm.reason
-                            ? 0.5
-                            : 1,
-                        cursor:
-                          !updateForm.newValue || !updateForm.reason
-                            ? "not-allowed"
-                            : "pointer",
-                      }}
                     >
                       {isUpdating ? "Saving…" : "Save Update"}
                     </button>

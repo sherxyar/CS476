@@ -8,30 +8,26 @@ import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
 import { Building2, Phone, Search, House } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
-
+import { useSession } from "next-auth/react";
 
 // User name in greeting
 function UserGreeting() {
-  const [name, setName] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include", cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((s) => setName(s?.email?.split("@")[0] ?? null))
-      .catch(() => setName(null));
-  }, []);
+  const { data: session } = useSession();
+  const name = session?.user?.name || session?.user?.email?.split("@")[0] || null;
 
   return <h2>Welcome back{name ? `, ${name}!` : "!"}</h2>;
 }
 
 export default function HomePageClient() {
-  const [projects, setProjects]           = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [showModal, setShowModal]         = useState(false);
-  const [isCreateOpen, setIsCreateOpen]   = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // FETCH
-  useEffect(() => { fetchProjects(); }, []);
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   async function fetchProjects() {
     try {
@@ -72,10 +68,10 @@ export default function HomePageClient() {
         projectManagerId:
           draft.projectManagerId?.trim() ? Number(draft.projectManagerId) : undefined,
         forecast: Number(draft.forecast) || 0,
-        actuals:  Number(draft.actuals)  || 0,
-        budget:   Number(draft.budget)   || 0,
+        actuals: Number(draft.actuals) || 0,
+        budget: Number(draft.budget) || 0,
         plannedStartDate: draft.startDate,
-        plannedEndDate:   draft.endDate,
+        plannedEndDate: draft.endDate,
       };
 
       const res = await fetch("/api/projects", {
@@ -101,6 +97,10 @@ export default function HomePageClient() {
     );
     setSelectedProject(updated);
   }
+
+  useEffect(() => {
+    console.log("DB URL at runtime:", process.env.POSTGRES_URL);
+  }, []);
 
   return (
     <>
