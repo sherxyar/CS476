@@ -11,6 +11,7 @@ import { Building2, Phone, PhoneCall } from 'lucide-react';
 import { Search, House } from 'lucide-react';
 import UserMenu from "@/components/UserMenu";
 
+import { redirect } from "next/navigation";
 
 // Function to get current user's name
 function UserGreeting() {
@@ -234,4 +235,6 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default function Index() {
+  redirect("/auth/login");    
+}
