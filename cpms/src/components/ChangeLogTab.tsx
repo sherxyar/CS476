@@ -2,33 +2,44 @@
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import styles from "../styles/ProjectModal.module.css";
 
+// Updated to match API response format
 export type ChangeLogEntry = {
   id: string;
-  date: string;                       // ISO 8601 from the DB, but we’ll localise in UI
+  date: string;
   changeType: "Financial" | "Schedule" | "Scope" | "Resource" | "Risk";
   category:
-  | "Budget"
-  | "Forecast"
-  | "Actuals"
-  | "Timeline"
-  | "Milestone"
-  | "Deliverable"
-  | "Other";
+    | "Budget"
+    | "Forecast"
+    | "Actuals"
+    | "Timeline"
+    | "Milestone"
+    | "Deliverable"
+    | "Other";
   description: string;
   impactArea: string;
   oldValue?: string;
   newValue?: string;
   justification: string;
-  requestedBy: string;
-  approvedBy: string | null;
+  requestedById: number;
+  requestedBy: { id: number; name: string; email: string };
+  approvedById: number | null;
+  approvedBy: { id: number; name: string; email: string } | null;
   status: "Pending" | "Approved" | "Rejected" | "Implemented";
   priority: "Low" | "Medium" | "High" | "Critical";
   estimatedImpact: string;
 };
 
 type Props = {
-  project: { id: string };            // ⇠ all we need for the API calls
+  project: { id: string };
 };
+
+type ChangeDraft = {
+  description: string;
+  impactArea: string;
+  justification: string;
+};
+
+
 
 /**
  * Change-Log Tab
@@ -37,6 +48,9 @@ type Props = {
  * – Uses optimistic-update so the UI feels instant
  */
 export default function ChangeLogTab({ project }: Props) {
+  // State for current user
+  const [currentUser, setCurrentUser] = useState<{ id: number; name: string; email: string } | null>(null);
+  
   /* ──────────────────────────────── state ─────────────────────────────── */
   const [changeLog, setChangeLog] = useState<ChangeLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,24 +60,39 @@ export default function ChangeLogTab({ project }: Props) {
   const [filterType, setFilterType] = useState<ChangeLogEntry["changeType"] | "All">("All");
   const [filterStatus, setFilterStatus] = useState<ChangeLogEntry["status"] | "All">("All");
 
-  const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
-    changeType: "Financial",
-    category: "Budget",
-    status: "Pending",
-    priority: "Medium",
-  });
+const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
+  changeType: "Financial",
+  category: "Budget",
+  status: "Pending",
+  priority: "Medium",
+});
 
-  /* ─────────────────────────────── fetch ──────────────────────────────── */
+  // Fetch current user
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        if (res.ok) {
+          const userData = await res.json();
+          setCurrentUser(userData);
+        }
+      } catch (err) {
+        console.error("Failed to fetch current user:", err);
+      }
+    }
+    
+    fetchCurrentUser();
+  }, []);
+
   const loadChanges = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`/api/projects/${project.id}/change-log`, { cache: "no-store" });
+      const res = await fetch(`/api/projects/${project.id}/ChangeLog`, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: ChangeLogEntry[] = await res.json();
 
-      // Ensure newest first (API could already sort, but we do it defensively)
       data.sort((a, b) => +new Date(b.date) - +new Date(a.date));
       setChangeLog(data);
     } catch (err: unknown) {
@@ -77,7 +106,6 @@ export default function ChangeLogTab({ project }: Props) {
     if (project?.id) loadChanges();
   }, [project?.id, loadChanges]);
 
-  /* ────────────────── helpers for status / priority pills ─────────────── */
   const getStatusClass = (status: ChangeLogEntry["status"]) => {
     switch (status) {
       case "Implemented":
@@ -107,33 +135,44 @@ export default function ChangeLogTab({ project }: Props) {
     return undefined;
   };
 
-  /* ────────────────────────── add new change ──────────────────────────── */
+  // ADD change
   async function handleAddChange(e: FormEvent) {
     e.preventDefault();
+
+    if (!currentUser) {
+      alert("You must be logged in to submit a change request.");
+      return;
+    }
 
     // Basic front-end validation
     if (
       !newChange.description ||
       !newChange.impactArea ||
-      !newChange.justification ||
-      !newChange.requestedBy
+      !newChange.justification
     ) {
       alert("Please complete all required fields.");
       return;
     }
 
-    // Build payload the API expects (omit undefined / optional props)
     const payload = {
-      ...newChange,
+      changeType: newChange.changeType,
+      category: newChange.category,
+      description: newChange.description,
+      impactArea: newChange.impactArea,
+      oldValue: newChange.oldValue || undefined,
+      newValue: newChange.newValue || undefined,
+      justification: newChange.justification,
+      requestedById: currentUser.id,
+      status: newChange.status,
+      priority: newChange.priority,
+      estimatedImpact: newChange.estimatedImpact || "To be determined",
       date: new Date().toISOString(),
-      approvedBy: null,
     };
 
-    // --- optimistic update ------------------------------------------------
     const tempId = `tmp-${Date.now()}`;
     const optimistic: ChangeLogEntry = {
       id: tempId,
-      date: payload.date!,
+      date: payload.date,
       changeType: payload.changeType as ChangeLogEntry["changeType"],
       category: payload.category as ChangeLogEntry["category"],
       description: payload.description!,
@@ -141,16 +180,18 @@ export default function ChangeLogTab({ project }: Props) {
       oldValue: payload.oldValue,
       newValue: payload.newValue,
       justification: payload.justification!,
-      requestedBy: payload.requestedBy!,
+      requestedById: currentUser.id,
+      requestedBy: currentUser,
+      approvedById: null,
       approvedBy: null,
       status: payload.status as ChangeLogEntry["status"],
       priority: payload.priority as ChangeLogEntry["priority"],
-      estimatedImpact: payload.estimatedImpact ?? "To be determined",
+      estimatedImpact: payload.estimatedImpact,
     };
     setChangeLog((prev) => [optimistic, ...prev]);
 
     try {
-      const res = await fetch(`/api/projects/${project.id}/change-log`, {
+      const res = await fetch(`/api/projects/${project.id}/ChangeLog`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -159,10 +200,8 @@ export default function ChangeLogTab({ project }: Props) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const saved: ChangeLogEntry = await res.json();
 
-      // Replace optimistic with server row
       setChangeLog((prev) => prev.map((c) => (c.id === tempId ? saved : c)));
     } catch (err: unknown) {
-      // Roll back optimistic row
       setChangeLog((prev) => prev.filter((c) => c.id !== tempId));
       alert(`Could not save change request: ${(err as Error).message}`);
     } finally {
@@ -172,14 +211,12 @@ export default function ChangeLogTab({ project }: Props) {
     }
   }
 
-  /* ─────────────────────────── filters ────────────────────────────────── */
   const filteredChanges = changeLog.filter((c) => {
     const typeOk = filterType === "All" || c.changeType === filterType;
     const statusOk = filterStatus === "All" || c.status === filterStatus;
     return typeOk && statusOk;
   });
 
-  /* ───────────────────────────── render ───────────────────────────────── */
   if (loading) {
     return <div className={styles.generalContent}>Loading change log…</div>;
   }
@@ -221,7 +258,7 @@ export default function ChangeLogTab({ project }: Props) {
 
       <div className={styles.divider} />
 
-      {/* ───────── table & filters ─────── */}
+      {/*  table & filters  */}
       <div className={styles.actualsSection}>
         <div className={styles.fieldGroup}>
           <div className={styles.actualsHeader}>
@@ -297,7 +334,7 @@ export default function ChangeLogTab({ project }: Props) {
                     <td>
                       <span className={getStatusClass(c.status)}>{c.status}</span>
                     </td>
-                    <td>{c.requestedBy}</td>
+                    <td>{c.requestedBy?.name || "Unknown"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -323,10 +360,7 @@ export default function ChangeLogTab({ project }: Props) {
               </button>
             </div>
             <form className={styles.popupContent} onSubmit={handleAddChange}>
-              {/* form body ─ identical to your previous one,
-                  but submit handled by onSubmit above */}
-              {/* ... keep the existing inputs, just swap onClick for type="submit" */}
-              {/* top row */}
+              {/* Form fields - removed "Requested By" field */}
               <div className={styles.formRow}>
                 <div className={styles.formField}>
                   <label>Change Type</label>
@@ -419,18 +453,6 @@ export default function ChangeLogTab({ project }: Props) {
                   />
                 </div>
                 <div className={styles.formField}>
-                  <label>Requested By</label>
-                  <input
-                    type="text"
-                    className={styles.formInput}
-                    value={newChange.requestedBy}
-                    onChange={(e) => setNewChange({ ...newChange, requestedBy: e.target.value })}
-                    placeholder="Name of requester"
-                  />
-                </div>
-              </div>
-              <div className={styles.formRow}>
-                <div className={styles.formField}>
                   <label>Priority</label>
                   <select
                     className={styles.formSelect}
@@ -443,7 +465,9 @@ export default function ChangeLogTab({ project }: Props) {
                     <option value="Critical">Critical</option>
                   </select>
                 </div>
-                <div className={styles.formField}>
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formField} style={{ width: '100%' }}>
                   <label>Estimated Impact</label>
                   <input
                     type="text"
@@ -451,6 +475,18 @@ export default function ChangeLogTab({ project }: Props) {
                     value={newChange.estimatedImpact}
                     onChange={(e) => setNewChange({ ...newChange, estimatedImpact: e.target.value })}
                     placeholder="Expected impact on cost, schedule, scope"
+                  />
+                </div>
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formField} style={{ width: '100%' }}>
+                  <label>Requesting As</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={currentUser?.name || "Loading..."}
+                    disabled
+                    style={{ backgroundColor: "#f3f4f6" }}
                   />
                 </div>
               </div>

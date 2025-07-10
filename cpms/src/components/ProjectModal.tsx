@@ -34,7 +34,6 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
   /* Project state */
   const [project, setProject] = useState<Project>(initial);
 
-  /* staged-change callbacks */
   const changeHandlersRef = useRef<Array<() => Partial<Project>>>([]);
   const registerChangeHandler = useCallback((fn: () => Partial<Project>) => {
     changeHandlersRef.current.push(fn);
