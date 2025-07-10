@@ -15,8 +15,8 @@ model User {
   name           String
   email          String @unique
   hashedPassword String
-
-  accountRole      AccountRole 
+  mfaCodes         Mfacode[]
+  accountRole      AccountRole @default(CONTRIBUTOR)
 
   // relations
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
@@ -242,4 +242,13 @@ model ProjectMember {
   addedBy    User?        @relation("AddedMembers", fields: [addedById], references: [id]) 
 
   @@unique([projectId, userId])              
+}
+
+
+model Mfacode {
+  id          Int @id @default(autoincrement())
+  userId      Int
+  code        String
+  validUntil  DateTime
+  user        User  @relation(fields: [userId], references: [id])
 }

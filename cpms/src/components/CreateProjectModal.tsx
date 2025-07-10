@@ -1,5 +1,3 @@
-"use client";
-
 import {
   useState,
   ChangeEvent,
@@ -13,7 +11,7 @@ import {
 
 interface ProjectForm {
   title: string;
-  projectManagerId: string;
+  projectManagerId: string;  
   description: string;
   forecast: string;
   actuals: string;
@@ -28,8 +26,7 @@ interface CreateProjectModalProps {
   onCreate: (draft: ProjectForm) => void;
 }
 
-// Small helper to generate ID for accessibility
-// This ensures the ID is unique across renders and resets
+
 const useUID = (() => {
   let uid = 0;
   return () => useMemo(() => `uid-${++uid}`, []);
@@ -37,7 +34,7 @@ const useUID = (() => {
 
 const INITIAL_FORM: ProjectForm = {
   title: "",
-  projectManagerId: "1", // default to user #1 while testing
+  projectManagerId: "",          
   description: "",
   forecast: "",
   actuals: "0.00",
@@ -51,10 +48,36 @@ export default function CreateProjectModal({
   onClose,
   onCreate,
 }: CreateProjectModalProps) {
+
   const [form, setForm] = useState<ProjectForm>(INITIAL_FORM);
   const headingId = useUID();
   const firstInputRef = useRef<HTMLInputElement>(null);
 
+  type ManagerLite = { id: number; name: string; email: string };
+  const [managers, setManagers] = useState<ManagerLite[]>([]);
+  const [mgrLoading, setMgrLoading] = useState(true);
+  const [mgrErr, setMgrErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let ignore = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/users?managersOnly=true&limit=50");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data: ManagerLite[] = await res.json();
+        if (!ignore) setManagers(data);
+      } catch (err) {
+        console.error(err);
+        if (!ignore) setMgrErr("Couldn't load users");
+      } finally {
+        if (!ignore) setMgrLoading(false);
+      }
+    };
+    load();
+    return () => { ignore = true; };
+  }, []);
+
+  // Focus first input when modal opens
   useEffect(() => {
     if (isOpen) {
       firstInputRef.current?.focus();
@@ -62,8 +85,11 @@ export default function CreateProjectModal({
   }, [isOpen]);
 
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+      
+      // Always store as string - this ensures trim() will work in the parent
+      setForm((prev) => ({ ...prev, [name]: value }));
     },
     []
   );
@@ -116,19 +142,30 @@ export default function CreateProjectModal({
             />
           </label>
 
-          {/* PM ID - to be replaced by Name  */}
           <label className="field">
-            <span>Manager User ID </span>
-            <input
-              name="projectManagerId"
-              type="number"
-              min="1"
-              placeholder="1"
-              value={form.projectManagerId}
-              onChange={handleChange}
-              required
-              inputMode="numeric"
-            />
+            <span>Project Manager</span>
+
+            {mgrLoading ? (
+              <div className="spinner-sm" />
+            ) : mgrErr ? (
+              <p className="error">{mgrErr}</p>
+            ) : (
+              <select
+                name="projectManagerId"
+                value={form.projectManagerId}
+                onChange={handleChange}
+                required
+              >
+                <option value="" disabled>
+                  Select a manager…
+                </option>
+                {managers.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.email})
+                  </option>
+                ))}
+              </select>
+            )}
           </label>
 
           {/* Description  */}
@@ -213,7 +250,6 @@ export default function CreateProjectModal({
         </form>
       </div>
 
-      {/* ---this is css for the modal--- */}
       <style jsx>{`
         /* Backdrop */
         .modal-backdrop {
@@ -226,7 +262,6 @@ export default function CreateProjectModal({
           z-index: 50;
         }
 
-        /* Card */
         .modal {
           background: #fff;
           color: #111827;
@@ -249,7 +284,6 @@ export default function CreateProjectModal({
           }
         }
 
-        /* Typography */
         .heading {
           margin-bottom: 1.5rem;
           font-size: 1.375rem;
@@ -257,7 +291,6 @@ export default function CreateProjectModal({
           text-align: center;
         }
 
-        /* Layout helpers */
         .form {
           display: flex;
           flex-direction: column;
@@ -283,7 +316,8 @@ export default function CreateProjectModal({
         }
 
         input,
-        textarea {
+        textarea,
+        select {
           padding: 0.55rem 0.75rem;
           border: 1px solid #d1d5db;
           border-radius: 6px;
@@ -291,7 +325,8 @@ export default function CreateProjectModal({
         }
 
         input:focus-visible,
-        textarea:focus-visible {
+        textarea:focus-visible,
+        select:focus-visible {
           outline: 2px solid #2563eb;
           outline-offset: 2px;
         }
@@ -323,7 +358,6 @@ export default function CreateProjectModal({
           color: #fff;
         }
 
-        .
         .btn.primary:hover {
           background: #1e4fd6;
         }
