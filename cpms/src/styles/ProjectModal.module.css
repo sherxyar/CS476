@@ -852,3 +852,24 @@
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
+
+.changeDetailsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.changeDetailsTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  vertical-align: top;
+}
+
+.changeDetailsTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.changeDetailsTable strong {
+  color: #222;
+}

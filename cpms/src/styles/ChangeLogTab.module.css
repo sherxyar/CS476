@@ -1,0 +1,234 @@
+
+.generalContent {
+  padding: 1.5rem;
+  background: #fafafa;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.actualsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.addInvoiceButton {
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 120ms ease-in;
+}
+.addInvoiceButton:hover {
+  background: #1d4ed8;
+}
+
+.divider {
+  height: 2px;
+  width: 100%;
+  background: #e5e7eb;
+  margin: 1.5rem 0;
+}
+
+
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.changeDetailsTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px; 
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+}
+
+.changeDetailsTable thead {
+  background: #f9fafb;
+}
+
+.changeDetailsTable th,
+.changeDetailsTable td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.changeDetailsTable th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.changeDetailsTable tbody tr:hover {
+  background: #f3f4f6;
+}
+
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+}
+
+.statusPaid {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+  color: #166534;
+  background: #dcfce7;
+  border-color: #a7f3d0;
+}
+
+.statusInProgress {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+  color: #92400e;
+  background: #fef6e8;
+  border-color: #fde68a;
+}
+
+.statusClosed {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.statusNotPaid {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+  color: #b91c1c;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+
+
+.invoiceForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+}
+
+.formField label {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: #374151;
+}
+
+.formInput,
+.formSelect {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: #ffffff;
+  transition: border-color 120ms;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.saveInvoiceButton {
+  background: #16a34a;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 120ms ease-in;
+}
+.saveInvoiceButton:hover {
+  background: #15803d;
+}
+
+.cancelNoteButton {
+  background: #9ca3af;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 120ms ease-in;
+}
+.cancelNoteButton:hover {
+  background: #6b7280;
+}
+
+
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

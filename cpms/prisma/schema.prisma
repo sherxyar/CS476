@@ -11,12 +11,12 @@ datasource db {
  * User Table
  */
 model User {
-  id             Int    @id @default(autoincrement())
+  id             Int         @id @default(autoincrement())
   name           String
-  email          String @unique
+  email          String      @unique
   hashedPassword String
-  mfaCodes         Mfacode[]
-  accountRole      AccountRole @default(CONTRIBUTOR)
+  mfaCodes       Mfacode[]
+  accountRole    AccountRole @default(CONTRIBUTOR)
 
   // relations
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
@@ -24,11 +24,13 @@ model User {
   auditLogs        AuditLog[]
   tabRequests      TabAccessRequest[]      @relation("RequestUser")
   approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
-  memberships      ProjectMember[]         @relation("UserMembership")   
-  managedProjects  Project[]               @relation("ProjectManager")          
+  memberships      ProjectMember[]         @relation("UserMembership")
+  managedProjects  Project[]               @relation("ProjectManager")
   department       String?
   lastActivity     DateTime?
-  addedMembers     ProjectMember[]         @relation("AddedMembers")     
+  addedMembers     ProjectMember[]         @relation("AddedMembers")
+  requestedChanges ChangeLog[]             @relation("RequestedChanges")
+  approvedChanges  ChangeLog[]             @relation("ApprovedChanges")
 }
 
 /**
@@ -49,10 +51,10 @@ model Project {
   dateCreated      DateTime  @default(now())
   lastUpdated      DateTime?
   status           String?
-  projectManagerId Int?            
-  projectManager   User?            @relation("ProjectManager", fields: [projectManagerId], references: [id])
+  projectManagerId Int?
+  projectManager   User?     @relation("ProjectManager", fields: [projectManagerId], references: [id])
 
-  members          ProjectMember[]
+  members ProjectMember[]
 
   /**
    * relations
@@ -61,10 +63,12 @@ model Project {
   financialHistory FinancialHistoryEntry[]
   Invoice          Invoice[]
   pmNotesHistory   PMNote[]
-  
+
   // Delivery-tab relations
-  risks            RiskRegister[]   @relation("ProjectRisks")
-  lessonsLearned   LessonsLearned[] @relation("ProjectLessons")
+  risks          RiskRegister[]   @relation("ProjectRisks")
+  lessonsLearned LessonsLearned[] @relation("ProjectLessons")
+
+  changeLogs ChangeLog[]
 }
 
 /**
@@ -223,32 +227,101 @@ model LessonsLearned {
 
 // Admin tab
 enum AccountRole {
-  ADMIN          
+  ADMIN
   PROJECT_MANAGER
   CONTRIBUTOR
 }
 
 model ProjectMember {
-  id         Int          @id @default(autoincrement())
-  projectId  String
-  userId     Int
-  role       AccountRole                        
-  createdAt  DateTime     @default(now())
-  addedById  Int?
+  id        Int         @id @default(autoincrement())
+  projectId String
+  userId    Int
+  role      AccountRole
+  createdAt DateTime    @default(now())
+  addedById Int?
 
-  /** relations */
-  project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user       User         @relation("UserMembership", fields: [userId], references: [id]) 
-  addedBy    User?        @relation("AddedMembers", fields: [addedById], references: [id]) 
+  /**
+   * relations
+   */
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation("UserMembership", fields: [userId], references: [id])
+  addedBy User?   @relation("AddedMembers", fields: [addedById], references: [id])
 
-  @@unique([projectId, userId])              
+  @@unique([projectId, userId])
 }
 
-
 model Mfacode {
-  id          Int @id @default(autoincrement())
-  userId      Int
-  code        String
-  validUntil  DateTime
-  user        User  @relation(fields: [userId], references: [id])
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  code       String
+  validUntil DateTime
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+/// ─── Change-Log model 
+model ChangeLog {
+  id   String   @id @default(uuid())
+  date DateTime @default(now())
+
+  changeType    ChangeType
+  category      ChangeCategory
+  description   String
+  impactArea    String
+  oldValue      String?
+  newValue      String?
+  justification String
+
+  /// who asked for it
+  requestedById Int
+  requestedBy   User @relation("RequestedChanges", fields: [requestedById], references: [id])
+
+  /// who approved / rejected it
+  approvedById Int?
+  approvedBy   User? @relation("ApprovedChanges", fields: [approvedById], references: [id])
+
+  status          ChangeStatus   @default(Pending)
+  priority        ChangePriority @default(Medium)
+  estimatedImpact String?
+
+  /// link back to project
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([requestedById])
+}
+
+enum ChangeCategory {
+  Budget
+  Forecast
+  Actuals
+  Timeline
+  Milestone
+  Deliverable
+  Other
+}
+
+enum ChangeStatus {
+  Pending
+  Approved
+  Rejected
+  Implemented
+}
+
+enum ChangePriority {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum ChangeType {
+  Financial
+  Schedule
+  Scope
+  Resource
+  Risk
 }

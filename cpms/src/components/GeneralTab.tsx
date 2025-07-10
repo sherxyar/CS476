@@ -15,13 +15,15 @@ export default function GeneralTab({
   onProjectUpdate,
   registerChangeHandler,
 }: Props) {
-  /*  Local state  */
   const [phase, setPhase] = useState(project.phase);
   // this is for PM notes history
   const [showAll, setShowAll] = useState(false);
-  /*  Add-note dialog state  */
   const [showAdd, setShowAdd] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
+
+  // Add state for current user
+  const [currentUser, setCurrentUser] = useState<{ id: number; name: string; email: string } | null>(null);
+  const [note, setNote] = useState("");
 
 
   /*  Register change handler (only for phase now)  */
@@ -40,8 +42,8 @@ export default function GeneralTab({
     const note = noteDraft.trim();
     if (!note) return;
 
-    // TODO: replace with real auth userId
-    const userId = 1;
+    // Use currentUser id if available, fallback to 1
+    const userId = currentUser?.id ?? 1;
 
     try {
       const res = await fetch(`/api/projects/${project.id}`, {
@@ -59,9 +61,8 @@ export default function GeneralTab({
       setShowAdd(false);
     } catch (err) {
       console.error("Add-note failed:", err);
-      alert("Couldn’t save note – please try again.");
-    }
-  };
+      alert("Couldnt save note - please try again.");
+    }  };
 
    const handleViewAll = () => setShowAll(true);
 

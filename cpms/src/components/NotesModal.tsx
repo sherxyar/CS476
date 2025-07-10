@@ -1,6 +1,7 @@
 "use client";
 import styles from "../styles/NotesModal.module.css";
 import type { PMNote } from "@/types/Project";
+import { useEffect, useState } from "react";
 
 type Props = {
     notes: PMNote[];
@@ -8,6 +9,25 @@ type Props = {
 };
 
 export default function NotesModal({ notes, onClose }: Props) {
+    // Add state for current user to show for new notes
+    const [currentUser, setCurrentUser] = useState<{id: number; name: string} | null>(null);
+    
+    useEffect(() => {
+        async function fetchCurrentUser() {
+            try {
+                const res = await fetch("/api/auth/me", { cache: "no-store" });
+                if (res.ok) {
+                    const userData = await res.json();
+                    setCurrentUser(userData);
+                }
+            } catch (err) {
+                console.error("Failed to fetch current user:", err);
+            }
+        }
+        
+        fetchCurrentUser();
+    }, []);
+    
     return (
         <div className={styles.backdrop}>
             <div className={styles.modalCard}>
@@ -36,9 +56,13 @@ export default function NotesModal({ notes, onClose }: Props) {
                                         })}
                                     </td>
                                     <td>{note.note}</td>
-                                    {typeof note.author === "object" && note.author !== null
-                                        ? note.author.name
-                                        : note.author ?? "—"}
+                                    <td>
+                                        {typeof note.author === "object" && note.author !== null && typeof note.author.name === "string"
+                                            ? note.author.name
+                                            : (currentUser && note.userId === currentUser.id)
+                                                ? currentUser.name 
+                                                : (typeof note.author === "string" ? note.author : "—")}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
