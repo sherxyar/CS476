@@ -104,7 +104,7 @@ export const authOptions = {
       if (user) {
         console.log("JWT callback - adding user data to token:", user.id);
         token.id          = user.id;
-        token.accountRole = (user as any).accountRole;
+        token.accountRole = user && 'accountRole' in user ? user.accountRole as string : undefined;
       }
       return token;
     },
