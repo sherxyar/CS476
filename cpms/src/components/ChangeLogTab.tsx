@@ -269,20 +269,22 @@ const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
           </div>
 
           {/* filters */}
-          <div className={styles.formRow} style={{ marginBottom: 16 }}>
+            <div className={styles.formRow} style={{ marginBottom: 16 }}>
             <div className={styles.formField}>
               <label>Filter by Type</label>
               <select
-                className={styles.formSelect}
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
+              className={styles.formSelect}
+              value={filterType}
+              onChange={(e) =>
+                setFilterType(e.target.value as ChangeLogEntry["changeType"] | "All")
+              }
               >
-                <option value="All">All Types</option>
-                <option value="Financial">Financial</option>
-                <option value="Schedule">Schedule</option>
-                <option value="Scope">Scope</option>
-                <option value="Resource">Resource</option>
-                <option value="Risk">Risk</option>
+              <option value="All">All Types</option>
+              <option value="Financial">Financial</option>
+              <option value="Schedule">Schedule</option>
+              <option value="Scope">Scope</option>
+              <option value="Resource">Resource</option>
+              <option value="Risk">Risk</option>
               </select>
             </div>
             <div className={styles.formField}>
@@ -290,7 +292,9 @@ const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
               <select
                 className={styles.formSelect}
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setFilterStatus(e.target.value as ChangeLogEntry["status"] | "All")
+                }
               >
                 <option value="All">All Statuses</option>
                 <option value="Pending">Pending</option>
@@ -368,7 +372,7 @@ const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
                     className={styles.formSelect}
                     value={newChange.changeType}
                     onChange={(e) =>
-                      setNewChange({ ...newChange, changeType: e.target.value as any })
+                      setNewChange({ ...newChange, changeType: e.target.value as ChangeLogEntry["changeType"] })
                     }
                   >
                     <option value="Financial">Financial</option>
@@ -384,7 +388,7 @@ const [newChange, setNewChange] = useState<Partial<ChangeLogEntry>>({
                     className={styles.formSelect}
                     value={newChange.category}
                     onChange={(e) =>
-                      setNewChange({ ...newChange, category: e.target.value as any })
+                      setNewChange({ ...newChange, category: e.target.value as ChangeLogEntry["category"] })
                     }
                   >
                     <option value="Budget">Budget</option>
