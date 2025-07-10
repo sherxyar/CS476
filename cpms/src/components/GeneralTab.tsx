@@ -5,6 +5,8 @@ import type { Project } from "@/types/Project";
 import NotesModal from "./NotesModal";
 import { useSession } from "next-auth/react";
 
+
+
 declare module "next-auth" {
   interface Session {
     user?: {

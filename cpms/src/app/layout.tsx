@@ -5,7 +5,8 @@ import "../styles/page.module.css"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Providers } from "./providers";
-import { getServerSession } from "@/lib/auth-session";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,19 +25,15 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  // Call your getServerSession without parameters
-  const session = await getServerSession();
+}) {
+  const session = await getServerSession(authOptions); 
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers session={session}>
-          {children}
-          <ToastContainer position="top-right" autoClose={2000} />
-        </Providers>
+      <body>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );
