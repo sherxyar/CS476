@@ -8,17 +8,12 @@ import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
 import { Building2, Phone, Search, House } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
+import { useSession } from "next-auth/react";
 
 // User name in greeting
 function UserGreeting() {
-  const [name, setName] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include", cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((s) => setName(s?.email?.split("@")[0] ?? null))
-      .catch(() => setName(null));
-  }, []);
+  const { data: session } = useSession();
+  const name = session?.user?.name || session?.user?.email?.split("@")[0] || null;
 
   return <h2>Welcome back{name ? `, ${name}!` : "!"}</h2>;
 }

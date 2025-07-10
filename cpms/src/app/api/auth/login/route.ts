@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { comparePasswords } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
-import { randomInt } from "crypto";      
+import { randomInt } from "crypto";
 
-// The code had no way to see where it was failing, so I have  added a couple of checks.
+// The code had no way to see where it was failing, so I have added a couple of checks.
 
 // For OTP
-
 const CODE_TTL_MIN = 2; 
 
 export async function POST(req: NextRequest) {

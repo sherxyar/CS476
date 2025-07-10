@@ -163,20 +163,19 @@ export default function GeneralTab({
           {/* Phase selector (staged for Save) */}
           <div className={styles.fieldGroup}>
             <label>Phase</label>
-            {isAdmin ? (
-              <select
-                className={styles.formSelect}
-                value={phase}
-                onChange={(e) => setPhase(e.target.value)}
-              >
-                <option value="Planning">Planning</option>
-                <option value="Design">Design</option>
-                <option value="Construction">Construction</option>
-                <option value="Closed">Closed</option>
-              </select>
-            ) : (
-              <div className={styles.fieldValue}>{phase}</div>
-            )}
+
+            <select
+              className={styles.formSelect}
+              value={phase}
+              onChange={(e) => setPhase(e.target.value)}
+            >
+              <option value="Planning">Planning</option>
+              <option value="Design">Design</option>
+              <option value="Construction">Construction</option>
+              <option value="Closed">Closed</option>
+            </select>
+
+
           </div>
         </div>
       </div>
