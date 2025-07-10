@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-// Validatin schema
+// Validation schema remains the same
 const ChangeSchema = z.object({
   date: z.string().datetime().optional(),
 
@@ -36,10 +36,12 @@ const ChangeSchema = z.object({
 // GET
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  
   const changeLogs = await prisma.changeLog.findMany({
-    where: { projectId: params.id },
+    where: { projectId: id },
     orderBy: { date: "desc" },
     include: {
       requestedBy: { select: { id: true, name: true, email: true } },
@@ -53,8 +55,9 @@ export async function GET(
 // POST
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const body = await req.json();
   const parsed = ChangeSchema.safeParse(body);
 
@@ -79,7 +82,7 @@ export async function POST(
         date: date ? new Date(date) : undefined,
         requestedById,
         approvedById,
-        projectId: params.id,
+        projectId: id, // Use the awaited id
       },
       include: {
         requestedBy: { select: { id: true, name: true, email: true } },
