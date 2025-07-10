@@ -1,14 +1,16 @@
-import { NextResponse }    from 'next/server';
-import { renderToBuffer }  from '@react-pdf/renderer';
-import { projectToPdf }    from '@/lib/pdf/proPDFexport';
-import { prisma }          from '@/lib/prisma';
+import { NextResponse, NextRequest } from 'next/server';
+import { renderToBuffer } from '@react-pdf/renderer';
+import { projectToPdf } from '@/lib/pdf/proPDFexport';
+import { prisma } from '@/lib/prisma';
 import type { Project } from '@/types/Project';
 
+type Context = { params: Promise<{ id: string }> };
+
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
-) {
-  const id = context.params.id;
+  _req: NextRequest,
+  { params }: Context
+): Promise<NextResponse> {
+  const { id } = await params;
 
   const project = await prisma.project.findUnique({
     where: { id },
