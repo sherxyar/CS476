@@ -33,45 +33,64 @@ export default function GeneralTab({
   const [noteDraft, setNoteDraft] = useState("");
   // Add state for current user
   const [currentUser, setCurrentUser] = useState<{ id: number; name: string; email: string } | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const { data: session } = useSession();
+  
+  // Get user role directly from the session
+  const userRole = session?.user?.accountRole || '';
+  const isAdmin = userRole === 'ADMIN';
+  const isContributor = userRole === 'CONTRIBUTOR';
+  const canEdit = !isContributor; 
 
   useEffect(() => {
-    async function checkAdmin() {
+    async function fetchCurrentUser() {
       try {
         const res = await fetch("/api/auth/me", { cache: "no-store" });
         if (res.ok) {
           const userData = await res.json();
-          setIsAdmin(userData?.accountRole === "ADMIN");
+          setCurrentUser(userData);
         }
       } catch (err) {
-        console.error("Failed to check admin status:", err);
+        console.error("Failed to fetch user data:", err);
       }
     }
 
-    checkAdmin();
+    fetchCurrentUser();
   }, []);
 
   useEffect(() => {
-    const getChanges = (): Partial<Project> => {
-      const changes: Partial<Project> = {};
-
-      if (phase !== project.phase) changes.phase = phase;
-      if (title !== project.title) changes.title = title;
-      if (description !== project.description) changes.description = description;
-
-      return changes;
-    };
-
-    registerChangeHandler(getChanges);
-  }, [phase, title, description, project, registerChangeHandler]);
+    if (canEdit) {
+      const getChanges = (): Partial<Project> => {
+        const changes: Partial<Project> = {};
+  
+        if (phase !== project.phase) changes.phase = phase;
+        if (title !== project.title) changes.title = title;
+        if (description !== project.description) changes.description = description;
+  
+        return changes;
+      };
+  
+      registerChangeHandler(getChanges);
+    }
+  }, [phase, title, description, project, registerChangeHandler, canEdit]);
 
   DebugSession();
-  /*  Handlers  */
-  const handleAddNoteClick = () => setShowAdd(true);
+  
+  const handleAddNoteClick = () => {
+    // Only allow non-contributors to add notes
+    if (canEdit) {
+      setShowAdd(true);
+    }
+  };
+  
   const handleCloseModal = () => setShowAll(false);
 
   const handleSaveNote = async () => {
+    // Double-check that user can edit before saving
+    if (!canEdit) {
+      alert("You don't have permission to add notes.");
+      return;
+    }
+    
     const note = noteDraft.trim();
     if (!note) return;
 
@@ -94,7 +113,7 @@ export default function GeneralTab({
       setShowAdd(false);
     } catch (err) {
       console.error("Add-note failed:", err);
-      alert("Couldnt save note - please try again.");
+      alert("Couldn't save note - please try again.");
     }
   };
 
@@ -115,7 +134,7 @@ export default function GeneralTab({
 
           <div className={styles.fieldGroup}>
             <label>Title</label>
-            {isAdmin ? (
+            {canEdit ? (
               <input
                 type="text"
                 className={styles.formInput}
@@ -164,17 +183,20 @@ export default function GeneralTab({
           <div className={styles.fieldGroup}>
             <label>Phase</label>
 
-            <select
-              className={styles.formSelect}
-              value={phase}
-              onChange={(e) => setPhase(e.target.value)}
-            >
-              <option value="Planning">Planning</option>
-              <option value="Design">Design</option>
-              <option value="Construction">Construction</option>
-              <option value="Closed">Closed</option>
-            </select>
-
+            {canEdit ? (
+              <select
+                className={styles.formSelect}
+                value={phase}
+                onChange={(e) => setPhase(e.target.value)}
+              >
+                <option value="Planning">Planning</option>
+                <option value="Design">Design</option>
+                <option value="Construction">Construction</option>
+                <option value="Closed">Closed</option>
+              </select>
+            ) : (
+              <div className={styles.fieldValue}>{phase}</div>
+            )}
 
           </div>
         </div>
@@ -193,13 +215,15 @@ export default function GeneralTab({
               : "No notes available."}
           </div>
           <div className={styles.actionRow}>
-            <button
-              type="button"
-              className={styles.addNoteButton}
-              onClick={handleAddNoteClick}
-            >
-              Add a note
-            </button>
+            {canEdit && (
+              <button
+                type="button"
+                className={styles.addNoteButton}
+                onClick={handleAddNoteClick}
+              >
+                Add a note
+              </button>
+            )}
             <button
               type="button"
               className={styles.viewAllButton}
@@ -241,7 +265,7 @@ export default function GeneralTab({
       <div className={styles.descriptionSection}>
         <div className={styles.fieldGroup}>
           <label>Project Description</label>
-          {isAdmin ? (
+          {canEdit ? (
             <textarea
               className={styles.formTextarea}
               value={description}
