@@ -4,7 +4,7 @@ import "../styles/globals.css";
 import "../styles/page.module.css"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Providers } from "./providers";
+import Providers from "./providers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -23,19 +23,12 @@ export const metadata: Metadata = {
   description: "Construction Project Management System",
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const session = await getServerSession(authOptions); 
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Providers session={session}>{children}</Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
 }
-

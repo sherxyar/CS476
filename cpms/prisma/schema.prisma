@@ -16,7 +16,7 @@ model User {
   email          String      @unique
   hashedPassword String
   mfaCodes       Mfacode[]
-  accountRole    AccountRole @default(CONTRIBUTOR)
+  accountRole    AccountRole
 
   // relations
   financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
@@ -230,6 +230,8 @@ enum AccountRole {
   ADMIN
   PROJECT_MANAGER
   CONTRIBUTOR
+
+  @@map("account_role")
 }
 
 model ProjectMember {

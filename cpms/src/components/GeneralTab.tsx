@@ -3,21 +3,15 @@ import { useState, useEffect } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 import NotesModal from "./NotesModal";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 
+export function DebugSession() {
+  const { data: session, status } = useSession();
+  if (status === "loading") return null;
+  if (!session) return <button onClick={() => signIn()}>Sign in</button>;
 
-
-declare module "next-auth" {
-  interface Session {
-    user?: {
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      accountRole?: string | null;
-    };
-  }
+  return <pre>{JSON.stringify(session, null, 2)}</pre>;
 }
-
 type Props = {
   project: Project;
   onProjectUpdate: (project: Project) => void;
@@ -32,15 +26,13 @@ export default function GeneralTab({
   const [phase, setPhase] = useState(project.phase);
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description);
-
+  DebugSession();
   // this is for PM notes history
   const [showAll, setShowAll] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
-
   // Add state for current user
   const [currentUser, setCurrentUser] = useState<{ id: number; name: string; email: string } | null>(null);
-  const [note, setNote] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const { data: session } = useSession();
 
@@ -74,6 +66,7 @@ export default function GeneralTab({
     registerChangeHandler(getChanges);
   }, [phase, title, description, project, registerChangeHandler]);
 
+  DebugSession();
   /*  Handlers  */
   const handleAddNoteClick = () => setShowAdd(true);
   const handleCloseModal = () => setShowAll(false);
@@ -110,6 +103,7 @@ export default function GeneralTab({
 
   /*  render  */
   return (
+
     <div className={styles.generalContent}>
       {/*  General details  */}
       <div className={styles.topSection}>
