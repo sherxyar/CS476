@@ -10,6 +10,10 @@ import type { Project } from "@/types/Project";
 import { Building2, Phone, PhoneCall } from 'lucide-react';
 import { Search, House } from 'lucide-react';
 import UserMenu from "@/components/UserMenu";
+import { cookies } from "next/headers";
+import { getServerSession } from "@/lib/auth-session";
+
+
 
 import { redirect } from "next/navigation";
 
@@ -235,6 +239,14 @@ const Home: NextPage = () => {
   );
 };
 
-export default function Index() {
-  redirect("/auth/login");    
+
+
+export default async function Index() {
+  const session = await getServerSession();  
+
+  if (!session) {
+    redirect("/auth/login");                 
+  }
+
+  return <Home />;                            
 }
