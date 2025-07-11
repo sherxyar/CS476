@@ -172,12 +172,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
           <button className={styles.editButton} onClick={handleSaveProject}>
             Save Project
           </button>
-          <button
-            className={styles.editButton}
-            onClick={() => console.log("Edit mode")}
-          >
-            Edit Project
-          </button>
+
         </div>
       </div>
     </div>

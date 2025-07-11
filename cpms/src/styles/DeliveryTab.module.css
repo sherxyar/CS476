@@ -1,203 +1,276 @@
+.tabContentWrapper {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  overflow: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  margin-bottom: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.3s ease-out;
+}
+
 .container {
-    display: flex;
-    flex-direction: column;
-    min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  flex: 1;
 }
 
 .subTabHeader {
-    display: flex;
-    background: #f8f9fa;
-    border-bottom: 2px solid #e8e8e8;
-    padding: 0 24px;
-    gap: 4px;
-    margin-top: -4px;
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 0 24px;
+  gap: 4px;
 }
 
 .subTabButton {
-    flex: 1;
-    padding: 12px 14px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    color: #666;
-    border-radius: 8px 8px 0 0;
-    transition: background 0.2s, color 0.2s;
-}
-
-.subTabButton:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.activeSubTab {
-    background: #fff;
-    color: #333;
-    font-weight: 600;
-    border-bottom: 2px solid #fff;
-    margin-bottom: -2px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.tableWrapper {
-    overflow-x: auto;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-.table thead {
-    background: #e9ecef;
-}
-
-.table th,
-.table td {
-    padding: 12px 16px;
-    border: 1px solid #dee2e6;
-    text-align: left;
-}
-
-.table tbody tr:hover {
-    background: #f1f3f4;
-}
-
-.addRiskButton {
-    margin-top: 16px;
-    padding: 6px 14px;
-    background: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.addRiskButton:disabled,
-.addRiskButton:hover {
-    background: #0056b3;
-}
-
-.riskForm {
-    margin-top: 16px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-}
-
-.formField {
-    display: flex;
-    flex-direction: column;
-}
-
-.formField label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #444;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-.formInput {
-    font: inherit;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.formInput:focus {
-    outline: 2px solid #007bff;
-}
-
-.formActions {
-    display: flex;
-    align-items: center;
-}
-
-.saveRiskButton {
-    background: #0502be;
-    color: #fff;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.saveRiskButton:hover {
-    background: #000000;
-}
-
-.message {
-    padding: 16px;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.loading {
-    background: #e8f0fe;
-    color: #1a73e8;
-}
-
-.error {
-    background: #fdecea;
-    color: #d93025;
-}
-
-.info {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-/* modal */
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0 0 0 / 0.55);
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  border-radius: 8px 8px 0 0;
+  margin-top: 4px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  gap: 8px;
 }
 
-.modalContent {
-  background: #fff;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  box-shadow: 0 10px 32px rgba(0 0 0 / 0.35);
-  overflow: hidden;
-}
-
-.modalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.modalBody {
-  padding: 20px;
-}
-
-.closeButton {
-  font-size: 24px;
-  line-height: 1;
-  background: transparent;
-  border: none;
-  cursor: pointer;
+.subTabButton:hover {
+  background: rgba(240, 240, 240, 0.7);
+  color: #333;
 }
 
 .activeSubTab {
-  background: #fff;
-  color: #333;
+  background: white !important;
+  color: #0852a0 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.06);
+  border-bottom: 2px solid white;
+  margin-bottom: -2px;
+  position: relative;
+}
+
+.activeSubTab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #0852a0;
+}
+
+.tabIcon {
+  margin-right: 6px;
+}
+
+.tabContent {
+  flex: 1;
+  padding: 24px;
+  min-height: 400px;
+  overflow-x: auto;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  margin-bottom: 16px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 650px;
+}
+
+.table thead {
+  background: #f8f9fa;
+}
+
+.table th {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
   font-weight: 600;
-  border-bottom: 3px solid #0502be; 
-  margin-bottom: -3px;
+  color: #374151;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.actionButtons {
+  padding: 0 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.addRiskButton {
+  padding: 8px 16px;
+  background: #0852a0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addRiskButton:hover {
+  background: #064481;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.addRiskButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.buttonContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.spinnerIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.riskForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 0;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formField label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.formInput {
+  font: inherit;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background: #f9fafb;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #0852a0;
+  box-shadow: 0 0 0 3px rgba(8, 82, 160, 0.1);
+  background: white;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.saveRiskButton {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.saveRiskButton:hover {
+  background: #15803d;
+}
+
+.cancelButton {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: #e5e7eb;
+}
+
+.message {
+  padding: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 200px;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.info {
+  color: #0852a0;
 }
