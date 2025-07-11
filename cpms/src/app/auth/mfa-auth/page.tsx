@@ -13,6 +13,7 @@ function MfaForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const router            = useRouter();
 
   async function verifyCode() {
     setError("");
@@ -28,7 +29,7 @@ function MfaForm() {
         cache:        "no-store",
       });
 
-      const data = await res.json();
+      let data = await res.json();
       
       if (!res.ok) {
         setError(data.error || `Error ${res.status}`);
@@ -38,14 +39,13 @@ function MfaForm() {
 
       console.log("MFA verification successful, user data:", data.user);
       
-
       const result = await signIn("credentials", {
         email: emailParam,
         password: code,
-        redirect: true, 
-        callbackUrl: "/" 
+        redirect: true,
+        callbackUrl: "/"
       });
-      
+
       if (result?.error) {
         console.error("NextAuth sign in error:", result.error);
         setError(`Authentication error: ${result.error}`);
@@ -53,8 +53,13 @@ function MfaForm() {
         return;
       }
 
-      // Successfully authenticated
+      console.log("NextAuth sign in successful:", result);
       setSuccess("Authentication successful! Redirecting...");
+      
+      // If we somehow get here, redirect to homepage after a short delay
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
     } catch (err) {
       console.error("MFA verification error:", err);
       setError("An unexpected error occurred. Please try again.");

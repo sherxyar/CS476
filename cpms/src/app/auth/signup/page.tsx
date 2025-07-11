@@ -36,8 +36,8 @@ export default function SignupPage() {
         <div className={styles.master}>
             <div className={styles.wrapper}>
                 <div className={styles.container}>
-                    <img src="/InfraPro_Logo.png" alt="Logo" className={styles.logo} />
                     <h2 className={styles.heading}>Sign Up</h2>
+                    <p className={styles.subheading}>Build Better with InfraPro</p>
                     <form className={styles.form} onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
                         <label className={styles.label}>Name</label>
                         <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={styles.input} required />

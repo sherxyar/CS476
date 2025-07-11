@@ -31,6 +31,7 @@ export default function LoginPage() {
                 <div className={styles.container}>
                     <img src="/InfraPro_Logo.png" alt="Logo" className={styles.logo} />
                     <h2 className={styles.heading}>Login</h2>
+                    <p className={styles.subheading}>Welcome back to your projects</p>
                     <form className={styles.form} onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
                         <label className={styles.label}>Email</label>
                         <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={styles.input} required />
