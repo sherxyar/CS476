@@ -70,12 +70,12 @@ export default function FinancialsTab({ project }: Props) {
         setIsUnauthorized(true);
         setIsCollaborator(false);
       } else {
-        // Set collaborator status based on role (CONTRIBUTOR == Collaborator in UI terms)
-        const isContributor = session.user.accountRole === "CONTRIBUTOR";
-        setIsCollaborator(isContributor);
+        // Set collaborator status based on role (COLLABORATOR == Collaborator in UI terms)
+        const isCollaborator = session.user.accountRole === "COLLABORATOR";
+        setIsCollaborator(isCollaborator);
         setIsUnauthorized(false);
 
-        console.log("User is contributor/collaborator:", isContributor);
+        console.log("User is collaborator:", isCollaborator);
         console.log("Full session details:", JSON.stringify(session, null, 2));
       }
     } else if (status === "unauthenticated") {
@@ -319,7 +319,7 @@ export default function FinancialsTab({ project }: Props) {
     }
 
     if (isCollaborator) {
-      toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+      toast.info("Collaborators can only add invoices. You cannot update Budget and Forecast values.");
       return;
     }
 
@@ -389,7 +389,7 @@ export default function FinancialsTab({ project }: Props) {
                 return; 
               }
               if (isCollaborator) {
-                toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+                toast.info("Collaborators can only add invoices. You cannot update Budget and Forecast values.");
                 return;
               }
               handleUpdateFieldChange(updateForm.field);

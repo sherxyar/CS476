@@ -23,6 +23,10 @@ export default function HomePageClient() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { data: session } = useSession();
+
+  // Check if user is a collaborator
+  const isCollaborator = session?.user?.accountRole === "COLLABORATOR";
 
   // FETCH
   useEffect(() => {
@@ -105,7 +109,7 @@ export default function HomePageClient() {
   return (
     <>
       <Head>
-        <title>InfraPro – Home</title>
+        <title>InfraPro - Home</title>
         <meta name="description" content="InfraPro Project Management Dashboard" />
       </Head>
 
@@ -123,9 +127,11 @@ export default function HomePageClient() {
             </li>
           </ul>
 
-          <button className={styles.create} onClick={() => setIsCreateOpen(true)}>
-            + Create Project
-          </button>
+          {!isCollaborator && (
+            <button className={styles.create} onClick={() => setIsCreateOpen(true)}>
+              + Create Project
+            </button>
+          )}
 
           <button className={styles.supportLink}>
             <Phone /> Get Support
@@ -196,11 +202,13 @@ export default function HomePageClient() {
         />
       )}
 
-      <CreateProjectModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onCreate={handleCreate}
-      />
+      {!isCollaborator && (
+        <CreateProjectModal
+          isOpen={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
+          onCreate={handleCreate}
+        />
+      )}
     </>
   );
 }
