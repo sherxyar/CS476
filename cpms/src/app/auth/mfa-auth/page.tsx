@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "@/styles/auth.module.css";
 import { signIn } from "next-auth/react";
+import { Building2 } from "lucide-react";
 
 function MfaForm() {
   const searchParams = useSearchParams();
@@ -90,7 +91,7 @@ function MfaForm() {
         />
 
         <button type="submit" className={styles.button} disabled={loading}>
-          {loading ? "Verifying..." : "Verify Code"}
+          {loading ? <span className={styles.buttonText}>Verifying...</span> : <span className={styles.buttonText}>Verify Code</span>}
         </button>
       </form>
 
@@ -105,11 +106,10 @@ export default function MfaAuthPage() {
     <div className={styles.master}>
       <div className={styles.wrapper}>
         <div className={styles.container}>
-          <img
-            src="/InfraPro_Logo.png"
-            alt="Logo"
-            className={styles.logo}
-          />
+          <div className={styles.logoContainer}>
+            <Building2 className={styles.buildingIcon} />
+            <div className={styles.brandText}>InfraPro</div>
+          </div>
           <h2 className={styles.heading}>Enter 2-Factor Code</h2>
 
           <Suspense fallback={<div>Loading…</div>}>

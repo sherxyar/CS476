@@ -56,6 +56,78 @@
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
 }
 
+/* Animated Logo */
+.logoContainer {
+  width: 200px;
+  height: 100px;
+  margin: 0 auto 30px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+}
+
+.buildingIcon {
+  width: 70px;
+  height: 70px;
+  color: #101115;
+  position: absolute;
+  animation: buildUpAndFade 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+  z-index: 1;
+}
+
+.infra, .pro {
+  display: none; 
+}
+
+.brandText {
+  position: absolute;
+  font-weight: 700;
+  font-size: 24px;
+  background: linear-gradient(90deg, #0d0e11 0%, #0f1117 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transform: translateY(15px);
+  left: 50%;
+  transform: translate(-50%, 0) translateY(15px);
+  animation: revealBrand 0.8s cubic-bezier(0.33, 1, 0.68, 1) 0.5s forwards;
+}
+
+@keyframes buildUpAndFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.02);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0.02;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes revealBrand {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) translateY(0);
+  }
+}
+
 /* Heading */
 .heading {
   color: #000000;
@@ -116,6 +188,28 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.buttonText {
+  background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.4);
+  animation: buttonGlow 2s ease-in-out infinite;
+}
+
+@keyframes buttonGlow {
+  0% {
+    text-shadow: 0px 0px 2px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.6);
+  }
+  100% {
+    text-shadow: 0px 0px 2px rgba(255, 255, 255, 0.3);
+  }
+}
+
 .button:hover {
   background: linear-gradient(to right, #2c3037 0%, #3a3e4a 100%);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -127,6 +221,10 @@
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
+}
+
+.button:disabled .buttonText {
+  opacity: 0.8;
 }
 
 .spinner {
@@ -198,4 +296,39 @@
 
 .loginLink a:hover {
   color: #4f5c7b;
+}
+
+/* Foundation Line Animation */
+.logoContainer::after {
+  content: "";
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, #22242c, #4f5c7b);
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  animation: drawLine 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.9s forwards;
+}
+
+@keyframes drawLine {
+  0% {
+    transform: translateX(-50%) scaleX(0);
+  }
+  100% {
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+.subheading {
+  color: #111215;
+  font-size: 19px;
+  font-weight: 500;
+  margin-bottom: 22px;
+  letter-spacing: 0.2px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: currentColor;
+  text-shadow: 0 1px 2px rgba(60, 60, 70, 0.08);
 }

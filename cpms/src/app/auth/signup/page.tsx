@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/auth.module.css";
+import { Building2 } from "lucide-react";
 
 export default function SignupPage() {
     const [form, setForm] = useState({ name: "", email: "", password: "", accountRole: "PROJECT_MANAGER" });
@@ -36,8 +37,13 @@ export default function SignupPage() {
         <div className={styles.master}>
             <div className={styles.wrapper}>
                 <div className={styles.container}>
+                    { /*    <div className={styles.logoContainer}>
+                        <Building2 className={styles.buildingIcon} />
+                        <div className={styles.brandText}>InfraPro</div>
+                    </div>*/ }
+                 
                     <h2 className={styles.heading}>Sign Up</h2>
-                    <p className={styles.subheading}>Build Better with InfraPro</p>
+                    <p className={styles.subheading}>Build Better with InfraPro.</p>
                     <form className={styles.form} onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
                         <label className={styles.label}>Name</label>
                         <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={styles.input} required />
@@ -50,7 +56,9 @@ export default function SignupPage() {
                             <option value="PROJECT_MANAGER">Project Manager</option>
                             <option value="CONTRIBUTOR">Contributor</option>
                         </select>
-                        <button type="submit" className={styles.button}>Create Account</button>
+                        <button type="submit" className={styles.button}>
+                            <span className={styles.buttonText}>Create Account</span>
+                        </button>
                     </form>
                     {error && <div className={styles.error}>{error}</div>}
                     {success && <div className={styles.success}>{success}</div>}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/auth.module.css";
+import { Building2 } from "lucide-react";
 
 export default function LoginPage() {
     const [form, setForm] = useState({ email: "", password: ""});
@@ -29,7 +30,10 @@ export default function LoginPage() {
         <div className={styles.master}>
             <div className={styles.wrapper}>
                 <div className={styles.container}>
-                    <img src="/InfraPro_Logo.png" alt="Logo" className={styles.logo} />
+                    <div className={styles.logoContainer}>
+                        <Building2 className={styles.buildingIcon} />
+                        <div className={styles.brandText}>InfraPro</div>
+                    </div>
                     <h2 className={styles.heading}>Login</h2>
                     <p className={styles.subheading}>Welcome back to your projects</p>
                     <form className={styles.form} onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
@@ -37,7 +41,9 @@ export default function LoginPage() {
                         <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={styles.input} required />
                         <label className={styles.label}>Password</label>
                         <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className={styles.input} required />
-                        <button type="submit" className={styles.button}>Submit</button>
+                        <button type="submit" className={styles.button}>
+                            <span className={styles.buttonText}>Submit</span>
+                        </button>
                     </form>
                     {error && <div className={styles.error}>{error}</div>}
                     <div className={styles.link}>New user? <a href="/auth/signup">Sign Up</a></div>
