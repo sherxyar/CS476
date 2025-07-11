@@ -30,7 +30,7 @@ function MfaForm() {
         cache:        "no-store",
       });
 
-      let data = await res.json();
+      const data = await res.json();
       
       if (!res.ok) {
         setError(data.error || `Error ${res.status}`);
