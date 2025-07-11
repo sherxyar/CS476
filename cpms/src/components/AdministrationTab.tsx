@@ -110,6 +110,7 @@ export default function AdministrationTab({ project }: Props) {
     <div className={styles.generalContent}>
 
       <div className={styles.topSection}>
+
         <div className={styles.leftColumn}>
           <div className={styles.fieldGroup}>
             <label>Project Owner</label>
@@ -122,6 +123,23 @@ export default function AdministrationTab({ project }: Props) {
           <div className={styles.fieldGroup}>
             <label>Total Team Members</label>
             <div className={styles.fieldValue}>{teamMembers.length}</div>
+          </div>
+        </div>
+      </div>
+      <div className={styles.divider} />
+      {/* Quick actions */}
+      <div className={styles.actualsSection}>
+        <div className={styles.fieldGroup}>
+          <label>Quick Actions</label>
+          <div className={styles.buttonGroup}>
+            <button
+              className={styles.viewDetailsButton}
+              onClick={() =>
+                window.open(`/api/projects/${project.id}/export`, '_blank')
+              }
+            >
+              Export Project Data
+            </button>
           </div>
         </div>
       </div>
@@ -235,22 +253,7 @@ export default function AdministrationTab({ project }: Props) {
 
       <div className={styles.divider} />
 
-      {/* Quick actions */}
-      <div className={styles.actualsSection}>
-        <div className={styles.fieldGroup}>
-          <label>Quick Actions</label>
-          <div className={styles.buttonGroup}>
-            <button
-              className={styles.viewDetailsButton}
-              onClick={() =>
-                window.open(`/api/projects/${project.id}/export`, '_blank')
-              }
-            >
-              Export Project Data
-            </button>
-          </div>
-        </div>
-      </div>
+
 
     </div>
   );

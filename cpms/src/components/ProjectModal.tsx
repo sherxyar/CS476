@@ -8,7 +8,15 @@ import ChangeLogTab from "./ChangeLogTab";
 import AdministrationTab from "./AdministrationTab";
 import DeliveryTab from "./DeliveryTab";
 import type { Project } from "@/types/Project";
-import { SquareX } from "lucide-react";
+import { 
+  SquareX, 
+  Folder, 
+  DollarSign, 
+  Calendar, 
+  ClipboardList, 
+  Radar, 
+  Settings 
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 
 /* Types */
@@ -92,6 +100,16 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
     }
   };
 
+  /* Tab icons mapping */
+  const TAB_ICONS = {
+    "General": <Folder size={16} />,
+    "Financials": <DollarSign size={16} />,
+    "Schedule": <Calendar size={16} />,
+    "Change Log": <ClipboardList size={16} />,
+    "Delivery": <Radar size={16} />,
+    "Administration": <Settings size={16} />
+  };
+
   /* render tab */
   const renderTab = () => {
     switch (activeTab) {
@@ -145,7 +163,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
             title="Close"
             aria-label="Close"
           >
-            <SquareX aria-hidden="true" className={styles.logoIcon} strokeWidth={2} />
+            <SquareX aria-hidden="true" className={styles.closeIcon} size={18} strokeWidth={1.5} />
           </button>
         </div>
 
@@ -157,7 +175,10 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
               className={`${styles.tabButton} ${activeTab === t ? styles.activeTab : ""}`}
               onClick={() => setActiveTab(t)}
             >
-              {t}
+              <span className={styles.tabButtonContent}>
+                <span className={styles.tabIcon}>{TAB_ICONS[t]}</span>
+                <span className={styles.tabLabel}>{t}</span>
+              </span>
             </button>
           ))}
         </div>
