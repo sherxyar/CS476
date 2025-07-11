@@ -49,6 +49,26 @@
   transform: translateY(-2px);
 }
 
+/* Blueprint foundation element for MFA page */
+.container::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    rgba(34, 36, 44, 0.06) 8px,
+    rgba(34, 36, 44, 0.06) 12px
+  );
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  opacity: 0.7;
+}
+
 .logo {
   width: 110px;
   margin: 0 auto 18px;
@@ -332,4 +352,200 @@
   -webkit-background-clip: text;
   background-clip: text;
   text-shadow: 0 1px 2px rgba(60, 60, 70, 0.08);
+}
+
+.subheading2 {
+  color: #111215d5;
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 22px;
+  letter-spacing: 0.2px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 1px 2px rgba(60, 60, 70, 0.08);
+}
+
+/* Security Layer Animation for MFA */
+.securityLayerVisual {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  margin: 0 auto 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Add blueprint grid background */
+.securityLayerVisual::before {
+  content: "";
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  top: 5%;
+  left: 5%;
+  border-radius: 50%;
+  background-image: 
+    linear-gradient(to right, rgba(34, 36, 44, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 36, 44, 0.05) 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.securityLayer {
+  position: absolute;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(0.6);
+  background: linear-gradient(135deg, rgba(34, 36, 44, 0.01) 0%, rgba(79, 92, 123, 0.04) 100%);
+  box-shadow: 0 0 10px rgba(34, 36, 44, 0.05);
+  animation: layerPulse 3s infinite;
+}
+
+.securityLayer:nth-child(1) {
+  animation-delay: 0s;
+  border-top: 2px dashed rgba(34, 36, 44, 0.3);
+  border-right: 2px dashed rgba(34, 36, 44, 0.1);
+}
+
+.securityLayer:nth-child(2) {
+  animation-delay: 1s;
+  border-bottom: 2px solid rgba(34, 36, 44, 0.3);
+  border-left: 2px solid rgba(34, 36, 44, 0.1);
+}
+
+.securityLayer:nth-child(3) {
+  animation-delay: 2s;
+  border-left: 2px dotted rgba(34, 36, 44, 0.3);
+  border-top: 2px dotted rgba(34, 36, 44, 0.1);
+}
+
+@keyframes layerPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+.buttonIcon {
+  margin-right: 8px;
+  display: inline-block;
+  vertical-align: middle;
+  color: white;
+  animation: secureGlow 2s ease-in-out infinite;
+}
+
+@keyframes secureGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+  }
+}
+
+/* Success Animation */
+.successIcon {
+  margin: 0 auto 15px;
+  display: block;
+  color: #28a745;
+  animation: successPop 0.5s ease-out forwards;
+  transform: scale(0);
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0) rotate(-20deg);
+  }
+  70% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* Security Code Input Styles */
+.securityCodeInputWrapper {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.securityCodeInputWrapper::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    rgba(34, 36, 44, 0.1), 
+    rgba(34, 36, 44, 0.3) 20%, 
+    rgba(34, 36, 44, 0.5) 50%, 
+    rgba(34, 36, 44, 0.3) 80%, 
+    rgba(34, 36, 44, 0.1)
+  );
+  border-radius: 2px;
+  transform: scaleX(0.8);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.securityCodeInput {
+  text-align: center;
+  letter-spacing: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.securityCodeInput:focus {
+  letter-spacing: 10px;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.securityCodeInputWrapper:focus-within::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+.securityCenterIcon {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  color: #22242c;
+  z-index: 2;
+  animation: iconPulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes iconPulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.15) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.9;
+  }
 }
