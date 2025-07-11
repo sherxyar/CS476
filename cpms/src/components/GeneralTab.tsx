@@ -38,8 +38,8 @@ export default function GeneralTab({
   // Get user role directly from the session
   const userRole = session?.user?.accountRole || '';
   const isAdmin = userRole === 'ADMIN';
-  const isContributor = userRole === 'CONTRIBUTOR';
-  const canEdit = !isContributor; 
+  const isCollaborator = userRole === 'COLLABORATOR';
+  const canEdit = !isCollaborator;
 
   useEffect(() => {
     async function fetchCurrentUser() {
@@ -76,7 +76,7 @@ export default function GeneralTab({
   DebugSession();
   
   const handleAddNoteClick = () => {
-    // Only allow non-contributors to add notes
+    // Only allow non-collaborators to add notes
     if (canEdit) {
       setShowAdd(true);
     }
