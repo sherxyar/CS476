@@ -48,7 +48,7 @@ export default function SignupPage() {
                         <label className={styles.label}>Account Role</label>
                         <select value={form.accountRole} onChange={e => setForm({ ...form, accountRole: e.target.value })} className={styles.select} required>
                             <option value="PROJECT_MANAGER">Project Manager</option>
-                            <option value="COLLABORATOR">Collaborator</option>
+                            <option value="CONTRIBUTOR">Contributor</option>
                         </select>
                         <button type="submit" className={styles.button}>Create Account</button>
                     </form>
