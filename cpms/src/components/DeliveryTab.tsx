@@ -338,34 +338,35 @@ export default function DeliveryTab(
 
         {/* content */}
         <div className={styles.tabContent}>
-          {activeTab === "risk" ? renderRiskTable() : renderLessonsTable()}
-        </div>
+          {/* Action button at the top of each tab */}
+          <div className={styles.tabActionHeader}>
+            {activeTab === "risk" && (
+              <button
+                className={styles.addButton}
+                onClick={() => setShowRiskModal(true)}
+                disabled={loadingRisks}
+              >
+                <span className={styles.buttonContent}>
+                  <Plus size={16} />
+                  <span>Add Risk</span>
+                </span>
+              </button>
+            )}
+            {activeTab === "lessons" && (
+              <button
+                className={styles.addButton}
+                onClick={() => setShowLessonModal(true)}
+                disabled={loadingLessons}
+              >
+                <span className={styles.buttonContent}>
+                  <Plus size={16} />
+                  <span>Add Lesson</span>
+                </span>
+              </button>
+            )}
+          </div>
 
-        <div className={styles.actionButtons}>
-          {activeTab === "risk" && (
-            <button
-              className={styles.addRiskButton}
-              onClick={() => setShowRiskModal(true)}
-              disabled={loadingRisks}
-            >
-              <span className={styles.buttonContent}>
-                <Plus size={16} />
-                <span>Add Risk</span>
-              </span>
-            </button>
-          )}
-          {activeTab === "lessons" && (
-            <button
-              className={styles.addRiskButton}
-              onClick={() => setShowLessonModal(true)}
-              disabled={loadingLessons}
-            >
-              <span className={styles.buttonContent}>
-                <Plus size={16} />
-                <span>Add Lesson</span>
-              </span>
-            </button>
-          )}
+          {activeTab === "risk" ? renderRiskTable() : renderLessonsTable()}
         </div>
 
         {/* Modal for adding a risk */}
@@ -452,7 +453,7 @@ export default function DeliveryTab(
 
           <div className={styles.formActions} style={{ gridColumn: "1 / -1" }}>
             <button
-              className={styles.saveRiskButton}
+              className={styles.saveButton}
               onClick={saveRisk}
               disabled={savingRisk}
             >
@@ -462,7 +463,7 @@ export default function DeliveryTab(
               </span>
             </button>
             <button
-              className={styles.addRiskButton}
+              className={styles.cancelButton}
               onClick={() => setShowRiskModal(false)}
             >
               <span className={styles.buttonContent}>
@@ -546,7 +547,7 @@ export default function DeliveryTab(
 
           <div className={styles.formActions} style={{ gridColumn: "1 / -1" }}>
             <button
-              className={styles.saveRiskButton}
+              className={styles.saveButton}
               onClick={saveLesson}
               disabled={savingLesson}
             >
@@ -556,7 +557,7 @@ export default function DeliveryTab(
               </span>
             </button>
             <button
-              className={styles.addRiskButton}
+              className={styles.cancelButton}
               onClick={() => setShowLessonModal(false)}
             >
               <span className={styles.buttonContent}>

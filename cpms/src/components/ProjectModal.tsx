@@ -18,6 +18,7 @@ import {
   Settings 
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 
 /* Types */
 interface Props {
@@ -76,7 +77,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
     changeHandlersRef.current.forEach((get) => Object.assign(combined, get()));
 
     if (Object.keys(combined).length === 0) {
-      alert("No changes to save.");
+      toast.info("No changes to save.");
       return;
     }
 
@@ -91,12 +92,12 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
       const updated = await res.json();
       setProject(updated);
       onProjectUpdate(updated);
-      alert("Project saved.");
+      toast.success("Project saved successfully!");
 
       changeHandlersRef.current = [];
     } catch (err) {
       console.error(err);
-      alert("Failed to save project.");
+      toast.error("Failed to save project. Please try again.");
     }
   };
 

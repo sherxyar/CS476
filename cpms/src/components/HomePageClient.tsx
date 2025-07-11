@@ -6,7 +6,7 @@ import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
 import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
-import { Building2, Phone, Search, House } from "lucide-react";
+import { Building2, Phone, Search, House, Sun, Moon, Loader2 } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 import { useSession } from "next-auth/react";
 
@@ -23,6 +23,8 @@ export default function HomePageClient() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
 
   // Check if user is a contributor
@@ -33,13 +35,28 @@ export default function HomePageClient() {
     fetchProjects();
   }, []);
 
+  // Theme toggle 
+  useEffect(() => {
+    document.body.style.backgroundColor = isDarkTheme ? '#1a1a1c' : '#faf9f9';
+    return () => {
+      document.body.style.backgroundColor = '#faf9f9';
+    };
+  }, [isDarkTheme]);
+
+  const toggleTheme = () => {
+    setIsDarkTheme(!isDarkTheme);
+  };
+
   async function fetchProjects() {
     try {
+      setIsLoading(true);
       const res = await fetch("/api/projects");
       if (!res.ok) throw new Error(await res.text());
       setProjects(await res.json());
     } catch (err) {
       console.error("Project fetch failed:", err);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -147,12 +164,19 @@ export default function HomePageClient() {
           </div>
         </div>
         <div className={styles.topbarActions}>
+          <button 
+            className={styles.themeToggle}
+            onClick={toggleTheme}
+            title={isDarkTheme ? "Switch to light theme" : "Switch to dark theme"}
+          >
+            {isDarkTheme ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <UserMenu />
         </div>
       </div>
 
       <main className={styles.main}>
-        <div className={styles.content}>
+        <div className={`${styles.content} ${isDarkTheme ? styles.darkTheme : ''}`}>
           <UserGreeting />
 
           <div className={styles.card}>
@@ -167,27 +191,44 @@ export default function HomePageClient() {
                 </tr>
               </thead>
               <tbody>
-                {projects.map((p) => (
-                  <tr
-                    key={p.projectID}
-                    className={styles.clickableRow}
-                    onClick={() => openProject(p)}
-                  >
-                    <td>{p.projectID}</td>
-                    <td>{p.title}</td>
-                    <td>
-                      <span
-                        className={`
-                          ${styles.status} 
-                          ${p.phase.toLowerCase() === "planning"
-                            ? styles.planning
-                            : styles.construction}`}
-                      />
-                      {p.phase}
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={4} style={{ textAlign: 'center', padding: '24px 0' }} className={styles.loading}>
+                      <div className={styles.loadingContent}>
+                        <Loader2 className={styles.spinner} size={20} />
+                        <span>Loading projects...</span>
+                      </div>
                     </td>
-                    <td>{p.projectManager?.name ?? "—"}</td>
                   </tr>
-                ))}
+                ) : projects.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} style={{ textAlign: 'center', padding: '24px 0' }} className={styles.noProjects}>
+                      No projects available
+                    </td>
+                  </tr>
+                ) : (
+                  projects.map((p) => (
+                    <tr
+                      key={p.projectID}
+                      className={styles.clickableRow}
+                      onClick={() => openProject(p)}
+                    >
+                      <td>{p.projectID}</td>
+                      <td>{p.title}</td>
+                      <td>
+                        <span
+                          className={`
+                            ${styles.status} 
+                            ${p.phase.toLowerCase() === "planning"
+                              ? styles.planning
+                              : styles.construction}`}
+                        />
+                        {p.phase}
+                      </td>
+                      <td>{p.projectManager?.name ?? "—"}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
