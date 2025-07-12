@@ -53,15 +53,14 @@ export async function GET(
 // Add member
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: projectId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const projectId = params.id;
     const { userId, role } = await request.json();
 
     if (!isAddMemberPayload({ userId, role })) {
@@ -71,7 +70,6 @@ export async function POST(
       );
     }
 
-    // Add member logic here...
     try {
       const membership = await prisma.projectMember.create({
         data: { projectId, userId, role },
@@ -148,15 +146,14 @@ export async function POST(
 // Remove member
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: projectId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const projectId = params.id;
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
 
