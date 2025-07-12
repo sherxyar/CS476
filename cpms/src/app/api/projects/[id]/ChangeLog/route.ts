@@ -5,7 +5,7 @@ import { NotificationObserver } from "@/lib/notification-observer";
 import { ChangeLogService, ChangeLogFactory } from "@/lib/changelog";
 import type { ChangeLog, ChangeType, ChangeCategory, ChangeStatus, ChangePriority } from "@prisma/client";
 
-// Define interface for ChangeLog with related entities
+// - Explicit interface; needed for next js 1`5
 interface ChangeLogWithRelations extends ChangeLog {
   requestedBy: {
     id: number;
