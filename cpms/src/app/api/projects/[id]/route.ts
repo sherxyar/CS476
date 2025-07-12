@@ -55,6 +55,47 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     }
   }
 
+  // Handle general project updates (title, description, projectManagerId)
+  if (body.title !== undefined || body.description !== undefined || body.projectManagerId !== undefined) {
+    try {
+      const updateData: any = { lastUpdated: new Date() };
+      
+      if (body.title !== undefined) updateData.title = body.title;
+      if (body.description !== undefined) updateData.description = body.description;
+      if (body.projectManagerId !== undefined) {
+        if (body.projectManagerId === null) {
+          updateData.projectManager = { disconnect: true };
+        } else {
+          updateData.projectManager = { connect: { id: body.projectManagerId } };
+        }
+      }
+
+      const updated = await prisma.project.update({
+        where: { id },
+        data: updateData,
+        include: {
+          projectManager: true,
+          pmNotesHistory: {
+            orderBy: { createdAt: "desc" },
+            include: {
+              author: { select: { id: true, name: true, email: true } },
+            },
+          },
+          financialHistory: {
+            include: {
+              changedBy: { select: { id: true, name: true, email: true } },
+            },
+            orderBy: { changedAt: "desc" },
+          },
+        },
+      });
+      return NextResponse.json(updated);
+    } catch (err) {
+      console.error(`PATCH /api/projects/${id} (general) error:`, err);
+      return new NextResponse("Internal Server Error", { status: 500 });
+    }
+  }
+
 
   if (body.note) {
     const { note, userId } = body;

@@ -26,6 +26,8 @@ export default function GeneralTab({
   const [phase, setPhase] = useState(project.phase);
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description);
+  const [projectManagerId, setProjectManagerId] = useState<number | null>(project.projectManagerId ?? null);
+  const [projectManagers, setProjectManagers] = useState<{ id: number; name: string; email: string }[]>([]);
   DebugSession();
   // this is for PM notes history
   const [showAll, setShowAll] = useState(false);
@@ -38,8 +40,8 @@ export default function GeneralTab({
   // Get user role directly from the session
   const userRole = session?.user?.accountRole || '';
   const isAdmin = userRole === 'ADMIN';
-  const isCollaborator = userRole === 'COLLABORATOR';
-  const canEdit = !isCollaborator;
+  const isContributor = userRole === 'CONTRIBUTOR';
+  const canEdit = !isContributor;
 
   useEffect(() => {
     async function fetchCurrentUser() {
@@ -58,6 +60,29 @@ export default function GeneralTab({
   }, []);
 
   useEffect(() => {
+    async function fetchProjectManagers() {
+      try {
+        const res = await fetch("/api/users?managersOnly=true");
+        if (res.ok) {
+          const managers = await res.json();
+          setProjectManagers(managers);
+        }
+      } catch (err) {
+        console.error("Failed to fetch project managers:", err);
+      }
+    }
+
+    fetchProjectManagers();
+  }, []);
+
+  useEffect(() => {
+    setPhase(project.phase);
+    setTitle(project.title);
+    setDescription(project.description);
+    setProjectManagerId(project.projectManagerId ?? null);
+  }, [project]);
+
+  useEffect(() => {
     if (canEdit) {
       const getChanges = (): Partial<Project> => {
         const changes: Partial<Project> = {};
@@ -65,13 +90,16 @@ export default function GeneralTab({
         if (phase !== project.phase) changes.phase = phase;
         if (title !== project.title) changes.title = title;
         if (description !== project.description) changes.description = description;
+        if (projectManagerId !== (project.projectManagerId ?? null)) {
+          changes.projectManagerId = projectManagerId ?? undefined;
+        }
   
         return changes;
       };
   
       registerChangeHandler(getChanges);
     }
-  }, [phase, title, description, project, registerChangeHandler, canEdit]);
+  }, [phase, title, description, projectManagerId, project, registerChangeHandler, canEdit]);
 
   DebugSession();
   
@@ -148,9 +176,24 @@ export default function GeneralTab({
 
           <div className={styles.fieldGroup}>
             <label>Project Manager</label>
-            <div className={styles.fieldValue}>
-              {project.projectManager?.name ?? "Unassigned"}
-            </div>
+            {canEdit ? (
+              <select
+                className={styles.formSelect}
+                value={projectManagerId || ""}
+                onChange={(e) => setProjectManagerId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">Unassigned</option>
+                {projectManagers.map((manager) => (
+                  <option key={manager.id} value={manager.id}>
+                    {manager.name} ({manager.email})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className={styles.fieldValue}>
+                {project.projectManager?.name ?? "Unassigned"}
+              </div>
+            )}
           </div>
         </div>
 
