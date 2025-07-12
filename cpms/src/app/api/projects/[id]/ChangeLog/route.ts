@@ -3,6 +3,26 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { NotificationObserver } from "@/lib/notification-observer";
 import { ChangeLogService, ChangeLogFactory } from "@/lib/changelog";
+import type { ChangeLog, ChangeType, ChangeCategory, ChangeStatus, ChangePriority } from "@prisma/client";
+
+// Define interface for ChangeLog with related entities
+interface ChangeLogWithRelations extends ChangeLog {
+  requestedBy: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  approvedBy: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+}
+
+// Define interface for the enhanced ChangeLog with impact level
+interface EnhancedChangeLog extends ChangeLogWithRelations {
+  impactLevel: string;
+}
 
 // Validation schema remains the same
 const ChangeSchema = z.object({
@@ -35,49 +55,27 @@ const ChangeSchema = z.object({
   estimatedImpact: z.string().trim().optional(),
 });
 
-// FACTORY PATTERN - Helper function to transform database model to domain model
-function adaptChangeLog(data: any) {
-  return {
-    id: data.id,
-    projectId: data.projectId,
-    changeType: data.changeType,
-    category: data.category,
-    description: data.description,
-    impactArea: data.impactArea,
-    oldValue: data.oldValue,
-    newValue: data.newValue,
-    justification: data.justification,
-    requestedById: data.requestedById,
-    approvedById: data.approvedById,
-    status: data.status,
-    priority: data.priority,
-    estimatedImpact: data.estimatedImpact,
-    date: data.date,
-    requestedBy: data.requestedBy,
-    approvedBy: data.approvedBy,
-    impactLevel: getImpactLevel(data),
-  };
-}
-
-function getImpactLevel(data: any) {
+function getImpactLevel(data: ChangeLogWithRelations): string {
   try {
-    const changeLog = ChangeLogFactory.createChangeLog({
+    // Convert null values to undefined for the factory
+    const changeLogData = {
       projectId: data.projectId,
       changeType: data.changeType,
       category: data.category,
       description: data.description,
       impactArea: data.impactArea,
-      oldValue: data.oldValue,
-      newValue: data.newValue,
+      oldValue: data.oldValue === null ? undefined : data.oldValue,
+      newValue: data.newValue === null ? undefined : data.newValue,
       justification: data.justification,
       requestedById: data.requestedById,
       approvedById: data.approvedById,
       status: data.status,
       priority: data.priority,
-      estimatedImpact: data.estimatedImpact,
+      estimatedImpact: data.estimatedImpact === null ? undefined : data.estimatedImpact,
       date: data.date,
-    });
+    };
 
+    const changeLog = ChangeLogFactory.createChangeLog(changeLogData);
     return changeLog.getImpactLevel();
   } catch (error) {
     console.error("Error calculating impact level:", error);
@@ -102,7 +100,12 @@ export async function GET(
   });
 
   // Transform each change log to include impact level
-  const enrichedChangeLogs = changeLogs.map(adaptChangeLog);
+  const enrichedChangeLogs = changeLogs.map((log): EnhancedChangeLog => {
+    return {
+      ...log,
+      impactLevel: getImpactLevel(log as ChangeLogWithRelations)
+    };
+  });
 
   return NextResponse.json(enrichedChangeLogs);
 }
