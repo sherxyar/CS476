@@ -31,6 +31,10 @@ model User {
   addedMembers     ProjectMember[]         @relation("AddedMembers")
   requestedChanges ChangeLog[]             @relation("RequestedChanges")
   approvedChanges  ChangeLog[]             @relation("ApprovedChanges")
+  
+  // Notification system relations
+  notifications    Notification[]          @relation("UserNotifications")
+  triggeredNotifications Notification[]    @relation("TriggeredNotifications")
 }
 
 /**
@@ -69,6 +73,9 @@ model Project {
   lessonsLearned LessonsLearned[] @relation("ProjectLessons")
 
   changeLogs ChangeLog[]
+  
+  // Notification system relations
+  notifications Notification[] @relation("ProjectNotifications")
 }
 
 /**
@@ -87,6 +94,29 @@ model AuditLog {
   user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_log")
+}
+
+/**
+ * Notification System - Observer Pattern Implementation
+ */
+model Notification {
+  id          String           @id @default(uuid())
+  userId      Int              // The PM who should receive this notification
+  projectId   String           // The project that was changed
+  title       String           // for notification
+  message     String           // change msg
+  type        NotificationType @default(PROJECT_UPDATE)
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  triggeredBy Int?             // Who triggered this change - the user account
+
+  // Relations
+  user        User    @relation("UserNotifications", fields: [userId], references: [id])
+  project     Project @relation("ProjectNotifications", fields: [projectId], references: [id], onDelete: Cascade)
+  triggeredByUser User? @relation("TriggeredNotifications", fields: [triggeredBy], references: [id])
+
+  @@index([userId, isRead])
+  @@index([projectId])
 }
 
 /**
@@ -326,4 +356,15 @@ enum ChangeType {
   Scope
   Resource
   Risk
+}
+
+enum NotificationType {
+  PROJECT_UPDATE
+  FINANCIAL_CHANGE
+  SCHEDULE_CHANGE
+  MILESTONE_UPDATE
+  MEMBER_ADDED
+  MEMBER_REMOVED
+  CHANGE_LOG_CREATED
+  GENERAL_UPDATE
 }

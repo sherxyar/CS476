@@ -7,6 +7,7 @@ import {
 } from "react";
 import styles from "../styles/DeliveryTab.module.css";
 import type { Project } from "@/types/Project";
+import { AlertTriangle, Lightbulb, Loader2, Plus } from "lucide-react";
 
 interface RiskRegister {
   id: number;
@@ -315,61 +316,73 @@ export default function DeliveryTab(
   };
 
   return (
-    <div className={styles.container}>
-      {/* sub-tabs */}
-      <div className={styles.subTabHeader}>
-        <button
-          className={`${styles.subTabButton} ${activeTab === "risk" ? styles.activeSubTab : ""}`}
-          onClick={() => setActiveTab("risk")}
-        >
-          Risk Matrix
-        </button>
-        <button
-          className={`${styles.subTabButton} ${activeTab === "lessons" ? styles.activeSubTab : ""}`}
-          onClick={() => setActiveTab("lessons")}
-        >
-          Lessons Learned
-        </button>
-      </div>
+    <div className={styles.tabContentWrapper}>
+      <div className={styles.container}>
+        {/* sub-tabs */}
+        <div className={styles.subTabHeader}>
+          <button
+            className={`${styles.subTabButton} ${activeTab === "risk" ? styles.activeSubTab : ""}`}
+            onClick={() => setActiveTab("risk")}
+          >
+            <AlertTriangle size={16} className={styles.tabIcon} />
+            <span>Risk Matrix</span>
+          </button>
+          <button
+            className={`${styles.subTabButton} ${activeTab === "lessons" ? styles.activeSubTab : ""}`}
+            onClick={() => setActiveTab("lessons")}
+          >
+            <Lightbulb size={16} className={styles.tabIcon} />
+            <span>Lessons Learned</span>
+          </button>
+        </div>
 
-      {/* content */}
-      {activeTab === "risk" ? renderRiskTable() : renderLessonsTable()}
-
-      {activeTab === "risk" && (
-        <button
-          className={styles.addRiskButton}
-          onClick={() => setShowRiskModal(true)}
-          disabled={loadingRisks}
-        >
-          Add Risk
-        </button>
-      )}
-      {activeTab === "lessons" && (
-        <button
-          className={styles.addRiskButton}
-          onClick={() => setShowLessonModal(true)}
-          disabled={loadingLessons}
-        >
-          Add Lesson
-        </button>
-      )}
-
-
-
-      {/* Modal for adding a risk */}
-      <Modal open={showRiskModal} title="Add New Risk" onClose={() => setShowRiskModal(false)}>
-        <div className={styles.riskForm}>
-          <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
-            <label>Name *</label>
-            <input
-              className={styles.formInput}
-              name="riskName"
-              value={newRisk.riskName}
-              onChange={handleRiskField}
-              placeholder="Risk title"
-              required
-            />
+        {/* content */}
+        <div className={styles.tabContent}>
+          {/* Action button at the top of each tab */}
+          <div className={styles.tabActionHeader}>
+            {activeTab === "risk" && (
+              <button
+                className={styles.addButton}
+                onClick={() => setShowRiskModal(true)}
+                disabled={loadingRisks}
+              >
+                <span className={styles.buttonContent}>
+                  <Plus size={16} />
+                  <span>Add Risk</span>
+                </span>
+              </button>
+            )}
+            {activeTab === "lessons" && (
+              <button
+                className={styles.addButton}
+                onClick={() => setShowLessonModal(true)}
+                disabled={loadingLessons}
+              >
+                <span className={styles.buttonContent}>
+                  <Plus size={16} />
+                  <span>Add Lesson</span>
+                </span>
+              </button>
+            )}
           </div>
+
+          {activeTab === "risk" ? renderRiskTable() : renderLessonsTable()}
+        </div>
+
+        {/* Modal for adding a risk */}
+        <Modal open={showRiskModal} title="Add New Risk" onClose={() => setShowRiskModal(false)}>
+          <div className={styles.riskForm}>
+            <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
+              <label>Name *</label>
+              <input
+                className={styles.formInput}
+                name="riskName"
+                value={newRisk.riskName}
+                onChange={handleRiskField}
+                placeholder="Risk title"
+                required
+              />
+            </div>
 
           <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
             <label>Description *</label>
@@ -440,17 +453,22 @@ export default function DeliveryTab(
 
           <div className={styles.formActions} style={{ gridColumn: "1 / -1" }}>
             <button
-              className={styles.saveRiskButton}
+              className={styles.saveButton}
               onClick={saveRisk}
               disabled={savingRisk}
             >
-              {savingRisk ? "Saving…" : "Save Risk"}
+              <span className={styles.buttonContent}>
+                {savingRisk ? <Loader2 size={16} className={styles.spinnerIcon} /> : null}
+                <span>{savingRisk ? "Saving…" : "Save Risk"}</span>
+              </span>
             </button>
             <button
-              className={styles.addRiskButton}
+              className={styles.cancelButton}
               onClick={() => setShowRiskModal(false)}
             >
-              Cancel
+              <span className={styles.buttonContent}>
+                <span>Cancel</span>
+              </span>
             </button>
           </div>
         </div>
@@ -529,21 +547,27 @@ export default function DeliveryTab(
 
           <div className={styles.formActions} style={{ gridColumn: "1 / -1" }}>
             <button
-              className={styles.saveRiskButton}
+              className={styles.saveButton}
               onClick={saveLesson}
               disabled={savingLesson}
             >
-              {savingLesson ? "Saving…" : "Save Lesson"}
+              <span className={styles.buttonContent}>
+                {savingLesson ? <Loader2 size={16} className={styles.spinnerIcon} /> : null}
+                <span>{savingLesson ? "Saving…" : "Save Lesson"}</span>
+              </span>
             </button>
             <button
-              className={styles.addRiskButton}
+              className={styles.cancelButton}
               onClick={() => setShowLessonModal(false)}
             >
-              Cancel
+              <span className={styles.buttonContent}>
+                <span>Cancel</span>
+              </span>
             </button>
           </div>
         </div>
       </Modal>
+      </div>
     </div>
   );
 }

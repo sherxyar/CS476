@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { NotificationObserver } from "@/lib/notification-observer";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -51,6 +54,72 @@ export async function PATCH(req: NextRequest, { params }: Context) {
       return NextResponse.json(updated);
     } catch (err) {
       console.error(`PATCH /api/projects/${id} (phase) error:`, err);
+      return new NextResponse("Internal Server Error", { status: 500 });
+    }
+  }
+
+  if (body.title !== undefined || body.description !== undefined || body.projectManagerId !== undefined) {
+    try {
+      // Get current user session for notifs
+      const session = await getServerSession(authOptions);
+      const triggeredBy = session?.user?.id;
+
+      interface ProjectUpdateData {
+        lastUpdated: Date;
+        title?: string;
+        description?: string;
+        projectManager?: { disconnect: true } | { connect: { id: number } };
+      }
+      
+      const updateData: ProjectUpdateData = { lastUpdated: new Date() };
+      
+      if (body.title !== undefined) updateData.title = body.title;
+      if (body.description !== undefined) updateData.description = body.description;
+      if (body.projectManagerId !== undefined) {
+        if (body.projectManagerId === null) {
+          updateData.projectManager = { disconnect: true };
+        } else {
+          updateData.projectManager = { connect: { id: body.projectManagerId } };
+        }
+      }
+
+      const updated = await prisma.project.update({
+        where: { id },
+        data: updateData,
+        include: {
+          projectManager: true,
+          pmNotesHistory: {
+            orderBy: { createdAt: "desc" },
+            include: {
+              author: { select: { id: true, name: true, email: true } },
+            },
+          },
+          financialHistory: {
+            include: {
+              changedBy: { select: { id: true, name: true, email: true } },
+            },
+            orderBy: { changedAt: "desc" },
+          },
+        },
+      });
+
+      // Send notification to project manager about the update
+      interface ProjectChanges {
+        title?: string;
+        description?: string;
+        projectManagerId?: number | null;
+      }
+      
+      const changes: ProjectChanges = {};
+      if (body.title !== undefined) changes.title = body.title;
+      if (body.description !== undefined) changes.description = body.description;
+      if (body.projectManagerId !== undefined) changes.projectManagerId = body.projectManagerId;
+
+      await NotificationObserver.notifyProjectUpdate(id, changes, triggeredBy);
+
+      return NextResponse.json(updated);
+    } catch (err) {
+      console.error(`PATCH /api/projects/${id} (general) error:`, err);
       return new NextResponse("Internal Server Error", { status: 500 });
     }
   }
@@ -111,6 +180,10 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   const numericField = field as NumericField;
 
   try {
+    // Get current user session for notification purposes
+    const session = await getServerSession(authOptions);
+    const triggeredBy = session?.user?.id;
+
     const current = await prisma.project.findUnique({
       where: { id },
       select: { forecast: true, budget: true, actuals: true },
@@ -150,6 +223,16 @@ export async function PATCH(req: NextRequest, { params }: Context) {
         },
       },
     });
+
+    // Send notification to project manager about the financial change
+    await NotificationObserver.notifyFinancialChange(
+      id, 
+      numericField, 
+      oldValue, 
+      newValue, 
+      triggeredBy
+    );
+
     return NextResponse.json(updated);
   } catch (err) {
     console.error(`PATCH /api/projects/${id} (financial) error:`, err);
@@ -157,7 +240,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   }
 }
 
-// DELETE - by Admins
+// DELETE - by Admins -- Havent implemented yet
 export async function DELETE(_req: NextRequest, { params }: Context) {
   const { id } = await params;
 

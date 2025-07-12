@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { NotificationObserver } from "@/lib/notification-observer";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // GET all milestones for a project
 export async function GET(
@@ -55,6 +58,10 @@ export async function POST(
   const { id: projectId } = await params;
   
   try {
+    // Get user session for notification
+    const session = await getServerSession(authOptions);
+    const triggeredBy = session?.user?.id;
+    
     const { title, description, startDate, endDate, status } = await req.json();
 
     // Validate required fields
@@ -102,6 +109,14 @@ export async function POST(
       }
     });
 
+    // Send notification for milestone creation
+    await NotificationObserver.notifyMilestoneUpdate(
+      project.id,
+      'created',
+      title,
+      triggeredBy
+    );
+
     return NextResponse.json(milestone, { status: 201 });
   } catch (error) {
     console.error("Failed to create milestone:", error);
@@ -120,6 +135,10 @@ export async function PATCH(
   const { id: projectId } = await params;
   
   try {
+    // Get user session for notification
+    const session = await getServerSession(authOptions);
+    const triggeredBy = session?.user?.id;
+    
     const { milestoneId, status } = await req.json();
 
     if (!milestoneId || !status) {
@@ -134,6 +153,14 @@ export async function PATCH(
       where: { id: milestoneId },
       data: { status }
     });
+
+    // Send notification for milestone update
+    await NotificationObserver.notifyMilestoneUpdate(
+      projectId,
+      'updated',
+      updatedMilestone.title,
+      triggeredBy
+    );
 
     return NextResponse.json(updatedMilestone);
   } catch (error) {

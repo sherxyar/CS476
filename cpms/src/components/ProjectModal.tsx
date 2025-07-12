@@ -8,8 +8,17 @@ import ChangeLogTab from "./ChangeLogTab";
 import AdministrationTab from "./AdministrationTab";
 import DeliveryTab from "./DeliveryTab";
 import type { Project } from "@/types/Project";
-import { SquareX } from "lucide-react";
+import { 
+  SquareX, 
+  Folder, 
+  DollarSign, 
+  Calendar, 
+  ClipboardList, 
+  Radar, 
+  Settings 
+} from "lucide-react";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 
 /* Types */
 interface Props {
@@ -68,7 +77,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
     changeHandlersRef.current.forEach((get) => Object.assign(combined, get()));
 
     if (Object.keys(combined).length === 0) {
-      alert("No changes to save.");
+      toast.info("No changes to save.");
       return;
     }
 
@@ -83,13 +92,23 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
       const updated = await res.json();
       setProject(updated);
       onProjectUpdate(updated);
-      alert("Project saved.");
+      toast.success("Project saved successfully!");
 
       changeHandlersRef.current = [];
     } catch (err) {
       console.error(err);
-      alert("Failed to save project.");
+      toast.error("Failed to save project. Please try again.");
     }
+  };
+
+  /* Tab icons mapping */
+  const TAB_ICONS = {
+    "General": <Folder size={16} />,
+    "Financials": <DollarSign size={16} />,
+    "Schedule": <Calendar size={16} />,
+    "Change Log": <ClipboardList size={16} />,
+    "Delivery": <Radar size={16} />,
+    "Administration": <Settings size={16} />
   };
 
   /* render tab */
@@ -145,7 +164,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
             title="Close"
             aria-label="Close"
           >
-            <SquareX aria-hidden="true" className={styles.logoIcon} strokeWidth={2} />
+            <SquareX aria-hidden="true" className={styles.closeIcon} size={18} strokeWidth={1.5} />
           </button>
         </div>
 
@@ -157,7 +176,10 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
               className={`${styles.tabButton} ${activeTab === t ? styles.activeTab : ""}`}
               onClick={() => setActiveTab(t)}
             >
-              {t}
+              <span className={styles.tabButtonContent}>
+                <span className={styles.tabIcon}>{TAB_ICONS[t]}</span>
+                <span className={styles.tabLabel}>{t}</span>
+              </span>
             </button>
           ))}
         </div>
@@ -172,12 +194,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
           <button className={styles.editButton} onClick={handleSaveProject}>
             Save Project
           </button>
-          <button
-            className={styles.editButton}
-            onClick={() => console.log("Edit mode")}
-          >
-            Edit Project
-          </button>
+
         </div>
       </div>
     </div>

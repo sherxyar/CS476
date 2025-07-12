@@ -59,29 +59,37 @@
   right: 18px;
   background: transparent;
   border: none;
-  font-size: 16px;
   cursor: pointer;
-  color: rgba(23, 23, 23, 0.863);
-  width: 38px;
-  height: 38px;
+  color: rgba(23, 23, 23, 0.7);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
+  border-radius: 6px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .closeButton:hover {
   color: #000;
-  background: #f0f0f0;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.closeIcon {
+  transition: transform 0.2s ease;
+}
+
+.closeButton:hover .closeIcon {
+  transform: scale(1.1);
 }
 
 .tabHeader {
   display: flex;
   background: #f8f9fa;
-  border-bottom: 2px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
   padding: 0 24px;
   gap: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .tabButton {
@@ -96,21 +104,24 @@
   position: relative;
   border-radius: 8px 8px 0 0;
   margin-top: 4px;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tabButton:hover {
-  background: #f0f0f0;
+  background: rgba(240, 240, 240, 0.7);
   color: #333;
 }
 
 .activeTab {
   background: white !important;
-  color: #333 !important;
+  color: #0852a0 !important;
   font-weight: 600 !important;
-  border-bottom: 2px solid white;
+  border-bottom: 2px solid #0852a0;
   margin-bottom: -2px;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .tabContent {
@@ -130,14 +141,14 @@
 .topSection {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: 40px;
 }
 
 .leftColumn,
 .rightColumn {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .fieldGroup {
@@ -146,52 +157,55 @@
 
 .fieldGroup label {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: #444;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #374151;
+  margin-bottom: 8px;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .fieldValue {
   background: #f8f9fa;
-  padding: 12px 16px;
-  border-radius: 6px;
+  padding: 16px 20px;
+  border-radius: 8px;
   font-size: 14px;
   color: #333;
   min-height: 20px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
+  line-height: 1.4;
 }
 
 .fieldValue:hover {
-  border-color: #d0d0d0;
+  border-color: #d1d5db;
+  background: #f3f4f6;
 }
 
 .viewAllButton {
   position: absolute;
-  top: 28px;
+  top: 32px;
   right: 12px;
-  background: #666;
+  background: #6b7280;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 10px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 11px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .viewAllButton:hover {
-  background: #555;
+  background: #4b5563;
+  transform: translateY(-1px);
 }
 
 .divider {
   height: 1px;
-  background: linear-gradient(to right, transparent, #e8e8e8, transparent);
-  margin: 8px 0;
+  background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+  margin: 24px 0;
 }
 
 .notesSection {
@@ -202,22 +216,32 @@
 .actualsSection,
 .historySection {
   padding: 0;
+  width: 100%;
+}
+
+.descriptionSection .fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .descriptionBox {
   background: #f8f9fa;
-  padding: 16px;
-  border-radius: 6px;
+  padding: 20px;
+  border-radius: 8px;
   font-size: 14px;
   color: #333;
   line-height: 1.6;
-  min-height: 100px;
-  border: 1px solid #e8e8e8;
+  min-height: 120px;
+  border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .descriptionBox:hover {
-  border-color: #d0d0d0;
+  border-color: #d1d5db;
+  background: #f3f4f6;
 }
 
 .tabContentText {
@@ -373,20 +397,38 @@
 
 .formInput,
 .formSelect {
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 16px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 14px;
   color: #333;
   background: white;
   transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  line-height: 1.4;
 }
 
 .formInput:focus,
 .formSelect:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #fafbff;
+}
+
+.formSelect {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 16px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 48px;
+}
+
+.formInput::placeholder {
+  color: #9ca3af;
 }
 
 .formActions {
@@ -643,6 +685,11 @@
 
   .topSection {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .leftColumn,
+  .rightColumn {
     gap: 20px;
   }
 
@@ -662,6 +709,22 @@
 
   .footer {
     padding: 16px;
+  }
+
+  .formInput,
+  .formSelect,
+  .formTextarea {
+    padding: 14px 16px;
+  }
+
+  .viewAllButton {
+    position: static;
+    margin-top: 12px;
+  }
+
+  .actionRow {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
@@ -691,9 +754,9 @@
 /* PM notes styles */
 
 .actionRow {
-  margin-top: 0.5rem;
+  margin-top: 16px;
   display: flex;
-  gap: 0.5rem;
+  gap: 12px;
 }
 
 .noteActionButton {
@@ -714,60 +777,76 @@
 .addNoteButton {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 13px;
   font-weight: 500;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
+  background: #3b82f6;
+  color: white;
+}
+
+.addNoteButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
 }
 
 .cancelNoteButton {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 13px;
   font-weight: 500;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  background: #6c757d;
+  transition: all 0.2s ease;
+  background: #6b7280;
   color: #fff;
 }
 
-
-
 .cancelNoteButton:hover {
-  background: #5a6268;
+  background: #4b5563;
   transform: translateY(-1px);
 }
 
 .addNoteDialog {
-  margin-top: 0.75rem;
-  background: var(--clr-card);
-  border: 1px solid #000000;
-  border-radius: 8px;
-  padding: 0.75rem;
+  margin-top: 16px;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
 }
 
 .noteTextarea {
   width: 100%;
-  min-height: 80px;
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  min-height: 100px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
   resize: vertical;
-  font: inherit;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.noteTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #fafbff;
 }
 
 .dialogButtons {
-  margin-top: 0.5rem;
+  margin-top: 16px;
   display: flex;
-  gap: 0.5rem;
+  gap: 12px;
   justify-content: flex-end;
 }
 
@@ -835,22 +914,26 @@
 
 /* for description and notes textareas */
 .formTextarea {
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 14px;
   color: #333;
   background: #fff;
   transition: all 0.2s ease;
   resize: vertical;
-  min-height: 72px;
-  line-height: 1.4;
+  min-height: 120px;
+  line-height: 1.6;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
 .formTextarea:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #fafbff;
 }
 
 .changeDetailsTable {
@@ -902,4 +985,33 @@
 
 .tableContainer {
   min-height: 300px; /* Consistent height */
+}
+
+.tabButtonContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tabIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.tabLabel {
+  font-size: 13px;
+}
+
+.activeTab .tabIcon {
+  color: #0852a0;
+  opacity: 1;
+}
+
+.tabButton:hover .tabIcon {
+  opacity: 1;
 }
