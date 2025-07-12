@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { NotificationObserver } from "@/lib/notification-observer";
 
 // Validation schema remains the same
 const ChangeSchema = z.object({
@@ -89,6 +90,13 @@ export async function POST(
         approvedBy: { select: { id: true, name: true, email: true } },
       },
     });
+
+    // Send notification about the new change log
+    await NotificationObserver.notifyChangeLogCreated(
+      id,
+      created.description,
+      requestedById
+    );
 
     return NextResponse.json(created, { status: 201 });
   } catch (err) {

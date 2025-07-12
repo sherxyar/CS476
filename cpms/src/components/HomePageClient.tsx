@@ -8,6 +8,7 @@ import CreateProjectModal from "@/components/CreateProjectModal";
 import type { Project } from "@/types/Project";
 import { Building2, Phone, Search, House, Sun, Moon, Loader2 } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
+import NotificationBell from "@/components/NotificationBell";
 import { useSession } from "next-auth/react";
 
 // User name in greeting
@@ -171,6 +172,7 @@ export default function HomePageClient() {
           >
             {isDarkTheme ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+          <NotificationBell />
           <UserMenu />
         </div>
       </div>

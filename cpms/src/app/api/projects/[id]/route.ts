@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { NotificationObserver } from "@/lib/notification-observer";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -55,9 +58,12 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     }
   }
 
-  // Handle general project updates (title, description, projectManagerId)
   if (body.title !== undefined || body.description !== undefined || body.projectManagerId !== undefined) {
     try {
+      // Get current user session for notification purposes
+      const session = await getServerSession(authOptions);
+      const triggeredBy = session?.user?.id;
+
       const updateData: any = { lastUpdated: new Date() };
       
       if (body.title !== undefined) updateData.title = body.title;
@@ -89,6 +95,15 @@ export async function PATCH(req: NextRequest, { params }: Context) {
           },
         },
       });
+
+      // Send notification to project manager about the update
+      const changes: Record<string, any> = {};
+      if (body.title !== undefined) changes.title = body.title;
+      if (body.description !== undefined) changes.description = body.description;
+      if (body.projectManagerId !== undefined) changes.projectManagerId = body.projectManagerId;
+
+      await NotificationObserver.notifyProjectUpdate(id, changes, triggeredBy);
+
       return NextResponse.json(updated);
     } catch (err) {
       console.error(`PATCH /api/projects/${id} (general) error:`, err);
@@ -152,6 +167,10 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   const numericField = field as NumericField;
 
   try {
+    // Get current user session for notification purposes
+    const session = await getServerSession(authOptions);
+    const triggeredBy = session?.user?.id;
+
     const current = await prisma.project.findUnique({
       where: { id },
       select: { forecast: true, budget: true, actuals: true },
@@ -191,6 +210,16 @@ export async function PATCH(req: NextRequest, { params }: Context) {
         },
       },
     });
+
+    // Send notification to project manager about the financial change
+    await NotificationObserver.notifyFinancialChange(
+      id, 
+      numericField, 
+      oldValue, 
+      newValue, 
+      triggeredBy
+    );
+
     return NextResponse.json(updated);
   } catch (err) {
     console.error(`PATCH /api/projects/${id} (financial) error:`, err);
