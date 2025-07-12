@@ -82,9 +82,9 @@ export async function POST(req: Request) {
   // Check user role from session
   const session = await getServerSession();
   
-  // Prevent contributors from creating projects
-  if (session?.user?.accountRole === "CONTRIBUTOR") {
-    return NextResponse.json({ error: 'Contributors are not allowed to create projects' }, { status: 403 });
+  // Prevent COLLABORATORs from creating projects
+  if (session?.user?.accountRole === "COLLABORATOR") {
+    return NextResponse.json({ error: 'COLLABORATORs are not allowed to create projects' }, { status: 403 });
   }
   
   const body = await req.json()

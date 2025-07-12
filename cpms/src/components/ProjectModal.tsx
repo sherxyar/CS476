@@ -44,7 +44,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
   /* Get user session */
   const { data: session } = useSession();
   const userRole = session?.user?.accountRole || '';
-  const isContributor = userRole === 'CONTRIBUTOR';
+  const isCollaborator = userRole === 'COLLABORATOR';
 
   const [project, setProject] = useState<Project>(initial);
 
@@ -54,16 +54,16 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
   }, []);
 
   /* Get filtered tabs based on user role */
-  const TABS = ALL_TABS.filter(tab => !isContributor || tab !== "Administration");
+  const TABS = ALL_TABS.filter(tab => !isCollaborator || tab !== "Administration");
   
   const [activeTab, setActiveTab] = useState<TabName>("General");
   
-  /* Switch away from Administration tab if user is a contributor */
+  /* Switch away from Administration tab if user is a collaborator */
   useEffect(() => {
-    if (isContributor && activeTab === "Administration") {
+    if (isCollaborator && activeTab === "Administration") {
       setActiveTab("General");
     }
-  }, [isContributor, activeTab]);
+  }, [isCollaborator, activeTab]);
 
   /* esc to close */
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function ProjectModal({ project: initial, onClose, onProjectUpdat
           />
         );
       case "Administration":
-        return !isContributor ? <AdministrationTab project={project} /> : null;
+        return !isCollaborator ? <AdministrationTab project={project} /> : null;
 
       default:
         return null;
