@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { NotificationObserver } from "@/lib/notification-observer";
 
 export async function GET(
   _req: Request,
@@ -37,15 +38,14 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: projectId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const projectId = params.id;
     const { budget, actualCost } = await request.json();
 
     await prisma.project.update({
@@ -57,39 +57,32 @@ export async function PUT(
       },
     });
 
-    // Create notifications for financial changes
-    const projectMembers = await prisma.projectMember.findMany({
-      where: { projectId },
-    });
-
     // Get project info for notification content
     const project = await prisma.project.findUnique({
       where: { id: projectId },
+      select: {
+        budget: true,
+        actuals: true
+      }
     });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const message = budget
-      ? `The budget for this project has been updated to $${budget.toLocaleString()}`
-      : `The actual cost for this project has been updated to $${actualCost.toLocaleString()}`;
+    // Determine what field was updated for the notification
+    const fieldUpdated = budget ? 'budget' : 'actual cost';
+    const newValue = budget || actualCost;
+    const oldValue = budget ? project.budget : project.actuals;
 
-    // Notify all team members except the user who made the change
-    for (const member of projectMembers) {
-      if (member.userId !== session.user.id) {
-        await prisma.notification.create({
-          data: {
-            type: "FINANCIAL_CHANGE",
-            title: "Financial Update",
-            message,
-            userId: member.userId,
-            projectId,
-            triggeredBy: session.user.id,
-          },
-        });
-      }
-    }
+    // Use NotificationObserver for financial changes
+    await NotificationObserver.notifyFinancialChange(
+      projectId,
+      fieldUpdated,
+      oldValue || 0,
+      newValue,
+      session.user.id
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

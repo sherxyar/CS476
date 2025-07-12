@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { NotificationObserver } from '@/lib/notification-observer';
 
 // THIS FILE IS NOT PROPERLY DEVELOPED YET
 
@@ -87,37 +88,23 @@ export async function POST(
         return NextResponse.json({ error: 'Project or user not found' }, { status: 404 });
       }
 
-      // Create notifications for all existing team members
-      const existingMembers = await prisma.projectMember.findMany({
-        where: { projectId }
-      });
+      // Notify team members about the new member using NotificationObserver
+      await NotificationObserver.notifyMemberChange(
+        projectId,
+        'added',
+        addedUser.name,
+        session.user.id
+      );
 
-      for (const member of existingMembers) {
-        if (member.userId !== session.user.id) {
-          await prisma.notification.create({
-            data: {
-              type: 'MEMBER_ADDED',
-              title: 'Team Member Added',
-              message: `${addedUser.name} has been added to the project team`,
-              userId: member.userId,
-              projectId,
-              triggeredBy: session.user.id
-            }
-          });
-        }
-      }
-
-      // Also notify the added user
-      await prisma.notification.create({
-        data: {
-          type: 'MEMBER_ADDED',
-          title: 'Project Assignment',
-          message: `You have been added to project: ${project.title}`,
-          userId,
-          projectId,
-          triggeredBy: session.user.id
-        }
-      });
+      // Direct notification to the added user
+      await NotificationObserver.notifyUserDirectly(
+        userId,
+        projectId,
+        'Project Assignment',
+        `You have been added to project: ${project.title}`,
+        'MEMBER_ADDED',
+        session.user.id
+      );
 
       return NextResponse.json(
         {
@@ -187,39 +174,31 @@ export async function DELETE(
       return NextResponse.json({ error: 'User or project not found' }, { status: 404 });
     }
 
-
-
-    // Notify remaining team members
-    const remainingMembers = await prisma.projectMember.findMany({
-      where: { projectId }
-    });
-
-    for (const member of remainingMembers) {
-      if (member.userId !== session.user.id) {
-        await prisma.notification.create({
-          data: {
-            type: 'MEMBER_REMOVED',
-            title: 'Team Member Removed',
-            message: `${user.name} has been removed from the project team`,
-            userId: member.userId,
-            projectId,
-            triggeredBy: session.user.id
-          }
-        });
-      }
-    }
-
-    // Notify the removed user
-    await prisma.notification.create({
-      data: {
-        type: 'MEMBER_REMOVED',
-        title: 'Project Removal',
-        message: `You have been removed from project: ${project.title}`,
-        userId: parseInt(userId),
+    // Remove the member
+    await prisma.projectMember.deleteMany({
+      where: {
         projectId,
-        triggeredBy: session.user.id
+        userId: parseInt(userId)
       }
     });
+
+    // Notify team members about the removed member using NotificationObserver
+    await NotificationObserver.notifyMemberChange(
+      projectId,
+      'removed',
+      user.name,
+      session.user.id
+    );
+
+    // Direct notification to the removed user
+    await NotificationObserver.notifyUserDirectly(
+      parseInt(userId),
+      projectId,
+      'Project Removal',
+      `You have been removed from project: ${project.title}`,
+      'MEMBER_REMOVED',
+      session.user.id
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

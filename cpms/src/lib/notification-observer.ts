@@ -237,4 +237,34 @@ export class NotificationObserver {
       WHERE "userId" = ${userId} AND "isRead" = false
     `;
   }
+
+  /**
+   * Send a notification directly to a specific user
+   */
+  static async notifyUserDirectly(
+    userId: number,
+    projectId: string,
+    title: string,
+    message: string,
+    type: NotificationType,
+    triggeredBy?: number
+  ): Promise<void> {
+    try {
+      await prisma.notification.create({
+        data: {
+          userId,
+          projectId,
+          title,
+          message,
+          type,
+          triggeredBy,
+          isRead: false
+        }
+      });
+      
+      console.log(`Direct notification sent to user ${userId}`);
+    } catch (error) {
+      console.error('Failed to send direct notification:', error);
+    }
+  }
 }
