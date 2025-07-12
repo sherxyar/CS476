@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { NotificationObserver } from "@/lib/notification-observer";
 
 // GET - Fetch complete schedule with milestones
 export async function GET(
@@ -66,15 +67,16 @@ export async function GET(
 // PUT - Update schedule milestones
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const projectId = params.id;
+    const projectId = id;
     const { milestones } = await request.json();
 
     // Update schedule milestones
@@ -83,26 +85,14 @@ export async function PUT(
       data: { milestones }
     });
 
-    // Create notification for all project members
-    const projectMembers = await prisma.projectMember.findMany({
-      where: { projectId }
+    // Send notification using NotificationObserver
+    await NotificationObserver.notifyProjectManager({
+      projectId,
+      title: "Schedule Updated",
+      message: "Project schedule has been updated with new milestones",
+      type: "MILESTONE_UPDATE",
+      triggeredBy: session.user.id
     });
-
-    // Create notifications for all team members except the user who made the change
-    for (const member of projectMembers) {
-      if (member.userId !== session.user.id) {
-        await prisma.notification.create({
-          data: {
-            type: "MILESTONE_UPDATE",
-            title: "Schedule Updated",
-            message: "Project schedule has been updated with new milestones",
-            userId: member.userId,
-            projectId,
-            triggeredBy: session.user.id
-          }
-        });
-      }
-    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
