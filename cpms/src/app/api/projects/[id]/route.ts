@@ -60,11 +60,18 @@ export async function PATCH(req: NextRequest, { params }: Context) {
 
   if (body.title !== undefined || body.description !== undefined || body.projectManagerId !== undefined) {
     try {
-      // Get current user session for notification purposes
+      // Get current user session for notifs
       const session = await getServerSession(authOptions);
       const triggeredBy = session?.user?.id;
 
-      const updateData: any = { lastUpdated: new Date() };
+      interface ProjectUpdateData {
+        lastUpdated: Date;
+        title?: string;
+        description?: string;
+        projectManager?: { disconnect: true } | { connect: { id: number } };
+      }
+      
+      const updateData: ProjectUpdateData = { lastUpdated: new Date() };
       
       if (body.title !== undefined) updateData.title = body.title;
       if (body.description !== undefined) updateData.description = body.description;
@@ -97,7 +104,13 @@ export async function PATCH(req: NextRequest, { params }: Context) {
       });
 
       // Send notification to project manager about the update
-      const changes: Record<string, any> = {};
+      interface ProjectChanges {
+        title?: string;
+        description?: string;
+        projectManagerId?: number | null;
+      }
+      
+      const changes: ProjectChanges = {};
       if (body.title !== undefined) changes.title = body.title;
       if (body.description !== undefined) changes.description = body.description;
       if (body.projectManagerId !== undefined) changes.projectManagerId = body.projectManagerId;
@@ -227,7 +240,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   }
 }
 
-// DELETE - by Admins
+// DELETE - by Admins -- Havent implemented yet
 export async function DELETE(_req: NextRequest, { params }: Context) {
   const { id } = await params;
 
