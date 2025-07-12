@@ -1,5 +1,5 @@
-/**
- * Notification Observer Service
+/** CS476 - OBSERVER PATTERN
+ * Notification 
  * Implements the Observer pattern for project notifications
  */
 
@@ -74,7 +74,7 @@ export class NotificationObserver {
             projectId: data.projectId,
             title: data.title,
             message: data.message,
-            type: data.type as any, // Type casting to handle enum
+            type: data.type, // Using the NotificationType enum
             triggeredBy: data.triggeredBy,
             isRead: false
           }
@@ -92,7 +92,12 @@ export class NotificationObserver {
    */
   static async notifyProjectUpdate(
     projectId: string, 
-    changes: Record<string, any>, 
+    changes: {
+      title?: string;
+      description?: string;
+      phase?: string;
+      projectManagerId?: number | null;
+    }, 
     triggeredBy?: number
   ): Promise<void> {
     const changeDescriptions: string[] = [];
@@ -199,12 +204,12 @@ export class NotificationObserver {
    * Get unread notification count for a user
    */
   static async getUnreadCount(userId: number): Promise<number> {
-    const result = await prisma.$queryRaw`
+    const result = await prisma.$queryRaw<Array<{count: bigint}>>`
       SELECT COUNT(*) as count 
       FROM "Notification" 
       WHERE "userId" = ${userId} 
       AND "isRead" = false
-    ` as any[];
+    `;
 
     return Number(result[0]?.count || 0);
   }
