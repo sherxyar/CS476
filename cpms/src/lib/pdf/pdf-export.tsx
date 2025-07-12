@@ -1,6 +1,7 @@
 import { Document, Page, Text, View, StyleSheet, Image, Font, Link } from '@react-pdf/renderer';
 import type { Project, PMNote } from '@/types/Project';
 import { ProjectExportOptions, DEFAULT_EXPORT_OPTIONS } from './export-options';
+import type { Style } from '@react-pdf/types';
 
 // get custom fonts - this is needed for the PDF renderer to use custom fonts
 Font.register({
@@ -216,7 +217,7 @@ function formatDate(dateString: string | undefined | null): string {
 }
 
 
-function getStatusTagStyle(status: string): any {
+function getStatusTagStyle(status: string): typeof styles.tag | [typeof styles.tag, typeof styles.criticalTag | typeof styles.warningTag | typeof styles.successTag] {
   switch (status?.toLowerCase()) {
     case 'critical':
       return [styles.tag, styles.criticalTag];
