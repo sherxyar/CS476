@@ -168,6 +168,7 @@ export default function GeneralTab({
                 className={styles.formInput}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter project title..."
               />
             ) : (
               <div className={styles.fieldValue}>{project.title}</div>
@@ -182,7 +183,7 @@ export default function GeneralTab({
                 value={projectManagerId || ""}
                 onChange={(e) => setProjectManagerId(e.target.value ? Number(e.target.value) : null)}
               >
-                <option value="">Unassigned</option>
+                <option value="">Select project manager...</option>
                 {projectManagers.map((manager) => (
                   <option key={manager.id} value={manager.id}>
                     {manager.name} ({manager.email})
@@ -314,9 +315,12 @@ export default function GeneralTab({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
+              placeholder="Enter project description..."
             />
           ) : (
-            <div className={styles.descriptionBox}>{project.description}</div>
+            <div className={styles.descriptionBox}>
+              {project.description || "No description provided."}
+            </div>
           )}
         </div>
       </div>
