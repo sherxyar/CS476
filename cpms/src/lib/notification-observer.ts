@@ -74,7 +74,7 @@ export class NotificationObserver {
             projectId: data.projectId,
             title: data.title,
             message: data.message,
-            type: data.type, // Using the NotificationType enum
+            type: data.type, 
             triggeredBy: data.triggeredBy,
             isRead: false
           }
@@ -201,7 +201,7 @@ export class NotificationObserver {
   }
 
   /**
-   * Get unread notification count for a user
+   * Get unread notification count for a user - this is used in the NotificationsPage component
    */
   static async getUnreadCount(userId: number): Promise<number> {
     const result = await prisma.$queryRaw<Array<{count: bigint}>>`
