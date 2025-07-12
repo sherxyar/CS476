@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Head from "next/head";
 import styles from "@/styles/HomePage.module.css";
 import ProjectModal from "@/components/ProjectModal";
@@ -26,6 +26,7 @@ export default function HomePageClient() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: session } = useSession();
 
   // Check if user is a contributor
@@ -124,6 +125,24 @@ export default function HomePageClient() {
     console.log("DB URL at runtime:", process.env.POSTGRES_URL);
   }, []);
 
+  // Filter projects based on search term for both title and project manager
+  const filteredProjects = useMemo(() => {
+    if (!searchTerm.trim()) return projects;
+    
+    return projects.filter(project => {
+      const searchLower = searchTerm.toLowerCase();
+      
+      // Search in project title
+      const titleMatch = project.title.toLowerCase().includes(searchLower);
+      
+      // Search in project manager name and email
+      const managerNameMatch = project.projectManager?.name?.toLowerCase().includes(searchLower) || false;
+      const managerEmailMatch = project.projectManager?.email?.toLowerCase().includes(searchLower) || false;
+      
+      return titleMatch || managerNameMatch || managerEmailMatch;
+    });
+  }, [projects, searchTerm]);
+
   return (
     <>
       <Head>
@@ -161,7 +180,13 @@ export default function HomePageClient() {
         <div className={styles.outer}>
           <div className={styles.inner}>
             <Search className={styles.icon} size={16} />
-            <input type="text" placeholder="Search…" className={styles.searchBox} />
+            <input 
+              type="text" 
+              placeholder="Search by project title, PM name or email..." 
+              className={styles.searchBox}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
         <div className={styles.topbarActions}>
@@ -183,6 +208,7 @@ export default function HomePageClient() {
 
           <div className={styles.card}>
             <h3>Project Overview</h3>
+            
             <table>
               <thead>
                 <tr>
@@ -208,8 +234,14 @@ export default function HomePageClient() {
                       No projects available
                     </td>
                   </tr>
+                ) : filteredProjects.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} style={{ textAlign: 'center', padding: '24px 0' }} className={styles.noProjects}>
+                      No projects match your search
+                    </td>
+                  </tr>
                 ) : (
-                  projects.map((p) => (
+                  filteredProjects.map((p) => (
                     <tr
                       key={p.projectID}
                       className={styles.clickableRow}

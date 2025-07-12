@@ -543,3 +543,70 @@
 .darkTheme .spinner {
   color: #9ca3af;
 }
+
+
+.inner {
+  position: relative;
+  flex: 0 1 500px;  
+  min-width: 200px;
+  max-width: 500px;
+}
+
+.inner {
+  position: relative;
+  flex: 0 1 500px;  
+  min-width: 200px;
+  max-width: 500px;
+}
+
+.searchBox {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  border: 1px solid #2d2d30;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background-color: #2d2d30;
+  color: white;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.searchBox:focus {
+  background-color: #3a3a3e;
+  border-color: #0f4c75;
+  box-shadow: 0 0 0 3px rgba(15, 76, 117, 0.2);
+}
+
+.searchBox:focus + .icon {
+  color: #4a9eff;
+}
+
+.icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #c0c6dc;
+  transition: color 0.2s ease;
+}
+
+
+.darkTheme .searchBox {
+  background-color: #2d2d30;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.darkTheme .searchBox:focus {
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+}
+
+.darkTheme .icon {
+  color: #9ca3af;
+}
+
+.darkTheme .searchBox:focus + .icon {
+  color: #4a9eff;
+}
