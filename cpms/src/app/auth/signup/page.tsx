@@ -92,7 +92,7 @@ export default function SignupPage() {
                             disabled={loading}
                         >
                             <option value="PROJECT_MANAGER">Project Manager</option>
-                            <option value="CONTRIBUTOR">Contributor</option>
+                            <option value="COLLABORATOR">Collaborator</option>
                         </select>
                         <button type="submit" className={styles.button} disabled={loading}>
                             {loading ? (

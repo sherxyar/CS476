@@ -2,19 +2,19 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const userEmail = process.argv[2];
-const newRole = process.argv[3]?.toUpperCase(); // ADMIN, PROJECT_MANAGER, or CONTRIBUTOR
+const newRole = process.argv[3]?.toUpperCase(); // ADMIN, PROJECT_MANAGER, or COLLABORATOR
 
 if (!userEmail || !newRole) {
   console.error('Please provide both user email and role as arguments.');
   console.error('Example: node set-user-role.js user@example.com ADMIN');
-  console.error('Available roles: ADMIN, PROJECT_MANAGER, CONTRIBUTOR');
+  console.error('Available roles: ADMIN, PROJECT_MANAGER, COLLABORATOR');
   process.exit(1);
 }
 
-const validRoles = ['ADMIN', 'PROJECT_MANAGER', 'CONTRIBUTOR'];
+const validRoles = ['ADMIN', 'PROJECT_MANAGER', 'COLLABORATOR'];
 if (!validRoles.includes(newRole)) {
   console.error(`Invalid role: ${newRole}`);
-  console.error('Available roles: ADMIN, PROJECT_MANAGER, CONTRIBUTOR');
+  console.error('Available roles: ADMIN, PROJECT_MANAGER, COLLABORATOR');
   process.exit(1);
 }
 

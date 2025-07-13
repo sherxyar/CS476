@@ -4,7 +4,7 @@ import { hashPassword } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
 // API accepts only these roles
-const ALLOWED_ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
+const ALLOWED_ROLES = ["ADMIN", "PROJECT_MANAGER", "COLLABORATOR"] as const;
 type AccountRole = (typeof ALLOWED_ROLES)[number];
 
 interface SignupPayload {

@@ -7,7 +7,7 @@ import { NotificationObserver } from '@/lib/notification-observer';
 // THIS FILE IS NOT PROPERLY DEVELOPED YET
 
 
-const ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
+const ROLES = ["ADMIN", "PROJECT_MANAGER", "COLLABORATOR"] as const;
 type DbRole = (typeof ROLES)[number];
 
 interface AddMemberPayload {

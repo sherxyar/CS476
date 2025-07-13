@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../styles/ProjectModal.module.css";
 import type { Project } from "@/types/Project";
 
-export type DbRole = "ADMIN" | "PROJECT_MANAGER" | "CONTRIBUTOR";
+export type DbRole = "ADMIN" | "PROJECT_MANAGER" | "COLLABORATOR";
 
 interface TeamMember {
   id: number;
@@ -27,7 +27,7 @@ interface Props {
 const roleLabel: Record<DbRole, string> = {
   ADMIN: "Admin",
   PROJECT_MANAGER: "Project Manager",
-  CONTRIBUTOR: "Contributor",
+  COLLABORATOR: "Collaborator",
 };
 
 export default function AdministrationTab({ project }: Props) {
@@ -39,7 +39,7 @@ export default function AdministrationTab({ project }: Props) {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number | "">("");
-  const [newMemberRole, setNewMemberRole] = useState<DbRole>("CONTRIBUTOR");
+  const [newMemberRole, setNewMemberRole] = useState<DbRole>("COLLABORATOR");
 
   // API calls
   const fetchMembers = async () => {
@@ -81,7 +81,7 @@ export default function AdministrationTab({ project }: Props) {
         return styles.statusNotPaid;
       case "PROJECT_MANAGER":
         return styles.statusInProgress;
-      case "CONTRIBUTOR":
+      case "COLLABORATOR":
         return styles.statusClosed;
       default:
         return "";
@@ -99,7 +99,7 @@ export default function AdministrationTab({ project }: Props) {
       if (!res.ok) throw new Error(await res.text());
       setShowAddMember(false);
       setSelectedUserId("");
-      setNewMemberRole("CONTRIBUTOR");
+      setNewMemberRole("COLLABORATOR");
       fetchMembers();
     } catch (err) {
       console.error("Failed to add member", err);
@@ -201,7 +201,7 @@ export default function AdministrationTab({ project }: Props) {
                     value={newMemberRole}
                     onChange={(e) => setNewMemberRole(e.target.value as DbRole)}
                   >
-                    <option value="CONTRIBUTOR">Contributor</option>
+                    <option value="COLLABORATOR">Collaborator</option>
                     <option value="PROJECT_MANAGER">Project Manager</option>
                     <option value="ADMIN">Admin</option>
                   </select>
