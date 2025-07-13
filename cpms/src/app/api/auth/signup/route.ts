@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 // API accepts only these roles
 const ALLOWED_ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // check for identical email
     if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err instanceof PrismaClientKnownRequestError &&
       err.code === "P2002" &&
       (err.meta as UniqueConstraintMeta | undefined)?.target?.includes("email")
     ) {
