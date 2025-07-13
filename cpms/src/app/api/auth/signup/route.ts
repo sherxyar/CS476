@@ -69,9 +69,10 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // check for identical email
     if (
-      err instanceof PrismaClientKnownRequestError &&
-      err.code === "P2002" &&
-      (err.meta as UniqueConstraintMeta | undefined)?.target?.includes("email")
+      typeof err === "object" &&
+      err != null &&
+      "code" in err &&
+      (err as any).code === "P2002"
     ) {
       return NextResponse.json(
         { error: "A user with that e-mail already exists." },
