@@ -65,7 +65,7 @@ export async function POST(
     }
 
     // Only admins and project managers can add members
-    if (session.role === 'COLLABORATOR') {
+    if (session.user.accountRole === 'COLLABORATOR') {
       return NextResponse.json({ error: 'Only admins and project managers can add members' }, { status: 403 });
     }
 
@@ -99,7 +99,7 @@ export async function POST(
         projectId,
         'added',
         addedUser.name,
-        session.id
+        session.user.id
       );
 
       // Direct notification to the added user
@@ -109,7 +109,7 @@ export async function POST(
         'Project Assignment',
         `You have been added to project: ${project.title}`,
         'MEMBER_ADDED',
-        session.id
+        session.user.id
       );
 
       return NextResponse.json(
@@ -167,7 +167,7 @@ export async function DELETE(
     }
 
     // Only admins and project managers can remove members
-    if (session.role === 'COLLABORATOR') {
+    if (session.user.accountRole === 'COLLABORATOR') {
       return NextResponse.json({ error: 'Only admins and project managers can remove members' }, { status: 403 });
     }
 
@@ -201,7 +201,7 @@ export async function DELETE(
       projectId,
       'removed',
       user.name,
-      session.id
+      session.user.id
     );
 
     // Direct notification to the removed user
@@ -211,7 +211,7 @@ export async function DELETE(
       'Project Removal',
       `You have been removed from project: ${project.title}`,
       'MEMBER_REMOVED',
-      session.id
+      session.user.id
     );
 
     return NextResponse.json({ success: true });

@@ -1,16 +1,17 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import type { Prisma } from '@prisma/client'; 
-import { getServerSession } from "@/lib/auth-session";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 // list projects - GET request
 
 
 export async function GET() {
   try {
     // Get the current user session
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
-    if (!session) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -80,14 +81,14 @@ export async function GET() {
     let projects;
 
     // Filter projects based on user role
-    if (session.role === 'COLLABORATOR') {
+    if (session.user.accountRole === 'COLLABORATOR') {
       // Collaborators can only see projects they are members of
       projects = await prisma.project.findMany({
         ...baseQuery,
         where: {
           members: {
             some: {
-              userId: session.id
+              userId: session.user.id
             }
           }
         }
@@ -107,15 +108,14 @@ export async function GET() {
 
 // create a new project - POST reuquest
 export async function POST(req: Request) {
-  // Check user role from session
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   
-  if (!session) {
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
   // Prevent Collaborators from creating projects
-  if (session.role === "COLLABORATOR") {
+  if (session.user.accountRole === "COLLABORATOR") {
     return NextResponse.json({ error: 'Collaborators are not allowed to create projects' }, { status: 403 });
   }
   

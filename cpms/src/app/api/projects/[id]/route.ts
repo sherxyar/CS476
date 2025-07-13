@@ -73,7 +73,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
         return NextResponse.json({ error: "Access denied" }, { status: 403 });
       }
 
-      const triggeredBy = session?.id;
+      const triggeredBy = session?.user?.id;
 
       interface ProjectUpdateData {
         lastUpdated: Date;
@@ -198,7 +198,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const triggeredBy = session?.id;
+    const triggeredBy = session?.user?.id;
 
     const current = await prisma.project.findUnique({
       where: { id },

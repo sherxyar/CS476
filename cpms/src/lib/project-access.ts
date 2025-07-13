@@ -1,27 +1,29 @@
 import { prisma } from "./prisma";
-import { getServerSession } from "./auth-session";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "./auth";
+import type { Session } from "next-auth";
 
 export async function checkProjectAccess(projectId: string): Promise<{
   hasAccess: boolean;
-  session: { id: number; email: string; role: string } | null;
+  session: Session | null;
 }> {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   
-  if (!session) {
+  if (!session?.user) {
     return { hasAccess: false, session: null };
   }
 
   // Admins and Project Managers have access to all projects
-  if (session.role === 'ADMIN' || session.role === 'PROJECT_MANAGER') {
+  if (session.user.accountRole === 'ADMIN' || session.user.accountRole === 'PROJECT_MANAGER') {
     return { hasAccess: true, session };
   }
 
   // For Collaborators, check if they are a member of the project
-  if (session.role === 'COLLABORATOR') {
+  if (session.user.accountRole === 'COLLABORATOR') {
     const membership = await prisma.projectMember.findFirst({
       where: {
         projectId,
-        userId: session.id
+        userId: session.user.id
       }
     });
 
@@ -34,7 +36,7 @@ export async function checkProjectAccess(projectId: string): Promise<{
     select: { projectManagerId: true }
   });
 
-  if (project?.projectManagerId === session.id) {
+  if (project?.projectManagerId === session.user.id) {
     return { hasAccess: true, session };
   }
 
