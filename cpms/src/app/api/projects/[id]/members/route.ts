@@ -28,9 +28,9 @@ function isAddMemberPayload(data: unknown): data is AddMemberPayload {
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> } 
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id: projectId } = await params;          
+  const { id: projectId } = await params;
 
   const memberships = await prisma.projectMember.findMany({
     where: { projectId },
@@ -60,6 +60,9 @@ export async function POST(
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (session.user.accountRole === "CONTRIBUTOR") {
+      return NextResponse.json({ error: "Contributors cannot assign members to projects" }, { status: 403 });
     }
     const { userId, role } = await request.json();
 
@@ -137,7 +140,7 @@ export async function POST(
   } catch (error) {
     console.error('Error adding team member:', error);
     return NextResponse.json(
-      { error: 'Failed to add team member' }, 
+      { error: 'Failed to add team member' },
       { status: 500 }
     );
   }
@@ -201,7 +204,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error removing team member:', error);
     return NextResponse.json(
-      { error: 'Failed to remove team member' }, 
+      { error: 'Failed to remove team member' },
       { status: 500 }
     );
   }
