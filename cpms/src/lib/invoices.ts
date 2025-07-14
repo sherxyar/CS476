@@ -1,4 +1,3 @@
-// src/lib/invoices.ts
 import useSWR from "swr";
 import type { Invoice } from "@prisma/client";
 

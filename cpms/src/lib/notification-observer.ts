@@ -248,6 +248,8 @@ export class NotificationObserver {
       });
       
       console.log(`Direct notification sent to user ${userId}`);
+                  console.log("TEST works");
+
     } catch (error) {
       console.error('Failed to send direct notification:', error);
     }

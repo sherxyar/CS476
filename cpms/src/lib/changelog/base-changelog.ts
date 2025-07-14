@@ -1,106 +1,89 @@
-/**
- * Base pattern interface for all change log entries
- */
+// Changelog for Pattern Implementation
 export interface ChangeLog {
   projectId: string;
   changeType: string;
   category: string;
   description: string;
   impactArea: string;
-  oldValue?: string;
-  newValue?: string;
   justification: string;
   requestedById: number;
+  oldValue?: string;
+  newValue?: string;
   approvedById?: number | null;
   status: string;
   priority: string;
   estimatedImpact?: string;
   date?: Date;
-  
-  validate(): boolean;
-  getImpactLevel(): string;
-  createNotification(): Promise<void>;
 }
 
-/**
- * Abstract base class that implements the ChangeLog interface
- */
-export abstract class BaseChangeLog implements ChangeLog {
+console.log("TEST works");
+
+export abstract class BaseChangeLog {
   projectId: string;
   changeType: string;
   category: string;
   description: string;
   impactArea: string;
-  oldValue?: string;
-  newValue?: string;
   justification: string;
   requestedById: number;
+
+  // Optional fields - from frontend
+  oldValue?: string;
+  newValue?: string;
   approvedById?: number | null;
   status: string;
   priority: string;
   estimatedImpact?: string;
   date?: Date;
 
-  constructor(data: {
-    projectId: string;
-    changeType: string;
-    category: string;
-    description: string;
-    impactArea: string;
-    oldValue?: string;
-    newValue?: string;
-    justification: string;
-    requestedById: number;
-    approvedById?: number | null;
-    status: string;
-    priority: string;
-    estimatedImpact?: string;
-    date?: Date;
-  }) {
+  constructor(data: ChangeLog) {
+    // Required fields
     this.projectId = data.projectId;
     this.changeType = data.changeType;
     this.category = data.category;
     this.description = data.description;
     this.impactArea = data.impactArea;
-    this.oldValue = data.oldValue;
-    this.newValue = data.newValue;
     this.justification = data.justification;
     this.requestedById = data.requestedById;
+    
+    // Optional fields - from frontend
+    this.oldValue = data.oldValue;
+    this.newValue = data.newValue;
     this.approvedById = data.approvedById;
-    this.status = data.status;
-    this.priority = data.priority;
+    this.status = data.status || 'Pending';
+    this.priority = data.priority || 'Medium';
     this.estimatedImpact = data.estimatedImpact;
-    this.date = data.date;
+    this.date = data.date || new Date();
   }
 
-  // Default validation that applies to all change logs
-  validate(): boolean {
-    return (
-      !!this.projectId &&
-      !!this.changeType &&
-      !!this.category &&
-      !!this.description &&
-      !!this.impactArea &&
-      !!this.justification &&
-      !!this.requestedById
-    );
+  // Validation requirements
+  isValid(): boolean {
+    if (!this.projectId || !this.changeType || !this.description) {
+      return false;
+    }
+    if (!this.impactArea || !this.justification || !this.requestedById) {
+      return false;
+    }
+    return true;
   }
 
   // Default implementation 
   getImpactLevel(): string {
-    switch (this.priority) {
-      case 'Critical':
-        return 'High';
-      case 'High':
-        return 'Medium-High';
-      case 'Medium':
-        return 'Medium';
-      case 'Low':
-        return 'Low';
-      default:
-        return 'Unknown';
+    if (this.priority === 'Critical') {
+      return 'High Impact';
     }
+    if (this.priority === 'High') {
+      return 'Medium-High Impact';
+    }
+    if (this.priority === 'Low') {
+      return 'Low Impact';
+    }
+    return 'Medium Impact';
   }
 
   abstract createNotification(): Promise<void>;
+  
+  validate(): boolean {
+    return this.isValid();
+  }
 }
