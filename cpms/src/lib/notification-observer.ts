@@ -1,8 +1,3 @@
-/** CS476 - OBSERVER PATTERN
- * Notification 
- * Implements the Observer pattern for project notifications
- */
-
 import { prisma } from './prisma';
 
 // Define the notification types
@@ -26,6 +21,7 @@ export interface NotificationData {
 
 export class NotificationObserver {
 
+  // Main function - sends notification to everyone on the project team
   static async notifyProjectManager(data: NotificationData): Promise<void> {
     try {
       // Get the project and its team members
@@ -50,7 +46,7 @@ export class NotificationObserver {
       // Get all team members
       const memberIds = project.members?.map(member => member.userId) || [];
       
-      // Add project manager to the list if they exist
+      // Make sure the project manager gets notified too
       if (project.projectManagerId && !memberIds.includes(project.projectManagerId)) {
         memberIds.push(project.projectManagerId);
       }
@@ -60,9 +56,7 @@ export class NotificationObserver {
         return;
       }
 
-      // Create notifications for all team members except the triggerer
       for (const userId of memberIds) {
-        // Don't notify the user who triggered the change
         if (data.triggeredBy === userId) {
           continue;
         }
@@ -87,9 +81,7 @@ export class NotificationObserver {
     }
   }
 
-  /**
-   * Notify when project general information is updated
-   */
+  // General changes notifications
   static async notifyProjectUpdate(
     projectId: string, 
     changes: {
@@ -147,9 +139,7 @@ export class NotificationObserver {
     });
   }
 
-  /**
-   * Notify when a milestone is added/updated
-   */
+  // Project milestones get added, updated, or deleted
   static async notifyMilestoneUpdate(
     projectId: string,
     action: 'created' | 'updated' | 'deleted',
@@ -165,9 +155,7 @@ export class NotificationObserver {
     });
   }
 
-  /**
-   * Notify when a team member is added or removed
-   */
+  // Someone joins or leaves the project team
   static async notifyMemberChange(
     projectId: string,
     action: 'added' | 'removed',
@@ -183,9 +171,7 @@ export class NotificationObserver {
     });
   }
 
-  /**
-   * Notify when a change log entry is created
-   */
+  // New change request submitted
   static async notifyChangeLogCreated(
     projectId: string,
     changeDescription: string,
@@ -200,47 +186,46 @@ export class NotificationObserver {
     });
   }
 
-  /**
-   * Get unread notification count for a user - this is used in the NotificationsPage component
-   */
+  // Check how many unread notifications a user has
   static async getUnreadCount(userId: number): Promise<number> {
-    const result = await prisma.$queryRaw<Array<{count: bigint}>>`
-      SELECT COUNT(*) as count 
-      FROM "Notification" 
-      WHERE "userId" = ${userId} 
-      AND "isRead" = false
-    `;
+    const count = await prisma.notification.count({
+      where: {
+        userId: userId,
+        isRead: false
+      }
+    });
 
-    return Number(result[0]?.count || 0);
+    return count;
   }
 
-  /**
-   * Mark notifications as read
-   */
+  // Mark specific notifications as read when user clicks on them
   static async markAsRead(notificationIds: string[]): Promise<void> {
-    for (const id of notificationIds) {
-      await prisma.$executeRaw`
-        UPDATE "Notification" 
-        SET "isRead" = true 
-        WHERE "id" = ${id}
-      `;
-    }
+    await prisma.notification.updateMany({
+      where: {
+        id: {
+          in: notificationIds
+        }
+      },
+      data: {
+        isRead: true
+      }
+    });
   }
 
-  /**
-   * Mark all notifications as read for a user
-   */
+  // Bulk action - mark everything as read for this user
   static async markAllAsRead(userId: number): Promise<void> {
-    await prisma.$executeRaw`
-      UPDATE "Notification" 
-      SET "isRead" = true 
-      WHERE "userId" = ${userId} AND "isRead" = false
-    `;
+    await prisma.notification.updateMany({
+      where: {
+        userId: userId,
+        isRead: false
+      },
+      data: {
+        isRead: true
+      }
+    });
   }
 
-  /**
-   * Send a notification directly to a specific user
-   */
+  // Send notification to just one person (bypasses team lookup)
   static async notifyUserDirectly(
     userId: number,
     projectId: string,
