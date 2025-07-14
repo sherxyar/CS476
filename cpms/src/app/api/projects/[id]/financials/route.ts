@@ -11,6 +11,7 @@ export async function GET(
   const { id } = await params;
 
   try {
+    console.time("fetchFinancials");
     const project = await prisma.project.findUnique({
       where: { id },
       select: {
@@ -25,7 +26,8 @@ export async function GET(
         },
       },
     });
-
+    console.timeEnd("fetchFinancials");
+    
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
