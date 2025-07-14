@@ -31,7 +31,7 @@ jest.mock("@/lib/mailer", () => ({
     sendEmail: jest.fn().mockResolvedValue(true),
 }));
 
-describe("Login API Route - Robustness Test", () => {
+describe("Login API Route - Correctness Test", () => {
     const createMockLogin = (email?: string, password?: string) => {
         const { req } = createMocks({
             method: "POST",

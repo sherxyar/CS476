@@ -22,7 +22,7 @@ const createdMock = prisma.user.create as jest.Mock;
 
 beforeEach(() => { jest.clearAllMocks(); });
 
-describe("Signup API Route - Correctness Test", () => {
+describe("Signup API Route - Robustness Test", () => {
     it("return status code 400 if name not found - CONTRIBUTOR", async () => {
         const { req } = createMocks({
             method: "POST",
