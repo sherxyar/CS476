@@ -1,4 +1,4 @@
-import { ChangeLog } from './base-changelog';
+import { ChangeLog, ChangeLogData } from './base-changelog';
 import { 
   FinancialChangeLog, 
   ScheduleChangeLog, 
@@ -10,22 +10,7 @@ import {
 // Pattern Factory for creating change log 
 export class ChangeLogFactory {
 
-  static createChangeLog(data: {
-    projectId: string;
-    changeType: string;
-    category: string;
-    description: string;
-    impactArea: string;
-    oldValue?: string;
-    newValue?: string;
-    justification: string;
-    requestedById: number;
-    approvedById?: number | null;
-    status: string;
-    priority: string;
-    estimatedImpact?: string;
-    date?: Date;
-  }): ChangeLog {
+  static createChangeLog(data: ChangeLogData): ChangeLog {
     switch (data.changeType) {
       case 'Financial':
         return new FinancialChangeLog(data);
@@ -47,22 +32,7 @@ export class ChangeLogFactory {
 
 export class ChangeLogService {
 
-  static async processChangeLog(data: {
-    projectId: string;
-    changeType: string;
-    category: string;
-    description: string;
-    impactArea: string;
-    oldValue?: string;
-    newValue?: string;
-    justification: string;
-    requestedById: number;
-    approvedById?: number | null;
-    status: string;
-    priority: string;
-    estimatedImpact?: string;
-    date?: Date;
-  }): Promise<{ valid: boolean; changeLog: ChangeLog | null; error?: string }> {
+  static async processChangeLog(data: ChangeLogData): Promise<{ valid: boolean; changeLog: ChangeLog | null; error?: string }> {
     try {
       const changeLog = ChangeLogFactory.createChangeLog(data);
       
