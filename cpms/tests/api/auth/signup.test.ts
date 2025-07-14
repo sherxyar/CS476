@@ -15,14 +15,14 @@ jest.mock("@/lib/prisma", () => ({
 }));
 
 jest.mock("@/lib/auth", () => ({
-    hashPassword: jest.fn().mockResolvedValue("hashTest271"),
+    hashPassword: jest.fn().mockResolvedValue("h@shTest271"),
 }));
 
 const createdMock = prisma.user.create as jest.Mock;
 
 beforeEach(() => { jest.clearAllMocks(); });
 
-describe("Signup API Route Testing", () => {
+describe("Signup API Route - Correctness Test", () => {
     it("create user with valid input", async () => {
         createdMock.mockResolvedValueOnce({
             id: 1,
@@ -56,7 +56,7 @@ describe("Signup API Route Testing", () => {
             body: {
                 email: "ishansoni.work@gmail.com",
                 password: "Kn!f3Edge940",
-                accountRole: "PROJECT_MANAGER",
+                accountRole: "CONTRIBUTOR",
             },
         });
         req.json = async () => req.body;
@@ -76,7 +76,7 @@ describe("Signup API Route Testing", () => {
                 name: "Ishan",
                 email: "ishansoni.work@gmail.com",
                 password: "Kn!f3Edge940",
-                accountRole: "PROJECT_MANAGER",
+                accountRole: "CONTRIBUTOR",
             },
         });
         req.json = async () => req.body;
