@@ -1,7 +1,6 @@
 import { POST as assignMember } from "@/app/api/projects/[id]/members/route";
 import { createMocks } from "node-mocks-http";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
 jest.mock("next-auth", () => ({
     getServerSession: jest.fn(),

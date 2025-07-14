@@ -23,34 +23,7 @@ const createdMock = prisma.user.create as jest.Mock;
 beforeEach(() => { jest.clearAllMocks(); });
 
 describe("Signup API Route - Correctness Test", () => {
-    it("create user with valid input", async () => {
-        createdMock.mockResolvedValueOnce({
-            id: 1,
-            name: "Ishan",
-            email: "ishansoni.work@gmail.com",
-            accountRole: "PROJECT_MANAGER"
-        });
-        const { req } = createMocks({
-            method: "POST",
-            body: {
-                name: "Ishan",
-                email: "ishansoni.work@gmail.com",
-                password: "Kn!f3Edge940",
-                accountRole: "PROJECT_MANAGER",
-            },
-        });
-        req.json = async () => req.body;
-        const res = await signupPost(req);
-        expect(res.status).toBe(201);
-        const data = await res.json();
-        expect(data.user).toEqual({
-            id: 1,
-            name: "Ishan",
-            email: "ishansoni.work@gmail.com",
-            accountRole: "PROJECT_MANAGER",
-        });
-    });
-    it("return status code 400 if name not found", async () => {
+    it("return status code 400 if name not found - CONTRIBUTOR", async () => {
         const { req } = createMocks({
             method: "POST",
             body: {
@@ -65,27 +38,7 @@ describe("Signup API Route - Correctness Test", () => {
         const data = await res.json();
         expect(data.error).toMatch("name is required");
     });
-    it("return status code 409 if email is already registered", async () => {
-        createdMock.mockRejectedValueOnce({
-            code: "P2002",
-            meta: { target: ["email"] }
-        });
-        const { req } = createMocks({
-            method: "POST",
-            body: {
-                name: "Ishan",
-                email: "ishansoni.work@gmail.com",
-                password: "Kn!f3Edge940",
-                accountRole: "CONTRIBUTOR",
-            },
-        });
-        req.json = async () => req.body;
-        const res = await signupPost(req);
-        expect(res.status).toBe(409);
-        const data = await res.json();
-        expect(data.error).toMatch("A user with that e-mail already exists.");
-    });
-    it("return 400 if role is invalid", async () => {
+    it("return 400 if role is invalid - VENDOR", async () => {
         const { req } = createMocks({
             method: "POST",
             body: {

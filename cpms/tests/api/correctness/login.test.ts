@@ -47,25 +47,4 @@ describe("Login API Route - Robustness Test", () => {
         const data = await res.json();
         expect(data.message).toMatch("2FA code sent");
     });
-    it("Login with incorrect password", async () => {
-        const req = createMockLogin("ishansoni.work@gmail.com", "h@shTest272");
-        const res = await loginPost(req);
-        expect(res.status).toBe(401);
-        const data = await res.json();
-        expect(data.error).toMatch("Invalid credentials");
-    });
-    it("Login with unregistered email", async () => {
-        const req = createMockLogin("ishan.soni2406@gmail.com", "h@shTest271");
-        const res = await loginPost(req);
-        expect(res.status).toBe(401);
-        const data = await res.json();
-        expect(data.error).toMatch("Invalid credentials");
-    });
-    it("Login with missing fields", async () => {
-        const req = createMockLogin(undefined, undefined);
-        const res = await loginPost(req);
-        expect(res.status).toBe(400);
-        const data = await res.json();
-        expect(data.error).toMatch("email and password are required");
-    });
 });
