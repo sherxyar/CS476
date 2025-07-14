@@ -74,6 +74,9 @@ export async function POST(
     }
 
     try {
+      if (userId === session.user.id) {
+        return NextResponse.json({ error: "You cannot change your own role" }, { status: 403 });
+      }
       const membership = await prisma.projectMember.create({
         data: { projectId, userId, role },
         include: { user: true },
