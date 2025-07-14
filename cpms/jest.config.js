@@ -10,3 +10,5 @@ module.exports = {
         "^.+\\.tsx?$": "ts-jest"
     },
 };
+
+process.env.POSTGRES_URL="postgresql://postgres:admin1234@localhost:5432/mydb"

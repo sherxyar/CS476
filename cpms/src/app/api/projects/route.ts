@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth/next";
 
 export async function GET() {
   try {
+    console.time("fetchProjects");
     const projects = await prisma.project.findMany({
       orderBy: { dateCreated: "desc" },
       select: {
@@ -68,7 +69,7 @@ export async function GET() {
         },
       },
     });
-
+    console.timeEnd("fetchProjects");
     return NextResponse.json(projects);
   } catch (error) {
     console.error("Failed to fetch projects:", error);
