@@ -162,9 +162,11 @@ export async function DELETE(
     }
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
-
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+    if (parseInt(userId) === session.user.id && session.user.accountRole === "PROJECT_MANAGER") {
+      return NextResponse.json({ error: "Project Managers cannot remove themselves from a project" }, { status: 403 });
     }
 
     // Get user and project info before deletion
