@@ -1,4 +1,24 @@
 // Changelog for Pattern Implementation
+
+// Data structure for creating change logs
+export interface ChangeLogData {
+  projectId: string;
+  changeType: string;
+  category: string;
+  description: string;
+  impactArea: string;
+  justification: string;
+  requestedById: number;
+  oldValue?: string;
+  newValue?: string;
+  approvedById?: number | null;
+  status: string;
+  priority: string;
+  estimatedImpact?: string;
+  date?: Date;
+}
+
+// What all change logs need to be able to do
 export interface ChangeLog {
   projectId: string;
   changeType: string;
@@ -41,7 +61,7 @@ export abstract class BaseChangeLog implements ChangeLog {
   estimatedImpact?: string;
   date?: Date;
 
-  constructor(data: ChangeLog) {
+  constructor(data: ChangeLogData) {
     // Required fields
     this.projectId = data.projectId;
     this.changeType = data.changeType;
