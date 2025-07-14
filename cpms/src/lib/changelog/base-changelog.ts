@@ -14,11 +14,16 @@ export interface ChangeLog {
   priority: string;
   estimatedImpact?: string;
   date?: Date;
+  
+  // Methods that all change logs need
+  getImpactLevel(): string;
+  validate(): boolean;
+  createNotification(): Promise<void>;
 }
 
 console.log("TEST works");
 
-export abstract class BaseChangeLog {
+export abstract class BaseChangeLog implements ChangeLog {
   projectId: string;
   changeType: string;
   category: string;
