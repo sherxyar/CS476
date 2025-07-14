@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
-import type { Prisma } from '@prisma/client'; 
+import { NextRequest, NextResponse } from "next/server";
+import { AccountRole, type Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 // list projects - GET request
 
 
@@ -81,13 +82,25 @@ export async function GET() {
 // create a new project - POST reuquest
 export async function POST(req: Request) {
   // Check user role from session
-  const session = await getServerSession();
-  
+  let session = null;
+  if (process.env.NODE_ENV !== "test") {
+    session = await getServerSession(authOptions);
+  } else {
+    session = {
+      user: {
+        id: 1,
+        name: "Test User",
+        email: "ishansoni.work@gmail.com",
+        accountRole: "CONTRIBUTOR"
+      },
+    };
+  }
+
   // Prevent contributors from creating projects
   if (session?.user?.accountRole === "CONTRIBUTOR") {
     return NextResponse.json({ error: 'Contributors are not allowed to create projects' }, { status: 403 });
   }
-  
+
   const body = await req.json()
 
   if (!body.title) {

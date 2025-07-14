@@ -11,4 +11,5 @@ module.exports = {
     },
 };
 
-process.env.POSTGRES_URL="postgresql://postgres:admin1234@localhost:5432/mydb"
+process.env.POSTGRES_URL = "postgresql://postgres:admin1234@localhost:5432/mydb"
+process.env.NODE_ENV = "test"
