@@ -7,80 +7,60 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-/**
- * User Table
- */
+/// *
+///  * User Table
 model User {
-  id             Int         @id @default(autoincrement())
-  name           String
-  email          String      @unique
-  hashedPassword String
-  mfaCodes       Mfacode[]
-  accountRole    AccountRole
-
-  // relations
-  financialChanges FinancialHistoryEntry[] @relation("UserFinancialChanges")
-  notes            PMNote[]
-  auditLogs        AuditLog[]
-  tabRequests      TabAccessRequest[]      @relation("RequestUser")
-  approvedTabs     TabAccessRequest[]      @relation("ApproveUser")
-  memberships      ProjectMember[]         @relation("UserMembership")
-  managedProjects  Project[]               @relation("ProjectManager")
-  department       String?
-  lastActivity     DateTime?
-  addedMembers     ProjectMember[]         @relation("AddedMembers")
-  requestedChanges ChangeLog[]             @relation("RequestedChanges")
-  approvedChanges  ChangeLog[]             @relation("ApprovedChanges")
-  
-  // Notification system relations
-  notifications    Notification[]          @relation("UserNotifications")
-  triggeredNotifications Notification[]    @relation("TriggeredNotifications")
+  id                     Int                     @id @default(autoincrement())
+  name                   String
+  email                  String                  @unique
+  hashedPassword         String
+  accountRole            AccountRole
+  department             String?
+  lastActivity           DateTime?
+  approvedChanges        ChangeLog[]             @relation("ApprovedChanges")
+  requestedChanges       ChangeLog[]             @relation("RequestedChanges")
+  financialChanges       FinancialHistoryEntry[] @relation("UserFinancialChanges")
+  mfaCodes               Mfacode[]
+  triggeredNotifications Notification[]          @relation("TriggeredNotifications")
+  notifications          Notification[]          @relation("UserNotifications")
+  notes                  PMNote[]
+  managedProjects        Project[]               @relation("ProjectManager")
+  addedMembers           ProjectMember[]         @relation("AddedMembers")
+  memberships            ProjectMember[]         @relation("UserMembership")
+  approvedTabs           TabAccessRequest[]      @relation("ApproveUser")
+  tabRequests            TabAccessRequest[]      @relation("RequestUser")
+  auditLogs              AuditLog[]
 }
 
-/**
- * Main Projects Table
- */
-
 model Project {
-  id               String    @id @default(uuid())
-  projectID        String    @unique
+  id               String                  @id @default(uuid())
+  projectID        String                  @unique
   title            String
-  phase            String    @default("Planning")
+  phase            String                  @default("Planning")
   description      String
   forecast         Float
   actuals          Float
   budget           Float
   plannedStartDate DateTime
   plannedEndDate   DateTime
-  dateCreated      DateTime  @default(now())
+  dateCreated      DateTime                @default(now())
   lastUpdated      DateTime?
   status           String?
   projectManagerId Int?
-  projectManager   User?     @relation("ProjectManager", fields: [projectManagerId], references: [id])
-
-  members ProjectMember[]
-
-  /**
-   * relations
-   */
-  schedule         ProjectSchedule?        @relation("ProjectScheduleRelation")
+  changeLogs       ChangeLog[]
   financialHistory FinancialHistoryEntry[]
   Invoice          Invoice[]
+  lessonsLearned   LessonsLearned[]        @relation("ProjectLessons")
+  notifications    Notification[]          @relation("ProjectNotifications")
   pmNotesHistory   PMNote[]
-
-  // Delivery-tab relations
-  risks          RiskRegister[]   @relation("ProjectRisks")
-  lessonsLearned LessonsLearned[] @relation("ProjectLessons")
-
-  changeLogs ChangeLog[]
-  
-  // Notification system relations
-  notifications Notification[] @relation("ProjectNotifications")
+  projectManager   User?                   @relation("ProjectManager", fields: [projectManagerId], references: [id])
+  members          ProjectMember[]
+  schedule         ProjectSchedule?        @relation("ProjectScheduleRelation")
+  risks            RiskRegister[]          @relation("ProjectRisks")
 }
 
-/**
- * Not sure what this is? - Need to check with Dongho Kim
- */
+/// *
+///  * Not sure what this is? - Need to check with Dongho Kim
 model AuditLog {
   id         Int      @id @default(autoincrement())
   userId     Int?
@@ -90,52 +70,45 @@ model AuditLog {
   beforeData Json?
   afterData  Json?
   timestamp  DateTime @default(now())
-
-  user User? @relation(fields: [userId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id])
 
   @@map("audit_log")
 }
 
-/**
- * Notification System - Observer Pattern Implementation
- */
+/// *
+///  * Notification System - Observer Pattern Implementation
 model Notification {
-  id          String           @id @default(uuid())
-  userId      Int              // The PM who should receive this notification
-  projectId   String           // The project that was changed
-  title       String           // for notification
-  message     String           // change msg
-  type        NotificationType @default(PROJECT_UPDATE)
-  isRead      Boolean          @default(false)
-  createdAt   DateTime         @default(now())
-  triggeredBy Int?             // Who triggered this change - the user account
-
-  // Relations
-  user        User    @relation("UserNotifications", fields: [userId], references: [id])
-  project     Project @relation("ProjectNotifications", fields: [projectId], references: [id], onDelete: Cascade)
-  triggeredByUser User? @relation("TriggeredNotifications", fields: [triggeredBy], references: [id])
+  id              String           @id @default(uuid())
+  userId          Int
+  projectId       String
+  title           String
+  message         String
+  type            NotificationType @default(PROJECT_UPDATE)
+  isRead          Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  triggeredBy     Int?
+  project         Project          @relation("ProjectNotifications", fields: [projectId], references: [id], onDelete: Cascade)
+  triggeredByUser User?            @relation("TriggeredNotifications", fields: [triggeredBy], references: [id])
+  user            User             @relation("UserNotifications", fields: [userId], references: [id])
 
   @@index([userId, isRead])
   @@index([projectId])
 }
 
-/**
- * General Tab: PM Notes
- */
+/// *
+///  * General Tab: PM Notes
 model PMNote {
   id        Int      @id @default(autoincrement())
   note      String
   createdAt DateTime @default(now())
   projectId String
   userId    Int?
-
-  project Project @relation(fields: [projectId], references: [id])
-  author  User?   @relation(fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+  author    User?    @relation(fields: [userId], references: [id])
 }
 
-/**
- * FinancialsTab: Change History
- */
+/// *
+///  * FinancialsTab: Change History
 model FinancialHistoryEntry {
   id        Int      @id @default(autoincrement())
   projectId String
@@ -145,14 +118,12 @@ model FinancialHistoryEntry {
   reason    String?
   changedAt DateTime @default(now())
   userId    Int?
-
-  project   Project @relation(fields: [projectId], references: [id])
-  changedBy User?   @relation("UserFinancialChanges", fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+  changedBy User?    @relation("UserFinancialChanges", fields: [userId], references: [id])
 }
 
-/**
- * FinancialsTab: Invoices
- */
+/// *
+///  * FinancialsTab: Invoices
 model Invoice {
   id            Int           @id @default(autoincrement())
   projectId     String
@@ -163,55 +134,44 @@ model Invoice {
   vendor        String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime
-
-  Project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
-enum InvoiceStatus {
-  PAID
-  NOT_PAID
-}
-
-/**
- * Not sure what this is? - Need to check with Dongho Kim
- */
+/// *
+///  * Not sure what this is? - Need to check with Dongho Kim
 model TabAccessRequest {
   id          Int       @id @default(autoincrement())
   userId      Int
   approvedBy  Int?
-  status      String    @default("Pending") // Pending, Approved, Rejected
+  status      String    @default("Pending")
   requestedAt DateTime  @default(now())
   approvedAt  DateTime?
-
-  user     User  @relation("RequestUser", fields: [userId], references: [id])
-  approver User? @relation("ApproveUser", fields: [approvedBy], references: [id])
+  approver    User?     @relation("ApproveUser", fields: [approvedBy], references: [id])
+  user        User      @relation("RequestUser", fields: [userId], references: [id])
 }
 
-/**
- * Schedule tab
- */
+/// *
+///  * Schedule tab
 model Milestone {
-  id          Int      @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   title       String
   description String
   startDate   DateTime
   endDate     DateTime
   status      String
   scheduleId  Int
-
-  schedule ProjectSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  schedule    ProjectSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 }
 
 model ProjectSchedule {
   id         Int         @id @default(autoincrement())
   projectId  String      @unique
-  project    Project     @relation("ProjectScheduleRelation", fields: [projectId], references: [id], onDelete: Cascade)
   milestones Milestone[]
+  project    Project     @relation("ProjectScheduleRelation", fields: [projectId], references: [id], onDelete: Cascade)
 }
 
-/**
- * Delivery tab: Risk Register
- */
+/// *
+///  * Delivery tab: Risk Register
 model RiskRegister {
   id                       Int       @id @default(autoincrement())
   riskID                   String?   @map("Risk ID")
@@ -224,19 +184,16 @@ model RiskRegister {
   currentScore             Int?      @map("Current Score")
   riskResponse             String?   @map("Risk Response")
   operationalOrProjectRisk String?   @map("Operational or Project Risk")
-
-  /**
-   * relation back to project
-   */
-  projectId String
-  project   Project @relation("ProjectRisks", fields: [projectId], references: [id], onDelete: Cascade)
+  /// *
+  ///    * relation back to project
+  projectId                String
+  project                  Project   @relation("ProjectRisks", fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
 }
 
-/**
- * Delivery tab: Lessons Learned
- */
+/// *
+///  * Delivery tab: Lessons Learned
 model LessonsLearned {
   id               Int     @id @default(autoincrement())
   topic            String?
@@ -245,23 +202,12 @@ model LessonsLearned {
   lessonsLearned   String? @map("Lessons Learned")
   bestPractice     String? @map("Best Practice")
   assignedTo       String? @map("Assigned To")
-
-  /**
-   * relation back to project
-   */
-  projectId String
-  project   Project @relation("ProjectLessons", fields: [projectId], references: [id], onDelete: Cascade)
+  /// *
+  ///    * relation back to project
+  projectId        String
+  project          Project @relation("ProjectLessons", fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
-}
-
-// Admin tab
-enum AccountRole {
-  ADMIN
-  PROJECT_MANAGER
-  COLLABORATOR
-
-  @@map("account_role")
 }
 
 model ProjectMember {
@@ -271,13 +217,9 @@ model ProjectMember {
   role      AccountRole
   createdAt DateTime    @default(now())
   addedById Int?
-
-  /**
-   * relations
-   */
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user    User    @relation("UserMembership", fields: [userId], references: [id])
-  addedBy User?   @relation("AddedMembers", fields: [addedById], references: [id])
+  addedBy   User?       @relation("AddedMembers", fields: [addedById], references: [id])
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User        @relation("UserMembership", fields: [userId], references: [id])
 
   @@unique([projectId, userId])
 }
@@ -292,38 +234,45 @@ model Mfacode {
 
 /// ─── Change-Log model 
 model ChangeLog {
-  id   String   @id @default(uuid())
-  date DateTime @default(now())
-
-  changeType    ChangeType
-  category      ChangeCategory
-  description   String
-  impactArea    String
-  oldValue      String?
-  newValue      String?
-  justification String
-
+  id              String         @id @default(uuid())
+  date            DateTime       @default(now())
+  changeType      ChangeType
+  category        ChangeCategory
+  description     String
+  impactArea      String
+  oldValue        String?
+  newValue        String?
+  justification   String
   /// who asked for it
-  requestedById Int
-  requestedBy   User @relation("RequestedChanges", fields: [requestedById], references: [id])
-
+  requestedById   Int
   /// who approved / rejected it
-  approvedById Int?
-  approvedBy   User? @relation("ApprovedChanges", fields: [approvedById], references: [id])
-
+  approvedById    Int?
   status          ChangeStatus   @default(Pending)
   priority        ChangePriority @default(Medium)
   estimatedImpact String?
-
   /// link back to project
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  projectId       String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  approvedBy      User?          @relation("ApprovedChanges", fields: [approvedById], references: [id])
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requestedBy     User           @relation("RequestedChanges", fields: [requestedById], references: [id])
 
   @@index([projectId])
   @@index([requestedById])
+}
+
+enum InvoiceStatus {
+  PAID
+  NOT_PAID
+}
+
+enum AccountRole {
+  ADMIN
+  PROJECT_MANAGER
+  COLLABORATOR
+
+  @@map("account_role")
 }
 
 enum ChangeCategory {
