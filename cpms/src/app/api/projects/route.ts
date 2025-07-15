@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
-import { AccountRole, type Prisma } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { type Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 // list projects - GET request
