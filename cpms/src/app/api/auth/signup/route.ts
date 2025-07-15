@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
-import { Prisma } from "@prisma/client";
 
 // API accepts only these roles
 const ALLOWED_ROLES = ["ADMIN", "PROJECT_MANAGER", "COLLABORATOR"] as const;
@@ -14,8 +13,11 @@ interface SignupPayload {
   accountRole?: string;
 }
 
-interface UniqueConstraintMeta {
-  target?: string[]; // e.g. ["User_email_key"]
+interface PrismaError {
+  code: string;
+  meta?: {
+    target?: string[];
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -65,12 +67,13 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (err) {
+  } catch (err: unknown) {
     // check for identical email
     if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
-      err.code === "P2002" &&
-      (err.meta as UniqueConstraintMeta | undefined)?.target?.includes("email")
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as PrismaError).code === "P2002"
     ) {
       return NextResponse.json(
         { error: "A user with that e-mail already exists." },

@@ -27,9 +27,9 @@ function isAddMemberPayload(data: unknown): data is AddMemberPayload {
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> } 
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id: projectId } = await params;          
+  const { id: projectId } = await params;
 
   const memberships = await prisma.projectMember.findMany({
     where: { projectId },
@@ -64,6 +64,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+
     // Only admins and project managers can add members
     if (session.user.accountRole === 'COLLABORATOR') {
       return NextResponse.json({ error: 'Only admins and project managers can add members' }, { status: 403 });
@@ -79,6 +80,9 @@ export async function POST(
     }
 
     try {
+      if (userId === session.user.id) {
+        return NextResponse.json({ error: "You cannot change your own role" }, { status: 403 });
+      }
       const membership = await prisma.projectMember.create({
         data: { projectId, userId, role },
         include: { user: true },
@@ -145,7 +149,7 @@ export async function POST(
   } catch (error) {
     console.error('Error adding team member:', error);
     return NextResponse.json(
-      { error: 'Failed to add team member' }, 
+      { error: 'Failed to add team member' },
       { status: 500 }
     );
   }
@@ -173,9 +177,11 @@ export async function DELETE(
 
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
-
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+    if (parseInt(userId) === session.user.id && session.user.accountRole === "PROJECT_MANAGER") {
+      return NextResponse.json({ error: "Project Managers cannot remove themselves from a project" }, { status: 403 });
     }
 
     // Get user and project info before deletion
@@ -218,7 +224,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error removing team member:', error);
     return NextResponse.json(
-      { error: 'Failed to remove team member' }, 
+      { error: 'Failed to remove team member' },
       { status: 500 }
     );
   }

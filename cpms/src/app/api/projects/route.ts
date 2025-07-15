@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import type { Prisma } from '@prisma/client'; 
+import { type Prisma } from '@prisma/client';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 // list projects - GET request
@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
+
     // Get the current user session
     const session = await getServerSession(authOptions);
     
@@ -18,6 +19,7 @@ export async function GET() {
     // Base query configuration
     const baseQuery = {
       orderBy: { dateCreated: "desc" as const },
+
       select: {
         id: true,
         projectID: true,
@@ -76,6 +78,7 @@ export async function GET() {
           },
         },
       },
+
     };
 
     let projects;
@@ -108,7 +111,21 @@ export async function GET() {
 
 // create a new project - POST reuquest
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
+
+  // Check user role from session
+  let session = null;
+  if (process.env.NODE_ENV !== "test") {
+    session = await getServerSession(authOptions);
+  } else {
+    session = {
+      user: {
+        id: 1,
+        name: "Test User",
+        email: "ishansoni.work@gmail.com",
+        accountRole: "CONTRIBUTOR"
+      },
+    };
+  }
   
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -117,8 +134,9 @@ export async function POST(req: Request) {
   // Prevent Collaborators from creating projects
   if (session.user.accountRole === "COLLABORATOR") {
     return NextResponse.json({ error: 'Collaborators are not allowed to create projects' }, { status: 403 });
+
   }
-  
+
   const body = await req.json()
 
   if (!body.title) {

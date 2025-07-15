@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/auth.module.css";
 import { Building2, Loader2 } from "lucide-react";
@@ -13,7 +13,6 @@ export default function LoginPage() {
     const submitHandler = async () => {
         setError("");
         setLoading(true);
-        const password = form.password;
         
         try {
             const req = await fetch("/api/auth/login", {
