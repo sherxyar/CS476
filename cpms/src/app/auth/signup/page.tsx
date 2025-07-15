@@ -1,17 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/auth.module.css";
 import { Building2, Loader2 } from "lucide-react";
 
+type AccountRole = "PROJECT_MANAGER" | "COLLABORATOR";
+
+interface SignupForm {
+    name: string;
+    email: string;
+    password: string;
+    accountRole: AccountRole;
+}
+
+interface ApiResponse {
+    error?: string;
+    success?: boolean;
+    message?: string;
+}
+
 export default function SignupPage() {
-    const [form, setForm] = useState({ name: "", email: "", password: "", accountRole: "PROJECT_MANAGER" });
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [form, setForm] = useState<SignupForm>({ 
+        name: "", 
+        email: "", 
+        password: "", 
+        accountRole: "PROJECT_MANAGER" 
+    });
+    const [error, setError] = useState<string>("");
+    const [success, setSuccess] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
-    const submitHandler = async () => {
+    const submitHandler = async (): Promise<void> => {
         const password = form.password;
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
         if (!passwordRegex.test(password)) {
@@ -29,7 +49,7 @@ export default function SignupPage() {
                 body: JSON.stringify(form)
             });
             
-            const data = await req.json();
+            const data: ApiResponse = await req.json();
             if (req.ok) {
                 setSuccess("User successfully signed up!")
                 setError("");
@@ -39,7 +59,7 @@ export default function SignupPage() {
                 setSuccess("");
                 setLoading(false);
             }
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Signup error:", err);
             setError("An unexpected error occurred. Please try again.");
             setLoading(false);
@@ -55,12 +75,15 @@ export default function SignupPage() {
                     </div>
                     <h2 className={styles.heading}>Sign Up</h2>
                     <p className={styles.subheading}>Build Better with InfraPro.</p>
-                    <form className={styles.form} onSubmit={(e) => { e.preventDefault(); submitHandler(); }}>
+                    <form className={styles.form} onSubmit={(e: FormEvent<HTMLFormElement>) => { 
+                        e.preventDefault(); 
+                        submitHandler(); 
+                    }}>
                         <label className={styles.label}>Name</label>
                         <input 
                             type="text" 
                             value={form.name} 
-                            onChange={e => setForm({ ...form, name: e.target.value })} 
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, name: e.target.value })} 
                             className={styles.input} 
                             required 
                             disabled={loading}
@@ -69,7 +92,7 @@ export default function SignupPage() {
                         <input 
                             type="email" 
                             value={form.email} 
-                            onChange={e => setForm({ ...form, email: e.target.value })} 
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, email: e.target.value })} 
                             className={styles.input} 
                             required 
                             disabled={loading}
@@ -78,7 +101,7 @@ export default function SignupPage() {
                         <input 
                             type="password" 
                             value={form.password} 
-                            onChange={e => setForm({ ...form, password: e.target.value })} 
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, password: e.target.value })} 
                             className={styles.input} 
                             required 
                             disabled={loading}
@@ -86,7 +109,10 @@ export default function SignupPage() {
                         <label className={styles.label}>Account Role</label>
                         <select 
                             value={form.accountRole} 
-                            onChange={e => setForm({ ...form, accountRole: e.target.value })} 
+                            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm({ 
+                                ...form, 
+                                accountRole: e.target.value as AccountRole 
+                            })} 
                             className={styles.select} 
                             required
                             disabled={loading}
