@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { checkProjectAccess } from "@/lib/project-access";
 import { NotificationObserver } from "@/lib/notification-observer";
 
 type Context = { params: Promise<{ id: string }> };
@@ -11,6 +10,13 @@ export async function GET(_req: NextRequest, { params }: Context) {
   const { id } = await params;               
 
   try {
+    // Check if user has access to this project
+    const { hasAccess } = await checkProjectAccess(id);
+    
+    if (!hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
@@ -60,8 +66,13 @@ export async function PATCH(req: NextRequest, { params }: Context) {
 
   if (body.title !== undefined || body.description !== undefined || body.projectManagerId !== undefined) {
     try {
-      // Get current user session for notifs
-      const session = await getServerSession(authOptions);
+      // Check if user has access to this project
+      const { hasAccess, session } = await checkProjectAccess(id);
+      
+      if (!hasAccess) {
+        return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      }
+
       const triggeredBy = session?.user?.id;
 
       interface ProjectUpdateData {
@@ -180,8 +191,13 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   const numericField = field as NumericField;
 
   try {
-    // Get current user session for notification purposes
-    const session = await getServerSession(authOptions);
+    // Check if user has access to this project and get session for notification purposes
+    const { hasAccess, session } = await checkProjectAccess(id);
+    
+    if (!hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     const triggeredBy = session?.user?.id;
 
     const current = await prisma.project.findUnique({

@@ -8,9 +8,18 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
-    console.time("fetchProjects");
-    const projects = await prisma.project.findMany({
-      orderBy: { dateCreated: "desc" },
+
+    // Get the current user session
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Base query configuration
+    const baseQuery = {
+      orderBy: { dateCreated: "desc" as const },
+
       select: {
         id: true,
         projectID: true,
@@ -34,7 +43,7 @@ export async function GET() {
           },
         },
         pmNotesHistory: {
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: "desc" as const },
           select: {
             id: true,
             note: true,
@@ -50,7 +59,7 @@ export async function GET() {
           },
         },
         financialHistory: {
-          orderBy: { changedAt: "desc" },
+          orderBy: { changedAt: "desc" as const },
           select: {
             id: true,
             field: true,
@@ -69,8 +78,29 @@ export async function GET() {
           },
         },
       },
-    });
-    console.timeEnd("fetchProjects");
+
+    };
+
+    let projects;
+
+    // Filter projects based on user role
+    if (session.user.accountRole === 'COLLABORATOR') {
+      // Collaborators can only see projects they are members of
+      projects = await prisma.project.findMany({
+        ...baseQuery,
+        where: {
+          members: {
+            some: {
+              userId: session.user.id
+            }
+          }
+        }
+      });
+    } else {
+      // Admins and Project Managers can see all projects
+      projects = await prisma.project.findMany(baseQuery);
+    }
+
     return NextResponse.json(projects);
   } catch (error) {
     console.error("Failed to fetch projects:", error);
@@ -81,6 +111,7 @@ export async function GET() {
 
 // create a new project - POST reuquest
 export async function POST(req: Request) {
+
   // Check user role from session
   let session = null;
   if (process.env.NODE_ENV !== "test") {
@@ -96,9 +127,17 @@ export async function POST(req: Request) {
     };
   }
 
-  // Prevent contributors from creating projects
-  if (session?.user?.accountRole === "CONTRIBUTOR") {
-    return NextResponse.json({ error: 'Contributors are not allowed to create projects' }, { status: 403 });
+
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  // Prevent Collaborators from creating projects
+  if (session.user.accountRole === "COLLABORATOR") {
+    return NextResponse.json({ error: 'Collaborators are not allowed to create projects' }, { status: 403 });
+
   }
 
   const body = await req.json()

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { checkProjectAccess } from '@/lib/project-access';
 import { NotificationObserver } from '@/lib/notification-observer';
 
 // THIS FILE IS NOT PROPERLY DEVELOPED YET
 
 
-const ROLES = ["ADMIN", "PROJECT_MANAGER", "CONTRIBUTOR"] as const;
+const ROLES = ["ADMIN", "PROJECT_MANAGER", "COLLABORATOR"] as const;
 type DbRole = (typeof ROLES)[number];
 
 interface AddMemberPayload {
@@ -57,13 +56,20 @@ export async function POST(
 ) {
   try {
     const { id: projectId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    
+    // Check if user has access to this project (only admins/PMs can add members)
+    const { hasAccess, session } = await checkProjectAccess(projectId);
+    
+    if (!hasAccess || !session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (session.user.accountRole === "CONTRIBUTOR") {
-      return NextResponse.json({ error: "Contributors cannot assign members to projects" }, { status: 403 });
+
+
+    // Only admins and project managers can add members
+    if (session.user.accountRole === 'COLLABORATOR') {
+      return NextResponse.json({ error: 'Only admins and project managers can add members' }, { status: 403 });
     }
+
     const { userId, role } = await request.json();
 
     if (!isAddMemberPayload({ userId, role })) {
@@ -156,10 +162,19 @@ export async function DELETE(
 ) {
   try {
     const { id: projectId } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    
+    // Check if user has access to this project (only admins/PMs can remove members)
+    const { hasAccess, session } = await checkProjectAccess(projectId);
+    
+    if (!hasAccess || !session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Only admins and project managers can remove members
+    if (session.user.accountRole === 'COLLABORATOR') {
+      return NextResponse.json({ error: 'Only admins and project managers can remove members' }, { status: 403 });
+    }
+
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
     if (!userId) {

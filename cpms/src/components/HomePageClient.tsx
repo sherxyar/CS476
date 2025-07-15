@@ -29,8 +29,8 @@ export default function HomePageClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: session } = useSession();
 
-  // Check if user is a contributor
-  const isContributor = session?.user?.accountRole === "CONTRIBUTOR";
+  // Check if user is a collaborator
+  const isCollaborator = session?.user?.accountRole === "COLLABORATOR";
 
   // FETCH
   useEffect(() => {
@@ -164,7 +164,7 @@ export default function HomePageClient() {
             </li>
           </ul>
 
-          {!isContributor && (
+          {!isCollaborator && (
             <button className={styles.create} onClick={() => setIsCreateOpen(true)}>
               + Create Project
             </button>
@@ -277,7 +277,7 @@ export default function HomePageClient() {
         />
       )}
 
-      {!isContributor && (
+      {!isCollaborator && (
         <CreateProjectModal
           isOpen={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}

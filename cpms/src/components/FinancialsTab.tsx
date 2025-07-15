@@ -53,7 +53,7 @@ export default function FinancialsTab({ project }: Props) {
   const { data: session, status } = useSession();
   const [isSessionLoaded, setIsSessionLoaded] = useState(false);
 
-  const [isContributor, setIsContributor] = useState(false);
+  const [isCollaborator, setIsCollaborator] = useState(false);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   useEffect(() => {
@@ -68,20 +68,20 @@ export default function FinancialsTab({ project }: Props) {
         // User has no role defined
         console.error("User has no role defined in session");
         setIsUnauthorized(true);
-        setIsContributor(false);
+        setIsCollaborator(false);
       } else {
-        // Set contributor status based on role (CONTRIBUTOR == Contributor in UI terms)
-        const isContributor = session.user.accountRole === "CONTRIBUTOR";
-        setIsContributor(isContributor);
+        // Set Collaborator status based on role (COLLABORATOR == Collaborator in UI terms)
+        const isCollaborator = session.user.accountRole === "COLLABORATOR";
+        setIsCollaborator(isCollaborator);
         setIsUnauthorized(false);
 
-        console.log("User is contributor:", isContributor);
+        console.log("User is Collaborator:", isCollaborator);
         console.log("Full session details:", JSON.stringify(session, null, 2));
       }
     } else if (status === "unauthenticated") {
       // Handle unauthenticated state
       setIsSessionLoaded(true);
-      setIsContributor(false);
+      setIsCollaborator(false);
       setIsUnauthorized(true);
       console.log("User is not authenticated");
     } else {
@@ -163,7 +163,7 @@ export default function FinancialsTab({ project }: Props) {
       return;
     }
 
-    // Only admins and contributors can add invoices
+    // Only admins and Collaborators can add invoices
     if (isUnauthorized) {
       toast.error("You don't have permission to add invoices.");
       return;
@@ -289,9 +289,9 @@ export default function FinancialsTab({ project }: Props) {
       return;
     }
 
-    // If user is a contributor, show toast notification and return
-    if (isContributor) {
-      toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+    // If user is a Collaborator, show toast notification and return
+    if (isCollaborator) {
+      toast.info("Collaborators can only add invoices. You cannot update Budget and Forecast values.");
       return;
     }
 
@@ -318,8 +318,8 @@ export default function FinancialsTab({ project }: Props) {
       return;
     }
 
-    if (isContributor) {
-      toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+    if (isCollaborator) {
+      toast.info("Collaborators can only add invoices. You cannot update Budget and Forecast values.");
       return;
     }
 
@@ -383,13 +383,13 @@ export default function FinancialsTab({ project }: Props) {
         <div className={`${styles.actualsHeader} ${financialStyles.updateButtonSpacing}`}>
           <label>Financial Summary</label>
           <button
-            className={`${styles.addInvoiceButton} ${(!isSessionLoaded || isContributor) ? financialStyles.disabledButton : ''}`}
+            className={`${styles.addInvoiceButton} ${(!isSessionLoaded || isCollaborator) ? financialStyles.disabledButton : ''}`}
             onClick={() => {
               if (!isSessionLoaded) {
                 return; 
               }
-              if (isContributor) {
-                toast.info("Contributors can only add invoices. You cannot update Budget and Forecast values.");
+              if (isCollaborator) {
+                toast.info("Collaborators can only add invoices. You cannot update Budget and Forecast values.");
                 return;
               }
               handleUpdateFieldChange(updateForm.field);
@@ -458,7 +458,7 @@ export default function FinancialsTab({ project }: Props) {
                   setShowActualsPopup(true);
                 }}
               >
-                {isContributor ? "Add Invoice" : "View Details"}
+                {isCollaborator ? "Add Invoice" : "View Details"}
               </button>
             </div>
             {/*  Budget-vs-Actuals progress bar  */}
@@ -515,14 +515,14 @@ export default function FinancialsTab({ project }: Props) {
             <div className={styles.actualsHeader}>
               <label>Financial History</label>
               <button
-                className={`${styles.viewDetailsButton} ${(!isSessionLoaded || isContributor || isUnauthorized) ? financialStyles.disabledButton : ''}`}
+                className={`${styles.viewDetailsButton} ${(!isSessionLoaded || isCollaborator || isUnauthorized) ? financialStyles.disabledButton : ''}`}
                 onClick={() => {
                   if (!isSessionLoaded) {
                     toast.info("Loading user session...");
                     return;
                   }
-                  if (isContributor) {
-                    toast.info("Contributors can only add invoices. You cannot view financial history.");
+                  if (isCollaborator) {
+                    toast.info("Collaborators can only add invoices. You cannot view financial history.");
                     return;
                   }
                   if (isUnauthorized) {
@@ -571,7 +571,7 @@ export default function FinancialsTab({ project }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.popupHeader}>
-              <h3>{isContributor ? "Add Invoice" : "Project Actuals"}</h3>
+              <h3>{isCollaborator ? "Add Invoice" : "Project Actuals"}</h3>
               <button
                 className={styles.popupCloseButton}
                 onClick={() => setShowActualsPopup(false)}
@@ -581,7 +581,7 @@ export default function FinancialsTab({ project }: Props) {
             </div>
 
             <div className={styles.popupContent}>
-              {!isContributor && !isUnauthorized && (
+              {!isCollaborator && !isUnauthorized && (
                 <div className={styles.actualsHeader}>
                   <label>Invoice Management</label>
                   <button
@@ -594,11 +594,11 @@ export default function FinancialsTab({ project }: Props) {
               )}
 
               {/*  Add-invoice form  */}
-              {(showAddInvoice || isContributor) && (
+              {(showAddInvoice || isCollaborator) && (
                 <div className={styles.invoiceForm}>
-                  {isContributor && (
-                    <div className={financialStyles.collaboratorMessage}>
-                      <p>As a Contributor, you can add new invoice data to the system.</p>
+                  {isCollaborator && (
+                    <div className={financialStyles.CollaboratorMessage}>
+                      <p>As a Collaborator, you can add new invoice data to the system.</p>
                     </div>
                   )}
                   <div className={styles.formRow}>
@@ -685,7 +685,7 @@ export default function FinancialsTab({ project }: Props) {
               )}
 
               {/*  Invoice table  */}
-              {!isContributor && (
+              {!isCollaborator && (
                 <div className={styles.tableContainer}>
                   <table className={styles.actualsTable}>
                     <thead>
@@ -794,7 +794,7 @@ export default function FinancialsTab({ project }: Props) {
       )}
 
       {/*  Update values popup  */}
-      {showUpdatePopup && isSessionLoaded && !isContributor && !isUnauthorized && (
+      {showUpdatePopup && isSessionLoaded && !isCollaborator && !isUnauthorized && (
         <div
           className={styles.popupOverlay}
           onClick={() => setShowUpdatePopup(false)}

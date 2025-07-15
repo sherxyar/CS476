@@ -2,6 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { NotificationObserver } from "@/lib/notification-observer";
+import { ChangeLogService, ChangeLogFactory } from "@/lib/changelog";
+import type { ChangeLog, ChangeType, ChangeCategory, ChangeStatus, ChangePriority } from "@prisma/client";
+
+// - Explicit interface; needed for next js 1`5
+interface ChangeLogWithRelations extends ChangeLog {
+  requestedBy: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  approvedBy: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+}
+
+// Define interface for the enhanced ChangeLog with impact level
+interface EnhancedChangeLog extends ChangeLogWithRelations {
+  impactLevel: string;
+}
 
 // Validation schema remains the same
 const ChangeSchema = z.object({
@@ -34,6 +55,34 @@ const ChangeSchema = z.object({
   estimatedImpact: z.string().trim().optional(),
 });
 
+function getImpactLevel(data: ChangeLogWithRelations): string {
+  try {
+    // Convert null values to undefined for the factory
+    const changeLogData = {
+      projectId: data.projectId,
+      changeType: data.changeType,
+      category: data.category,
+      description: data.description,
+      impactArea: data.impactArea,
+      oldValue: data.oldValue === null ? undefined : data.oldValue,
+      newValue: data.newValue === null ? undefined : data.newValue,
+      justification: data.justification,
+      requestedById: data.requestedById,
+      approvedById: data.approvedById,
+      status: data.status,
+      priority: data.priority,
+      estimatedImpact: data.estimatedImpact === null ? undefined : data.estimatedImpact,
+      date: data.date,
+    };
+
+    const changeLog = ChangeLogFactory.createChangeLog(changeLogData);
+    return changeLog.getImpactLevel();
+  } catch (error) {
+    console.error("Error calculating impact level:", error);
+    return "Unknown";
+  }
+}
+
 // GET
 export async function GET(
   _req: NextRequest,
@@ -50,7 +99,15 @@ export async function GET(
     },
   });
 
-  return NextResponse.json(changeLogs);
+  // Transform each change log to include impact level
+  const enrichedChangeLogs = changeLogs.map((log): EnhancedChangeLog => {
+    return {
+      ...log,
+      impactLevel: getImpactLevel(log as ChangeLogWithRelations)
+    };
+  });
+
+  return NextResponse.json(enrichedChangeLogs);
 }
 
 // POST
@@ -65,25 +122,37 @@ export async function POST(
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Invalid payload", details: parsed.error.flatten().fieldErrors },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
-  const {
-    requestedById,
-    approvedById,
-    date,
-    ...rest
-  } = parsed.data;
+  const { requestedById, approvedById, date, ...rest } = parsed.data;
 
   try {
+    // Process the change log using our factory
+    const result = await ChangeLogService.processChangeLog({
+      ...rest,
+      projectId: id,
+      date: date ? new Date(date) : undefined,
+      requestedById,
+      approvedById,
+    });
+
+    if (!result.valid) {
+      return NextResponse.json(
+        { error: result.error || "Invalid change log data" },
+        { status: 400 }
+      );
+    }
+
+    // Create the database record
     const created = await prisma.changeLog.create({
       data: {
         ...rest,
         date: date ? new Date(date) : undefined,
         requestedById,
         approvedById,
-        projectId: id, // Use the awaited id
+        projectId: id, 
       },
       include: {
         requestedBy: { select: { id: true, name: true, email: true } },
@@ -91,19 +160,13 @@ export async function POST(
       },
     });
 
-    // Send notification about the new change log
-    await NotificationObserver.notifyChangeLogCreated(
-      id,
-      created.description,
-      requestedById
-    );
 
     return NextResponse.json(created, { status: 201 });
   } catch (err) {
     console.error("Error creating ChangeLog:", err);
     return NextResponse.json(
       { error: "Failed to create ChangeLog entry." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
